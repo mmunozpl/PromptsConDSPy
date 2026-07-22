@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Capítulo 10. Cierre: práctica profesional con DSPy – Programación de prompts con DSPy</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./cap09.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-f7bd9765ec068e3aae6dba6073a1e2a9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No se han encontrado resultados",
+    "search-matching-documents-text": "documentos encontrados",
+    "search-copy-link-title": "Copiar el enlace en la búsqueda",
+    "search-hide-matches-text": "Ocultar resultados adicionales",
+    "search-more-match-text": "resultado adicional en este documento",
+    "search-more-matches-text": "resultados adicionales en este documento",
+    "search-clear-button-title": "Borrar",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancelar",
+    "search-submit-button-title": "Enviar",
+    "search-label": "Buscar"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./cap10.html">Capítulo 10. Cierre: práctica profesional con DSPy</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Buscar" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Programación de prompts con DSPy</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Alternar modo lector">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Buscar"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Inicio</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap01.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 1. Por qué programar prompts</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap02.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 2. Anatomía de un prompt y primer programa DSPy</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap03.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 3. Clasificación de intenciones en un SOC</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap04.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 4. Evaluación rigurosa de programas DSPy</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap05.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 5. Optimización de demostraciones</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap06.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 6. Optimización de instrucciones</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap07.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 7. Flujos complejos: RAG, agentes y herramientas en seguridad</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap08.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 8. DSPy en análisis de binarios: embeddings de código y razonamiento con LLM</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap09.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 9. DSPy para privacidad: detección, minimización y no fuga de datos</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap10.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Capítulo 10. Cierre: práctica profesional con DSPy</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">En esta página</h2>
+   
+  <ul>
+  <li><a href="#el-ciclo-de-vida-del-baseline-a-producción" id="toc-el-ciclo-de-vida-del-baseline-a-producción" class="nav-link active" data-scroll-target="#el-ciclo-de-vida-del-baseline-a-producción">El ciclo de vida: del <em>baseline</em> a producción</a></li>
+  <li><a href="#servir-caché-escala-y-gestión-del-coste" id="toc-servir-caché-escala-y-gestión-del-coste" class="nav-link" data-scroll-target="#servir-caché-escala-y-gestión-del-coste">Servir, caché, escala y gestión del coste</a></li>
+  <li><a href="#operaciones-monitorización-deriva-y-errores" id="toc-operaciones-monitorización-deriva-y-errores" class="nav-link" data-scroll-target="#operaciones-monitorización-deriva-y-errores">Operaciones: monitorización, deriva y errores</a></li>
+  <li><a href="#buenas-prácticas-pruebas-y-gestión-de-modelos" id="toc-buenas-prácticas-pruebas-y-gestión-de-modelos" class="nav-link" data-scroll-target="#buenas-prácticas-pruebas-y-gestión-de-modelos">Buenas prácticas, pruebas y gestión de modelos</a></li>
+  <li><a href="#gobernanza-privacidad-y-economía" id="toc-gobernanza-privacidad-y-economía" class="nav-link" data-scroll-target="#gobernanza-privacidad-y-economía">Gobernanza, privacidad y economía</a></li>
+  <li><a href="#un-caso-profesional-el-cambio-de-rol-y-la-lista-de-comprobación" id="toc-un-caso-profesional-el-cambio-de-rol-y-la-lista-de-comprobación" class="nav-link" data-scroll-target="#un-caso-profesional-el-cambio-de-rol-y-la-lista-de-comprobación">Un caso profesional, el cambio de rol y la lista de comprobación</a></li>
+  <li><a href="#despliegue-gradual-equipo-y-documentación" id="toc-despliegue-gradual-equipo-y-documentación" class="nav-link" data-scroll-target="#despliegue-gradual-equipo-y-documentación">Despliegue gradual, equipo y documentación</a></li>
+  <li><a href="#optimización-continua-y-el-futuro-del-método" id="toc-optimización-continua-y-el-futuro-del-método" class="nav-link" data-scroll-target="#optimización-continua-y-el-futuro-del-método">Optimización continua y el futuro del método</a></li>
+  <li><a href="#seguridad-del-sistema-objetivos-de-servicio-e-incidentes" id="toc-seguridad-del-sistema-objetivos-de-servicio-e-incidentes" class="nav-link" data-scroll-target="#seguridad-del-sistema-objetivos-de-servicio-e-incidentes">Seguridad del sistema, objetivos de servicio e incidentes</a></li>
+  <li><a href="#cuándo-no-usar-el-método-adopción-y-el-salto-de-capacidad" id="toc-cuándo-no-usar-el-método-adopción-y-el-salto-de-capacidad" class="nav-link" data-scroll-target="#cuándo-no-usar-el-método-adopción-y-el-salto-de-capacidad">Cuándo no usar el método, adopción y el salto de capacidad</a></li>
+  <li><a href="#la-trampa-de-la-demostración-la-transferencia-y-los-principios" id="toc-la-trampa-de-la-demostración-la-transferencia-y-los-principios" class="nav-link" data-scroll-target="#la-trampa-de-la-demostración-la-transferencia-y-los-principios">La trampa de la demostración, la transferencia y los principios</a></li>
+  <li><a href="#métricas-operativas-mantenimiento-y-madurez" id="toc-métricas-operativas-mantenimiento-y-madurez" class="nav-link" data-scroll-target="#métricas-operativas-mantenimiento-y-madurez">Métricas operativas, mantenimiento y madurez</a></li>
+  <li><a href="#señales-de-un-sistema-sano-y-su-vida-en-el-tiempo" id="toc-señales-de-un-sistema-sano-y-su-vida-en-el-tiempo" class="nav-link" data-scroll-target="#señales-de-un-sistema-sano-y-su-vida-en-el-tiempo">Señales de un sistema sano y su vida en el tiempo</a></li>
+  <li><a href="#cierre" id="toc-cierre" class="nav-link" data-scroll-target="#cierre">Cierre</a></li>
+  <li><a href="#lecturas-recomendadas" id="toc-lecturas-recomendadas" class="nav-link" data-scroll-target="#lecturas-recomendadas">Lecturas recomendadas</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Capítulo 10. Cierre: práctica profesional con DSPy</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Los capítulos anteriores construyeron las piezas: la teoría, la anatomía, la evaluación, los optimizadores, los flujos y el dominio diferencial de los binarios. Este cierra el libro con la mirada del profesional, que no busca el sistema más ingenioso sino el que funciona, se mantiene y resiste el contacto con la producción. Programar <em>prompts</em> solo paga si el resultado sobrevive al cambio de modelo, al escrutinio del coste y al paso del tiempo.</p>
+<p>El capítulo recorre el ciclo completo —del <em>baseline</em> a producción—, la reoptimización ante el cambio, las restricciones de coste, latencia y consistencia, y las buenas prácticas que DSPy hereda de la ingeniería de software y del aprendizaje automático clásico. No introduce técnicas nuevas: ordena las ya vistas en una disciplina de trabajo.</p>
+<section id="el-ciclo-de-vida-del-baseline-a-producción" class="level2">
+<h2 class="anchored" data-anchor-id="el-ciclo-de-vida-del-baseline-a-producción">El ciclo de vida: del <em>baseline</em> a producción</h2>
+<p>El ciclo profesional tiene una forma fija, repetida a lo largo del libro. Se declara el programa con firmas y módulos; se construye un conjunto de datos y una métrica honesta (capítulo&nbsp;4); se mide un <em>baseline</em> sin optimizar; se compila con el optimizador adecuado al presupuesto (capítulos&nbsp;5 y&nbsp;6); se evalúa sobre la prueba reservada; y se despliega el programa compilado, guardando su estado. Ninguno de esos pasos es opcional: saltarse la medición lleva al sobreajuste, y saltarse el <em>baseline</em> impide saber si la optimización aportó algo.</p>
+<p>La diferencia con la artesanía es que cada vuelta del ciclo es reproducible y auditable. El programa, los datos, la métrica y el estado compilado se versionan; una mejora se demuestra con cifras sobre datos reservados, no se afirma. Ese rigor convierte el desarrollo de sistemas de LM, hoy a menudo errático, en una disciplina de ingeniería con sus controles.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap10/fig_01.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;10.1.</strong> El ciclo profesional: declarar, reunir datos y métrica, medir un <em>baseline</em>, compilar, evaluar, desplegar y monitorizar. La deriva detectada en producción realimenta los datos y reabre el ciclo.</figcaption>
+</figure>
+</div>
+<p>La figura&nbsp;10.1 cierra el ciclo con un paso que la artesanía no tiene: la <em>monitorización</em> que, al detectar deriva, realimenta los datos y dispara una recompilación. El sistema no se entrega y se olvida; se opera, se vigila y se reajusta, y ese bucle de mantenimiento separa una demostración de un producto.</p>
+<section id="construir-el-conjunto-de-datos." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="construir-el-conjunto-de-datos.">Construir el conjunto de datos.</h5>
+<p>El conjunto de datos es el cimiento de todo el ciclo, y construirlo bien decide más que la elección del optimizador. Tres conjuntos cumplen papeles distintos (capítulo&nbsp;5): el de <em>entrenamiento</em> alimenta el arranque de demostraciones; el de <em>validación</em> guía la selección de candidatos; el de <em>prueba</em>, reservado e intocable, da la cifra final. Mezclar sus papeles —elegir el modelo mirando la prueba— invalida la medición, y es el error que arruina más proyectos.</p>
+<p>La recolección y el etiquetado son trabajo, no un trámite. Los ejemplos deben representar la distribución real de producción —no los casos fáciles que vienen a la mano—, cubrir las clases minoritarias que importan (capítulo&nbsp;4) y estar libres de duplicados que contaminen las particiones. En seguridad, donde los datos son sensibles y escasos, esta construcción es especialmente delicada: un conjunto sesgado hacia lo benigno enseña un sistema ciego a la amenaza.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> dspy</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ejemplos con sus entradas marcadas; particion estricta y deduplicada</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>datos <span class="op">=</span> [dspy.Example(mensaje<span class="op">=</span>m, categoria<span class="op">=</span>c).with_inputs(<span class="st">"mensaje"</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>         <span class="cf">for</span> m, c <span class="kw">in</span> corpus_etiquetado]</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>entreno, desarrollo, prueba <span class="op">=</span> particionar(deduplicar(datos), <span class="fl">0.6</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span>)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>El tamaño necesario es más modesto de lo temido (capítulo&nbsp;5): unas decenas a unos cientos de ejemplos bastan para arrancar y optimizar, porque DSPy no entrena pesos. El cuello de botella suele ser la validación —de ella sale la señal que elige—, de modo que, ante datos escasos, conviene gastarlos en validar antes que en entrenar. La calidad del conjunto, no su tamaño, es la que manda.</p>
+</section>
+<section id="la-métrica-como-contrato." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="la-métrica-como-contrato.">La métrica como contrato.</h5>
+<p>La métrica es la definición operativa de «funciona», y en producción se convierte en un contrato: el sistema perseguirá exactamente cuanto la métrica premia (capítulo&nbsp;6). Por eso elegirla es una decisión de producto, no un detalle técnico. Una métrica que mide la exactitud global sobre datos desequilibrados (capítulo&nbsp;4) optimiza un sistema que ignora la clase rara; una que pondera el coste de cada error según su impacto real alinea la optimización con lo verdaderamente importante para el negocio.</p>
+<p>El profesional escribe la métrica con la misma seriedad que el código. La valida —¿correlaciona con el juicio humano cuando hay un juez de modelo (capítulo&nbsp;4)?—, la documenta —¿qué premia, qué penaliza?— y la versiona, porque cambiarla cambia el sistema. Una métrica mal pensada produce un sistema que puntúa alto y decepciona en producción, el fallo más frustrante porque todo parecía correcto sobre el papel.</p>
+<p>En contextos de seguridad, la métrica incorpora además los costes asimétricos y los guardarraíles (capítulos&nbsp;6 y&nbsp;8): penalizar el falso negativo según el riesgo que deja pasar, el falso positivo según la fatiga que genera, y el incumplimiento de una restricción de seguridad como un fallo grave. La métrica deja de medir solo la calidad y pasa a codificar la política de la organización, que el optimizador hará cumplir.</p>
+</section>
+<section id="versionar-el-programa-compilado." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="versionar-el-programa-compilado.">Versionar el programa compilado.</h5>
+<p>El producto de una compilación —los <em>prompts</em> ajustados, las demostraciones seleccionadas, la configuración— es un artefacto que costó dinero y que define la conducta del sistema. Tratarlo como tal exige versionarlo, no regenerarlo en cada despliegue (capítulos&nbsp;5 y&nbsp;6). DSPy serializa ese estado a un fichero que se guarda junto al código, y se carga en producción sin repetir el gasto de la optimización.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>compilado.save(<span class="st">"artefactos/triaje_v3.json"</span>)   <span class="co"># prompts + demostraciones</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># en produccion: cargar el estado, sin recompilar</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>prod <span class="op">=</span> MiPrograma()</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>prod.load(<span class="st">"artefactos/triaje_v3.json"</span>)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Versionar el artefacto cierra el círculo de la reproducibilidad (sección&nbsp;10.4): el mismo código más el mismo estado compilado más el mismo modelo producen la misma conducta. Y permite el control de cambios que la ingeniería exige: comparar dos versiones del <em>prompt</em> compilado, revertir a la anterior si una regresa, y auditar qué cambió entre dos despliegues. El <em>prompt</em> entra así en el mismo régimen de gobernanza que el código.</p>
+<p>La práctica completa versiona los cuatro elementos juntos: el código del programa, el conjunto de datos, la métrica y el estado compilado, atados a la versión del modelo con que se produjeron. Solo ese conjunto es reproducible; versionar el código pero no el estado compilado, o el estado pero no la versión del modelo, deja agujeros por los que la reproducibilidad se escapa. La disciplina es completa o no es.</p>
+</section>
+<section id="reoptimización-ante-cambios-de-modelo-coste-o-datos." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="reoptimización-ante-cambios-de-modelo-coste-o-datos.">Reoptimización ante cambios de modelo, coste o datos.</h5>
+<p>La ventaja decisiva de declarar la conducta y compilarla aflora cuando algo cambia. Si aparece un modelo mejor o más barato, no se reescriben <em>prompts</em>: se recompila el mismo programa contra el modelo nuevo, y el optimizador adapta las instrucciones y demostraciones a sus rarezas. Si la política de datos cambia —un dato que ya no puede salir de casa—, se sustituye el modelo por API por un SLM local (capítulo&nbsp;8) y se recompila. La conducta declarada permanece; su realización se reajusta.</p>
+<p>Esto cierra el bucle del capítulo&nbsp;1: el sistema es autoajustable no solo una vez, sino cada vez que el entorno se mueve. Frente a una cadena artesanal, que al cambiar de modelo hay que rehacer a mano y volver a validar a ojo, el programa declarativo se reoptimiza con un comando y se vuelve a medir con el mismo aparato. La portabilidad deja de ser una promesa y se vuelve una operación rutinaria.</p>
+</section>
+</section>
+<section id="servir-caché-escala-y-gestión-del-coste" class="level2">
+<h2 class="anchored" data-anchor-id="servir-caché-escala-y-gestión-del-coste">Servir, caché, escala y gestión del coste</h2>
+<p>Desplegar un programa de DSPy es servir un objeto que recibe entradas y devuelve salidas, detrás de la interfaz que la aplicación exija —una API, un trabajo por lotes, un servicio—. La pieza que conviene aislar es la configuración del modelo: la abstracción <code>LM</code> (capítulo&nbsp;2) desacopla el programa del proveedor concreto, de modo que el mismo código corre con un modelo por API o con uno local sin cambiar (sección&nbsp;10.1).</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> dspy</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># configurar el modelo de produccion una sola vez, al arranque del servicio</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>dspy.configure(lm<span class="op">=</span>dspy.LM(<span class="st">"openai/gpt-4o-mini"</span>, temperature<span class="op">=</span><span class="fl">0.0</span>, cache<span class="op">=</span><span class="va">True</span>))</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>prod <span class="op">=</span> MiPrograma()</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>prod.load(<span class="st">"artefactos/triaje_v3.json"</span>)   <span class="co"># estado compilado versionado</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> manejar(peticion):                   <span class="co"># punto de entrada del servicio</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> prod(mensaje<span class="op">=</span>peticion.texto)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>La temperatura a cero y la caché activadas en el arranque dan consistencia y ahorro desde el primer momento (sección&nbsp;10.2). El estado compilado se carga una vez, no por petición, y el programa queda listo para atender. Esta sencillez es deliberada: como la conducta vive en el artefacto versionado y no en código disperso, servir es cargar y llamar, sin la maraña de <em>prompts</em> incrustados que caracteriza a los sistemas artesanales.</p>
+<p>El despliegue hereda, además, toda la disciplina del libro. El artefacto que se sirve es el que se midió sobre la prueba (sección&nbsp;10.1); la versión del modelo está fijada (sección&nbsp;10.1); y el servicio registra sus llamadas para la observabilidad (sección&nbsp;10.3). Servir no es un acto aparte, sino el último paso de un ciclo que ya garantizó la calidad del artefacto desplegado.</p>
+<section id="la-caché-en-producción." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="la-caché-en-producción.">La caché en producción.</h5>
+<p>La caché es la palanca de eficiencia más rentable de un sistema en producción. Memoizar las respuestas del modelo con una clave que combina el modelo, sus parámetros y el <em>prompt</em> exacto (capítulo&nbsp;5) evita repagar llamadas idénticas, y en cargas reales —donde muchas consultas se repiten o comparten subcálculos— el ahorro es grande. DSPy la trae integrada; activarla es, a menudo, la primera optimización de coste antes que cualquier otra.</p>
+<p>El matiz en producción es la <em>política</em> de la caché. Una caché en memoria acelera dentro de un proceso pero no se comparte entre instancias; una caché persistente —en disco o en un almacén externo— se comparte y sobrevive a los reinicios, a cambio de gestionarla. Para un servicio escalado a varias réplicas, una caché compartida multiplica el ahorro, porque una respuesta calculada por una réplica sirve a todas. La elección depende de la arquitectura del despliegue y del patrón de repetición de las consultas.</p>
+<p>Hay una cautela de frescura. Una caché demasiado agresiva puede servir una respuesta obsoleta si el conocimiento subyacente cambió —un índice actualizado, un modelo nuevo (sección&nbsp;10.1)—, de modo que la clave de la caché debe incluir cuanto de verdad determina la respuesta, y conviene invalidarla cuando ese contexto cambia. La caché acelera lo idéntico; asegurarse de que «lo idéntico» sigue siendo válido es responsabilidad del diseño.</p>
+</section>
+<section id="escala-concurrencia-y-límites-de-tasa." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="escala-concurrencia-y-límites-de-tasa.">Escala, concurrencia y límites de tasa.</h5>
+<p>Atender volumen exige concurrencia, y la concurrencia choca con los límites de tasa del proveedor del modelo. DSPy ejecuta peticiones en paralelo (capítulo&nbsp;7), pero pasado cierto número de llamadas por segundo el proveedor las encola o las rechaza, y un sistema que ignora ese techo falla bajo carga. Ajustar la concurrencia al límite real, con reintentos y espera ante el rechazo, es parte del diseño de un servicio robusto.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># procesar un lote con concurrencia acotada al limite del proveedor</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>ejecutor <span class="op">=</span> dspy.Parallel(num_threads<span class="op">=</span><span class="dv">16</span>, max_errors<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>resultados <span class="op">=</span> ejecutor(prod, lote_de_peticiones)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Las palancas de escala se combinan. La caché (sección&nbsp;10.2) reduce las llamadas reales; el paralelismo aprovecha el presupuesto de tasa disponible; los reintentos con retroceso exponencial absorben los rechazos transitorios; y un modelo local autoalojado (sección&nbsp;10.4) elimina el límite de tasa externo a cambio de gestionar la infraestructura. La arquitectura sensata mezcla estas piezas según el volumen y el presupuesto.</p>
+<p>El principio rector es dimensionar para la carga real, no para la imaginada. Medir el volumen esperado, el patrón de picos y la latencia tolerable (sección&nbsp;10.2) precede al diseño de la concurrencia, igual que la medición precede a la optimización en todo el libro. Un servicio sobredimensionado desperdicia; uno infradimensionado cae bajo el primer pico, y solo la medición evita ambos.</p>
+</section>
+<section id="la-gestión-del-coste." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="la-gestión-del-coste.">La gestión del coste.</h5>
+<p>El coste de un sistema de LM es real y crece con el volumen, y gestionarlo es una responsabilidad profesional, no una ocurrencia tardía. Se descompone en dos partidas (capítulos&nbsp;5 y&nbsp;7): el coste de <em>compilación</em> —pagado una vez, al optimizar— y el de <em>inferencia</em> —pagado por cada consulta en producción—. El primero se amortiza; el segundo escala con el uso, y suele dominar la factura a largo plazo.</p>
+<p>Las palancas para contenerlo recorren el libro. Un modelo más barato donde baste (capítulo&nbsp;7), menos demostraciones si la calidad lo permite (capítulo&nbsp;5), una caché agresiva (sección&nbsp;10.2), una instrucción concisa que no malgaste contexto (capítulo&nbsp;6), y la criba barata antes del análisis caro (capítulo&nbsp;7). Cada una se evalúa por su efecto en la factura frente a su efecto en la calidad, que es el canje central de todo el capítulo.</p>
+<p>La disciplina es estimar antes y vigilar después. Estimar la factura —llamadas esperadas por su coste medio— antes de desplegar evita sorpresas; vigilar el coste real en producción (sección&nbsp;10.3) detecta una deriva del gasto —un agente que delibera de más, una caché que dejó de acertar— antes de que se vuelva un problema. El coste es un eje de diseño de primera clase, junto a la calidad y la latencia, y tratarlo como tal distingue al profesional del aficionado.</p>
+</section>
+<section id="coste-latencia-y-consistencia." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="coste-latencia-y-consistencia.">Coste, latencia y consistencia.</h5>
+<p>En producción, la calidad no es el único eje. El <strong>coste</strong> por llamada, multiplicado por el volumen, fija un presupuesto que el diseño respeta —un modelo más barato, menos demostraciones, una caché agresiva—. La <strong>latencia</strong> condiciona la experiencia: un flujo de varios pasos suma esperas, y a veces conviene un solo paso peor a varios mejores. La <strong>consistencia</strong> (capítulo&nbsp;4) importa donde la misma entrada debe dar la misma salida —una decisión auditable—, y se logra con temperatura cero y caché.</p>
+<p>Estas tres restricciones se negocian, no se ignoran. Un sistema que maximiza la calidad sin mirar el coste es tan poco profesional como uno barato que falla. La elección del modelo, del optimizador y del número de demostraciones es, en el fondo, la búsqueda de un punto en ese espacio de compromisos, y el frente de Pareto de GEPA (capítulo&nbsp;6) lo hace explícito: no hay un óptimo único, sino una frontera de soluciones que equilibran los ejes de distinta manera. La tabla&nbsp;10.1 resume los tres ejes.</p>
+<table class="caption-top table">
+<caption>En producción la calidad no es el único eje. Estas tres restricciones se negocian, no se ignoran; el frente de Pareto de GEPA (capítulo&nbsp;6) las hace explícitas.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Eje</th>
+<th style="text-align: left;">Se controla con</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Coste</td>
+<td style="text-align: left;">modelo más barato, menos demostraciones, caché</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Latencia</td>
+<td style="text-align: left;">menos pasos, paralelismo</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Consistencia</td>
+<td style="text-align: left;">temperatura cero y caché</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="operaciones-monitorización-deriva-y-errores" class="level2">
+<h2 class="anchored" data-anchor-id="operaciones-monitorización-deriva-y-errores">Operaciones: monitorización, deriva y errores</h2>
+<p>Desplegar no es el final, sino el comienzo de la operación, y operar exige <em>monitorizar</em>. Tres magnitudes se vigilan de continuo (sección&nbsp;10.2): la <em>calidad</em>, contra una muestra etiquetada reciente; el <em>coste</em>, por consulta y agregado; y la <em>latencia</em>, en su distribución, no solo en su media —un percentil alto delata las peticiones lentas que la media oculta—. Un sistema sin estas señales es una caja negra que se descubre rota cuando un usuario se queja, demasiado tarde.</p>
+<p>La vigilancia de la calidad es la más sutil, porque la verdad —la etiqueta correcta— no está disponible en producción. Se aproxima de varias formas: medir sobre una muestra que se etiqueta a posteriori, usar un juez de modelo (capítulo&nbsp;4) como estimador continuo, o vigilar señales indirectas —la tasa de respuestas que fallan una validación (sección&nbsp;10.3), la longitud anómala, la frecuencia de cada clase—. Ninguna sustituye a la etiqueta, pero juntas detectan una degradación antes de que se vuelva grave.</p>
+<p>El propósito de monitorizar no es contemplar gráficas, sino <em>actuar</em>. Cada magnitud tiene un umbral cuya superación dispara una respuesta: una caída de calidad abre una investigación de deriva (sección&nbsp;10.3); un repunte de coste, una revisión del gasto (sección&nbsp;10.2); una latencia alta, un ajuste de la concurrencia (sección&nbsp;10.2). La monitorización cierra el ciclo de vida (figura&nbsp;10.1): es el sentido que detecta cuándo el sistema necesita volver al taller.</p>
+<section id="detectar-la-deriva-de-distribución." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="detectar-la-deriva-de-distribución.">Detectar la deriva de distribución.</h5>
+<p>Un sistema compilado retrata el mundo <em>tal como era</em> cuando se midió, y el mundo cambia. La <em>deriva de distribución</em> —entradas que se apartan de las de entrenamiento— erosiona la calidad en silencio: el sistema sigue ejecutándose sin error, pero acierta cada vez menos porque las consultas ya no se parecen a las que optimizó. En seguridad la deriva es la norma, no la excepción (capítulos&nbsp;5 y&nbsp;8): aparecen amenazas nuevas, cambian los patrones, se renombran las categorías.</p>
+<p>Detectarla exige vigilar tanto las entradas como las salidas. Un cambio en la distribución de las entradas —nuevos tipos de mensaje, vocabulario inédito— es deriva de datos; un cambio en la de las salidas —la proporción de clases que el sistema predice se desvía de la esperada— denota que algo se mueve. Comparar la distribución reciente con la de referencia, sobre las entradas y sobre las predicciones, señala la deriva antes de que la métrica de calidad se desplome.</p>
+<p>La respuesta a la deriva es la recompilación con datos frescos (sección&nbsp;10.1), reabriendo el ciclo (figura&nbsp;10.1). Aquí la disciplina del libro paga su mayor dividendo: donde un sistema artesanal exigiría reescribir <em>prompts</em> a mano y revalidar a ojo, el declarativo se recompila con un comando sobre el corpus actualizado y se vuelve a medir con el mismo aparato. El mantenimiento ante la deriva deja de ser una crisis y se vuelve una rutina programada.</p>
+</section>
+<section id="observabilidad-trazas-e-historial." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="observabilidad-trazas-e-historial.">Observabilidad: trazas e historial.</h5>
+<p>Cuando algo falla en producción —y algo fallará—, depurarlo exige ver por dentro qué ocurrió. La <em>observabilidad</em> de un sistema de LM es poder inspeccionar, de una ejecución concreta, qué <em>prompt</em> recibió cada módulo, qué devolvió, qué herramientas se invocaron y con qué resultado (capítulo&nbsp;7). DSPy expone el historial de las llamadas al modelo y se integra con sistemas de trazado que registran cada paso para examinarlo después.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>pred <span class="op">=</span> prod(mensaje<span class="op">=</span><span class="st">"conexion saliente 2GB a IP externa"</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>dspy.inspect_history(n<span class="op">=</span><span class="dv">1</span>)   <span class="co"># el ultimo prompt y respuesta, literales</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># en produccion: registrar la traza de cada peticion para auditarla luego</span></span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Sin esa visibilidad, un fallo es un misterio y su corrección, adivinación; con ella, la traza señala la causa —un pasaje mal recuperado, un razonamiento torcido, una herramienta que devolvió un error—. Inspeccionar la traza es, para la depuración de flujos, el equivalente del depurador para el código: la herramienta primaria, sin la cual se trabaja a ciegas. En producción, registrar las trazas de las peticiones —respetando la privacidad de los datos (sección&nbsp;10.5)— las hace auditables a posteriori.</p>
+<p>La observabilidad tiene, además, un valor que trasciende la depuración. Las trazas registradas son el material que alimenta la mejora: los casos de fallo que revelan se convierten en ejemplos para la siguiente compilación (sección&nbsp;10.3), y el patrón de uso real informa qué optimizar. La traza no sirve solo para entender el pasado, sino para construir el futuro del sistema, y por eso registrarla es una inversión, no un coste.</p>
+</section>
+<section id="el-bucle-de-realimentación-de-producción." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-bucle-de-realimentación-de-producción.">El bucle de realimentación de producción.</h5>
+<p>El cierre del ciclo profesional es un bucle: los fallos de producción alimentan la siguiente mejora. Cada caso que el sistema resuelve mal —detectado por la monitorización (sección&nbsp;10.3), corregido por un analista (capítulo&nbsp;8), registrado en la traza (sección&nbsp;10.3)— es un dato valioso: un ejemplo representativo de dónde el sistema flaquea, justo el más informativo para optimizar. Recogerlos sistemáticamente convierte la operación diaria en una fuente de datos de entrenamiento.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># los fallos corregidos en produccion se incorporan al conjunto</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>casos_fallo <span class="op">=</span> recoger_correcciones(periodo<span class="op">=</span><span class="st">"ultimo_mes"</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>entreno_v4 <span class="op">=</span> entreno <span class="op">+</span> casos_fallo          <span class="co"># crece con los casos dificiles</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># recompilar con el corpus enriquecido (seccion de reoptimizacion)</span></span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Este bucle tiene una virtud profunda: el sistema mejora justo donde más falla, porque los casos que se recogen son los que se equivocó. A diferencia de recolectar datos al azar, recoger los fallos concentra el esfuerzo de etiquetado en la frontera de la competencia del sistema, que es donde un ejemplo más enseña más. La operación deja de ser solo un coste de mantenimiento y se vuelve el motor de la mejora continua.</p>
+<p>Cerrar este bucle distingue un sistema vivo de uno que se degrada. Un sistema que no aprende de sus fallos repite los mismos, y la deriva (sección&nbsp;10.3) lo erosiona sin remedio; uno que los recoge y recompila se adapta al mundo cambiante. La programación de <em>prompts</em>, con su ciclo de declarar, medir y recompilar, hace de ese bucle una operación rutinaria en lugar de una reescritura artesanal, y ahí reside buena parte de su valor a largo plazo. La figura&nbsp;10.2 dibuja el bucle.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap10/fig_02.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;10.2.</strong> Los fallos de producción alimentan la siguiente mejora: recoger los casos que el sistema resolvió mal concentra el esfuerzo de etiquetado en la frontera de su competencia, donde un ejemplo más enseña más. La operación se vuelve el motor de la mejora continua.</figcaption>
+</figure>
+</div>
+</section>
+<section id="manejo-de-errores-y-degradación-elegante." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="manejo-de-errores-y-degradación-elegante.">Manejo de errores y degradación elegante.</h5>
+<p>Un sistema en producción falla de formas que el desarrollo no anticipa: el proveedor del modelo no responde, una herramienta agota su tiempo, una salida no cumple el formato esperado (capítulo&nbsp;7). Un sistema profesional los prevé y <em>degrada con elegancia</em> en lugar de caer: reintenta lo transitorio, valida lo dudoso, y dispone de un plan B para lo irresoluble en el momento.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> manejar(peticion):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>        pred <span class="op">=</span> prod(mensaje<span class="op">=</span>peticion.texto)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        validar_salida(pred)                 <span class="co"># rechaza salidas malformadas</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> pred</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">TimeoutError</span>:</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> respuesta_degradada(peticion) <span class="co"># plan B: regla o cola humana</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> ValidacionError:</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        registrar_para_revision(peticion)    <span class="co"># a revision humana, no se sirve</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">None</span></span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Tres patrones cubren la mayoría de los casos. Los <em>reintentos</em> con retroceso absorben los fallos transitorios del proveedor (sección&nbsp;10.2). La <em>validación</em> de la salida (capítulo&nbsp;7) atrapa el formato roto o la cita inventada antes de servirla. Y la <em>degradación</em> —una respuesta más simple, una regla de reserva, una cola a un humano— mantiene el servicio en pie cuando el camino ideal no está disponible, en lugar de devolver un error al usuario.</p>
+<p>El principio rector es no servir nunca una respuesta peor que ninguna. En seguridad, una salida malformada o alucinada que se sirve con confianza (capítulo&nbsp;8) puede ser más dañina que una negativa honesta, y el sistema profesional prefiere reconocer que no puede responder a inventar una respuesta. La robustez no es un adorno: es la diferencia entre un prototipo que impresiona en la demostración y un sistema que aguanta el mundo real.</p>
+</section>
+</section>
+<section id="buenas-prácticas-pruebas-y-gestión-de-modelos" class="level2">
+<h2 class="anchored" data-anchor-id="buenas-prácticas-pruebas-y-gestión-de-modelos">Buenas prácticas, pruebas y gestión de modelos</h2>
+<p>DSPy hereda dos tradiciones, y el profesional las honra. De la <strong>ingeniería de software</strong>: control de versiones de todo —código, datos, estado compilado—; pruebas que detecten una regresión antes de desplegarla; modularidad, para que un cambio no propague efectos imprevistos; y observabilidad, el historial y las trazas del capítulo&nbsp;2. Del <strong>aprendizaje automático clásico</strong>: separación estricta de conjuntos, vigilancia del sobreajuste, honestidad estadística en el informe y reproducibilidad documentada —modelo, versión, semilla, fecha—.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># un test de regresion: la calidad no debe caer por debajo de un umbral medido</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_no_regresion():</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    score <span class="op">=</span> evaluar(cargar(<span class="st">"salidas/triaje_mipro.json"</span>))</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> score <span class="op">&lt;</span> UMBRAL:            <span class="co"># umbral fijado sobre datos reservados</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">AssertionError</span>(<span class="st">"regresion de calidad"</span>)  <span class="co"># se valida con raise</span></span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>La síntesis de ambas tradiciones es la tesis del libro llevada a su consecuencia diaria: tratar el <em>prompt</em> como un artefacto de ingeniería —declarado, medido, versionado, optimizado— y no como un texto que se retoca. Quien adopta esa disciplina deja de depender de la suerte y de la intuición, y construye sistemas de LM que se sostienen.</p>
+<section id="pruebas-e-integración-continua." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="pruebas-e-integración-continua.">Pruebas e integración continua.</h5>
+<p>Las pruebas son la red que atrapa una regresión antes de que llegue al usuario, y un sistema de LM admite varias clases. Las <em>unitarias</em> comprueban las piezas deterministas —que el adaptador serializa bien, que una herramienta valida sus argumentos (capítulo&nbsp;7)—. Las de <em>regresión</em> miden la calidad del programa compilado contra un umbral fijado sobre datos reservados, y fallan si cae. Y las de <em>integración</em> ejercitan el flujo completo sobre casos representativos, incluidos los adversariales (capítulo&nbsp;8).</p>
+<p>La particularidad de probar un sistema de LM es su naturaleza estocástica: la misma entrada puede dar salidas distintas si la temperatura no es cero (sección&nbsp;10.2). Por eso las pruebas de conducta se fijan con temperatura cero y semilla, y las de calidad se hacen sobre un conjunto, no sobre un ejemplo —se mide una métrica agregada con su tolerancia, no una igualdad exacta—. La prueba de regresión del <em>prompt</em> compilado se parece más a la evaluación de un modelo (capítulo&nbsp;4) que a la aserción binaria del código clásico.</p>
+<p>Integradas en una canalización de integración continua, estas pruebas convierten la mejora del sistema en un proceso controlado. Un cambio —en el código, en los datos, en el <em>prompt</em> compilado— dispara la recompilación y la evaluación automáticas, y solo se despliega si no hay regresión. Así, el desarrollo de sistemas de LM, hoy a menudo un ir y venir manual, adquiere los controles de la ingeniería de software madura: nada llega a producción sin pasar la red de pruebas. La tabla&nbsp;10.2 recoge las tres clases.</p>
+<table class="caption-top table">
+<caption>La prueba de regresión de un <em>prompt</em> compilado se parece más a la evaluación de un modelo (capítulo&nbsp;4) que a la aserción binaria del código clásico: mide una métrica agregada con su tolerancia, no una igualdad exacta.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Prueba</th>
+<th style="text-align: left;">Qué comprueba</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Unitaria</td>
+<td style="text-align: left;">las piezas deterministas (adaptador, herramientas)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Regresión</td>
+<td style="text-align: left;">la calidad no cae bajo un umbral medido</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Integración</td>
+<td style="text-align: left;">el flujo completo, incluidos casos adversariales</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="gestión-de-modelos-selección-fijado-y-reserva." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="gestión-de-modelos-selección-fijado-y-reserva.">Gestión de modelos: selección, fijado y reserva.</h5>
+<p>El modelo es una dependencia del sistema, y gestionarlo como tal es práctica profesional. La <em>selección</em> elige el modelo que mejor equilibra calidad y coste para la tarea (capítulo&nbsp;7), medido, no supuesto. El <em>fijado</em> ancla la versión exacta del modelo, porque un <em>endpoint</em> que cambia de versión sin aviso puede degradar un <em>prompt</em> antes afinado (capítulo&nbsp;6) sin que el código cambie. Y la <em>reserva</em> prevé un modelo alternativo para cuando el principal no responde (sección&nbsp;10.3).</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fijar la version y prever un modelo de reserva</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>principal <span class="op">=</span> dspy.LM(<span class="st">"openai/gpt-4o-2024-08-06"</span>, temperature<span class="op">=</span><span class="fl">0.0</span>)  <span class="co"># version fija</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>reserva   <span class="op">=</span> dspy.LM(<span class="st">"anthropic/claude-haiku-4-5"</span>, temperature<span class="op">=</span><span class="fl">0.0</span>)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>La abstracción <code>LM</code> (capítulo&nbsp;2), apoyada en una capa que unifica decenas de proveedores <span class="citation" data-cites="litellm">(<a href="#ref-litellm" role="doc-biblioref">BerriAI 2024</a>)</span>, hace barato cambiar de modelo: el mismo programa corre con uno u otro sin tocar su lógica. Esa indiferencia al proveedor es una ventaja estratégica —evita el amarre a un único vendedor— y operativa —permite enrutar a un modelo de reserva ante un fallo, o a uno más barato para tareas simples (capítulo&nbsp;7)—. La figura&nbsp;10.3 resume selección, fijado y reserva.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap10/fig_03.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;10.3.</strong> El modelo es una dependencia: se selecciona el que mejor equilibra calidad y coste, se fija su versión exacta —un <em>endpoint</em> que cambia sin aviso degrada un <em>prompt</em> afinado— y se prevé una reserva. La calidad con la reserva debe medirse, no presumirse.</figcaption>
+</figure>
+</div>
+<p>El cuidado a recordar es que cambiar de modelo no es gratis en calidad: un <em>prompt</em> optimizado para uno no se transfiere sin más a otro (capítulo&nbsp;6), y conviene recompilar y revalidar tras el cambio (sección&nbsp;10.1). La reserva sirve para no caer, pero la calidad con el modelo de reserva debe medirse, no presumirse; un sistema que degrada a un modelo nunca evaluado puede estar sirviendo, en la emergencia, respuestas peores de las que cree.</p>
+</section>
+<section id="autoalojar-el-modelo-o-consumirlo-por-api." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="autoalojar-el-modelo-o-consumirlo-por-api.">Autoalojar el modelo o consumirlo por API.</h5>
+<p>Una decisión de arquitectura con consecuencias es si el modelo se consume por <em>API</em> de un proveedor o se <em>autoaloja</em>. La API es cómoda —sin infraestructura, con acceso a los modelos más capaces— pero ata a un proveedor, su precio y su política, y envía los datos fuera. El autoalojamiento —un modelo abierto corriendo en infraestructura propia, con un servidor de inferencia como vLLM <span class="citation" data-cites="kwon2023vllm">(<a href="#ref-kwon2023vllm" role="doc-biblioref">Kwon et&nbsp;al. 2023</a>)</span>— da control, privacidad y un coste marginal predecible, a cambio de gestionar el despliegue y, a menudo, de una calidad algo menor.</p>
+<p>En seguridad, el factor decisivo suele ser la <em>privacidad</em> (sección&nbsp;10.5). Un binario sospechoso, un registro de incidentes o un fragmento de código propietario no siempre pueden salir de la organización, y entonces el autoalojamiento deja de ser una preferencia y se vuelve un requisito. La abstracción <code>LM</code> hace que esa elección no toque el programa: el mismo código compilado corre contra un modelo por API en desarrollo y contra uno local en producción (sección&nbsp;10.1).</p>
+<p>El canje se resuelve, como todo, midiendo. Se compara la calidad del modelo autoalojado —tras optimizar su <em>prompt</em> y, si hace falta, destilar (capítulo&nbsp;8)— con la del modelo por API, y se sopesa frente a las exigencias de privacidad, coste y control. La optimización de DSPy inclina la balanza hacia lo posible: un modelo abierto bien compilado a menudo basta donde se temía necesitar uno cerrado, y esa diferencia puede decidir un despliegue autoalojado que de otro modo no rendiría.</p>
+</section>
+<section id="reproducibilidad-y-registro-de-experimentos." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="reproducibilidad-y-registro-de-experimentos.">Reproducibilidad y registro de experimentos.</h5>
+<p>La reproducibilidad es la propiedad que convierte un resultado en conocimiento fiable, y exige fijar cuanto varía. Una compilación es reproducible si, dados el mismo código, los mismos datos, la misma métrica, el mismo modelo y la misma semilla, produce el mismo artefacto (capítulos&nbsp;5 y&nbsp;6). Omitir cualquiera de esas piezas abre un agujero por el que la reproducibilidad se escapa, y en un campo que avanza deprisa —modelos nuevos cada pocos meses— esa disciplina permite saber si una mejora viene del método o de un componente actualizado.</p>
+<p>El <em>registro de experimentos</em> sistematiza esa disciplina. Cada corrida de optimización anota su configuración —optimizador, presupuesto, semilla, versión del modelo— y su resultado —las métricas sobre la prueba—, de modo que las decisiones se toman comparando experimentos registrados, no recuerdos. Herramientas de seguimiento de experimentos, integrables con DSPy, automatizan ese registro y hacen el historial consultable: qué se probó, qué rindió, por qué se eligió la versión en producción.</p>
+<p>Este rigor no es burocracia: es la frontera entre la ingeniería y la anécdota. Un equipo que registra sus experimentos puede reproducir un resultado de hace meses, entender por qué una versión superó a otra y revertir con confianza si una nueva regresa (sección&nbsp;10.1). Sin ese registro, las mejoras son golpes de suerte irrepetibles, y el sistema se vuelve un artefacto que nadie se atreve a tocar por miedo a romper algo que no sabe explicar.</p>
+</section>
+</section>
+<section id="gobernanza-privacidad-y-economía" class="level2">
+<h2 class="anchored" data-anchor-id="gobernanza-privacidad-y-economía">Gobernanza, privacidad y economía</h2>
+<p>Un sistema que toma decisiones con consecuencias —bloquear un binario, escalar un incidente, denegar un acceso— debe poder rendir cuentas. La <em>gobernanza</em> exige saber, de cada decisión, quién la tomó, sobre qué evidencia y con qué versión del sistema. La disciplina del libro lo facilita: el artefacto está versionado (sección&nbsp;10.1), la decisión cita su procedencia (capítulo&nbsp;8), y la traza registra cómo se llegó a ella (sección&nbsp;10.3). La auditabilidad no se añade después; emana de hacer las cosas con método.</p>
+<p>Esta trazabilidad responde a exigencias reales. Una decisión automática que afecta a personas o a sistemas críticos puede tener que justificarse ante un auditor, un regulador o un tribunal, y un sistema que solo emite etiquetas opacas no puede hacerlo. Uno que registra su versión, su entrada, su razonamiento y su evidencia sí, y convierte una caja negra en un proceso defendible. En seguridad, donde las decisiones disparan acciones de peso, esa defensa no es opcional.</p>
+<p>La gobernanza incluye también el control de quién puede cambiar el sistema y cómo. Igual que el código pasa por revisión antes de fundirse, el <em>prompt</em> compilado y la métrica que lo gobierna (sección&nbsp;10.1) entran en el mismo régimen de control de cambios: se revisan, se aprueban, se despliegan con trazabilidad y se revierten si regresan (sección&nbsp;10.4). El <em>prompt</em> deja de ser un texto que cualquiera retoca y pasa a ser un artefacto gobernado, que es la consecuencia organizativa de la tesis del libro.</p>
+<section id="privacidad-y-manejo-de-los-datos." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="privacidad-y-manejo-de-los-datos.">Privacidad y manejo de los datos.</h5>
+<p>Los datos de un sistema de seguridad son sensibles por naturaleza —registros de incidentes, binarios propietarios, información de la infraestructura—, y manejarlos con cuidado es una obligación, no una opción. La primera decisión es dónde se procesan: enviar un dato a una <em>API</em> externa lo saca de la organización, con las implicaciones de confidencialidad y cumplimiento que eso conlleva. Cuando el dato no puede salir, el autoalojamiento (sección&nbsp;10.4) deja de ser una preferencia y se vuelve un requisito.</p>
+<p>Más allá de dónde, importa qué se procesa y qué se conserva. Minimizar los datos —enviar al modelo solo lo necesario para la tarea, no el registro entero—, anonimizar lo posible, y fijar políticas de retención para las trazas (sección&nbsp;10.3) son prácticas que reducen la superficie de riesgo. Una traza que registra un <em>prompt</em> con datos sensibles es, ella misma, un dato sensible, y conservarla sin control es crear un nuevo riesgo en nombre de la observabilidad.</p>
+<p>La tensión entre observabilidad y privacidad se gestiona, no se ignora. Se registra lo suficiente para depurar y auditar (secciones&nbsp;10.3 y&nbsp;10.5), pero se protege —cifrado, acceso restringido, retención acotada— lo registrado. El profesional que opera un sistema de LM en seguridad asume que sus datos son un activo a proteger, y diseña el sistema para honrarlo, porque una fuga por la puerta de atrás de la observabilidad sería una ironía amarga en un sistema de defensa.</p>
+</section>
+<section id="la-economía-de-la-optimización." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="la-economía-de-la-optimización.">La economía de la optimización.</h5>
+<p>Optimizar cuesta, y conviene pensar ese coste como una inversión con su retorno. La compilación se paga una vez —las llamadas al modelo durante la búsqueda (capítulos&nbsp;5 y&nbsp;6)—, y el retorno se cobra en cada consulta de producción: más calidad, o el mismo nivel con un modelo más barato o un <em>prompt</em> más corto. El cálculo es el de cualquier inversión: la optimización compensa cuando su coste único se amortiza con el ahorro o la mejora acumulados sobre el volumen de inferencia.</p>
+<p>De ahí salen reglas de decisión. Para un sistema de bajo volumen o vida corta —un prototipo, un análisis puntual—, una optimización ligera basta o ni siquiera compensa (capítulo&nbsp;6); el coste de compilar no se amortizaría. Para un servicio de alto volumen y larga vida, una optimización intensa —y su mantenimiento ante la deriva (sección&nbsp;10.3)— se paga con holgura, porque cada décima de mejora se multiplica por millones de consultas. El presupuesto de optimización se dimensiona, por tanto, según el volumen y la vida esperados del sistema.</p>
+<p>Hay un ahorro indirecto que conviene contar: la optimización que permite usar un modelo más pequeño (capítulo&nbsp;8). Un <em>prompt</em> bien compilado a menudo lleva a un modelo modesto a la calidad que se creía exclusiva de uno grande, y la diferencia de coste por consulta, multiplicada por el volumen, puede superar con creces el coste de la compilación. La economía de optimizar no es solo gastar para mejorar: es, muchas veces, gastar una vez para ahorrar sin descanso.</p>
+</section>
+<section id="anti-patrones-y-errores-comunes." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="anti-patrones-y-errores-comunes.">Anti-patrones y errores comunes.</h5>
+<p>Conviene nombrar los errores que más arruinan proyectos, porque reconocerlos es medio remedio. El primero es <em>saltarse el </em>baseline**: optimizar sin medir antes el programa sin optimizar, de modo que no se sabe si la mejora vino de la optimización o estaba ya ahí (sección&nbsp;10.1). El segundo es <em>contaminar la prueba</em>: elegir el modelo o el <em>prompt</em> mirando el conjunto que debía quedar reservado, inflando una cifra que no generaliza (capítulo&nbsp;4). Ambos producen sistemas que brillan en el desarrollo y decepcionan en producción.</p>
+<p>Otros tres son igual de frecuentes. <em>Optimizar una métrica equivocada</em> (sección&nbsp;10.1): el sistema persigue con diligencia un objetivo que no es el que importa, y acaba siendo bueno en lo indebido. <em>Ignorar el coste y la latencia</em> (sección&nbsp;10.2): maximizar la calidad hasta volver el sistema inviable en producción. Y <em>desplegar y olvidar</em>: entregar el sistema sin monitorización (sección&nbsp;10.3), dejándolo degradarse en silencio ante la deriva hasta que falla ruidosamente.</p>
+<p>El hilo común de estos anti-patrones es saltarse la disciplina por prisa o por exceso de confianza. La tentación de omitir la medición, de mirar la prueba «solo una vez», de no escribir la métrica con cuidado, o de no montar la monitorización, es real, porque cada atajo ahorra trabajo hoy. Pero cada uno siembra un fallo que estalla mañana, en producción, donde es más caro arreglarlo. La disciplina del libro no es pedantería: es la suma de lecciones aprendidas de estos fracasos, y honrarla separa un sistema que dura de uno que se derrumba. La tabla&nbsp;10.3 los cataloga.</p>
+<table class="caption-top table">
+<caption>Su hilo común es saltarse la disciplina por prisa o por exceso de confianza. Cada atajo ahorra trabajo hoy y siembra un fallo que estalla mañana, en producción.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Anti-patrón</th>
+<th style="text-align: left;">Consecuencia</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Saltarse el <em>baseline</em></td>
+<td style="text-align: left;">no se sabe si la mejora vino de optimizar</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Contaminar la prueba</td>
+<td style="text-align: left;">una cifra que no generaliza</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Optimizar la métrica equivocada</td>
+<td style="text-align: left;">bueno en lo indebido</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Ignorar coste y latencia</td>
+<td style="text-align: left;">inviable en producción</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Desplegar y olvidar</td>
+<td style="text-align: left;">degradación silenciosa por deriva</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="un-caso-profesional-el-cambio-de-rol-y-la-lista-de-comprobación" class="level2">
+<h2 class="anchored" data-anchor-id="un-caso-profesional-el-cambio-de-rol-y-la-lista-de-comprobación">Un caso profesional, el cambio de rol y la lista de comprobación</h2>
+<p>Conviene cerrar reuniendo el capítulo en un caso. Un equipo de seguridad necesita un triaje automático de incidentes (capítulo&nbsp;3). El ingeniero declara el programa con su firma, reúne y particiona un corpus etiquetado (sección&nbsp;10.1), escribe una métrica que pondera el coste de cada error (sección&nbsp;10.1), y mide un <em>baseline</em> sin optimizar. Con eso fija el punto de partida y sabe cuánto margen hay.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>base <span class="op">=</span> evaluar_en(triaje, prueba, f1_ponderado)          <span class="co"># baseline medido</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>opt  <span class="op">=</span> dspy.MIPROv2(metric<span class="op">=</span>f1_ponderado, auto<span class="op">=</span><span class="st">"medium"</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>compilado <span class="op">=</span> opt.<span class="bu">compile</span>(triaje, trainset<span class="op">=</span>entreno, valset<span class="op">=</span>desarrollo)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>mejora <span class="op">=</span> evaluar_en(compilado, prueba, f1_ponderado) <span class="op">-</span> base   <span class="co"># significativa?</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>compilado.save(<span class="st">"artefactos/triaje_v1.json"</span>)              <span class="co"># artefacto versionado</span></span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Compila con el optimizador adecuado a su presupuesto, comprueba que la mejora sobre el <em>baseline</em> es significativa (capítulo&nbsp;4), y guarda el artefacto versionado. Lo despliega tras la abstracción <code>LM</code> (sección&nbsp;10.2), con caché y temperatura cero, validación de salidas y un plan de degradación (sección&nbsp;10.3). Y monta la monitorización (sección&nbsp;10.3) que vigilará calidad, coste y latencia, con la recogida de fallos que alimentará la próxima versión (sección&nbsp;10.3).</p>
+<p>Meses después, la monitorización detecta una caída de calidad: han aparecido incidentes de un tipo nuevo (sección&nbsp;10.3). El ingeniero no reescribe <em>prompts</em> a mano: añade los casos recogidos al corpus, recompila con un comando (sección&nbsp;10.1), comprueba que no hay regresión (sección&nbsp;10.4) y despliega la versión nueva. El sistema se ha adaptado al mundo cambiante con una operación rutinaria, y ese —no el ingenio de un <em>prompt</em> concreto— es el valor que el libro ha defendido capítulo a capítulo.</p>
+<section id="el-cambio-de-rol-del-artesano-al-ingeniero." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-cambio-de-rol-del-artesano-al-ingeniero.">El cambio de rol: del artesano al ingeniero.</h5>
+<p>Adoptar esta disciplina cambia el oficio de quien construye sistemas de LM. El <em>ingeniero de </em>prompts** de la primera hora dedicaba su pericia a redactar la orden perfecta, una habilidad artesanal, subjetiva y difícil de transmitir. El profesional que programa <em>prompts</em> dedica la suya a otra cosa: a construir buenos conjuntos de datos, a escribir métricas fieles, a elegir optimizadores y a operar el ciclo de vida. Es el mismo desplazamiento que el aprendizaje automático vivió antes —del ajuste manual de rasgos a la ingeniería de datos y de evaluación—, y que la lección de Sutton (capítulo&nbsp;1) anticipa <span class="citation" data-cites="sutton2019bitter">(<a href="#ref-sutton2019bitter" role="doc-biblioref">Sutton 2019</a>)</span>.</p>
+<p>Este cambio no devalúa el conocimiento del dominio; lo recoloca. El experto en seguridad ya no codifica su saber en la redacción de un <em>prompt</em>, sino en la métrica que define el éxito, en los casos que etiqueta, en los guardarraíles que exige y en la verificación de las hipótesis del sistema (capítulo&nbsp;8). Su pericia entra por donde más rinde —en definir y medir el objetivo—, y la búsqueda automática se encarga de la realización. El dominio importa más que nunca; cambia, eso sí, el punto por donde se aplica.</p>
+<p>La consecuencia es liberadora. Quien programa <em>prompts</em> deja de competir por adivinar la frase mágica y pasa a construir sistemas que mejoran con método, datos y medición. El trabajo se vuelve acumulativo —cada mejora se versiona y se construye sobre la anterior— en lugar de un eterno reempezar ante cada modelo nuevo. Esa es, al final, la promesa de la programación de <em>prompts</em>: convertir un arte irreproducible en una ingeniería que se enseña, se mide y se sostiene. La figura&nbsp;10.4 sintetiza ese cambio de rol.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap10/fig_04.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;10.4.</strong> Adoptar la disciplina recoloca la pericia: del ajuste manual de la redacción a construir datos, escribir métricas fieles, elegir optimizadores y operar el ciclo de vida. El dominio importa más que nunca —define y mide el objetivo—; cambia el punto por donde se aplica.</figcaption>
+</figure>
+</div>
+</section>
+<section id="una-lista-de-comprobación-del-profesional." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="una-lista-de-comprobación-del-profesional.">Una lista de comprobación del profesional.</h5>
+<p>El capítulo se resume en una secuencia de comprobaciones que ordena el trabajo de llevar un sistema de DSPy a producción y mantenerlo.</p>
+<ul>
+<li><p>Construir conjuntos separados y deduplicados; reservar la prueba (sección&nbsp;10.1).</p></li>
+<li><p>Escribir y validar una métrica fiel, con los costes y guardarraíles del dominio (sección&nbsp;10.1).</p></li>
+<li><p>Medir un <em>baseline</em> antes de optimizar; nunca mirar la prueba para decidir (sección&nbsp;10.1).</p></li>
+<li><p>Versionar los cuatro elementos —código, datos, métrica, artefacto— atados a la versión del modelo (sección&nbsp;10.1).</p></li>
+<li><p>Servir con caché, temperatura cero, validación y un plan de degradación (secciones&nbsp;10.2 y&nbsp;10.3).</p></li>
+<li><p>Monitorizar calidad, coste y latencia; detectar la deriva (secciones&nbsp;10.3 y&nbsp;10.3).</p></li>
+<li><p>Recoger los fallos de producción y recompilar con ellos (sección&nbsp;10.3).</p></li>
+<li><p>Proteger los datos sensibles y dejar auditable cada decisión (secciones&nbsp;10.5 y&nbsp;10.5).</p></li>
+</ul>
+<p>Recorrida la lista, programar <em>prompts</em> deja de ser una promesa de manual y se vuelve una práctica que un equipo puede ejecutar, repetir y mejorar. Es el método que el libro ha construido, condensado en los pasos que lo hacen real.</p>
+</section>
+</section>
+<section id="despliegue-gradual-equipo-y-documentación" class="level2">
+<h2 class="anchored" data-anchor-id="despliegue-gradual-equipo-y-documentación">Despliegue gradual, equipo y documentación</h2>
+<p>Una versión nueva que pasa las pruebas (sección&nbsp;10.4) aún puede fallar de formas que la evaluación no capturó, y desplegarla de golpe a todo el tráfico arriesga un fallo masivo. El <em>despliegue gradual</em> lo evita. En un despliegue <em>canario</em>, la versión nueva atiende primero una fracción pequeña del tráfico, se vigila (sección&nbsp;10.3), y solo si se comporta bien se extiende al resto. Un problema afecta a pocos usuarios y se revierte antes de generalizarse.</p>
+<p>La prueba <em>A/B</em> va un paso más allá: sirve dos versiones en paralelo a dos grupos comparables y mide cuál rinde mejor sobre tráfico real, no sobre un conjunto de validación. Es la evaluación del libro (capítulo&nbsp;4) llevada a producción, donde la verdad última de qué versión es mejor la dicta el comportamiento real, con su distribución auténtica y sus casos imprevistos. La significancia estadística (capítulo&nbsp;4) decide si la diferencia observada es real antes de promover la ganadora.</p>
+<p>Estos mecanismos cierran la brecha entre la validación y la realidad. Una mejora medida sobre la prueba reservada es una predicción de que rendirá en producción; el despliegue gradual la confirma sobre el terreno antes de comprometerse. Para un sistema de seguridad, donde un fallo tiene consecuencias, esta prudencia —probar en pequeño, medir, extender— no es lentitud burocrática, sino la diferencia entre una mejora controlada y una apuesta a ciegas. La figura&nbsp;10.5 dibuja el despliegue canario.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap10/fig_05.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;10.5.</strong> Una versión que pasa las pruebas aún puede fallar de formas que la evaluación no capturó. En un despliegue canario atiende primero una fracción pequeña del tráfico, se vigila, y solo si se comporta bien se extiende; un problema afecta a pocos y se revierte antes de generalizarse.</figcaption>
+</figure>
+</div>
+<section id="colaboración-en-equipo." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="colaboración-en-equipo.">Colaboración en equipo.</h5>
+<p>Un sistema profesional rara vez lo construye una sola persona, y la disciplina del libro facilita el trabajo en equipo precisamente porque hace explícito lo que la artesanía dejaba en la cabeza de su autor. Cuando la conducta vive en un artefacto versionado (sección&nbsp;10.1), una métrica documentada (sección&nbsp;10.1) y un conjunto de datos compartido (sección&nbsp;10.1), el conocimiento del sistema es transferible: otro ingeniero lo entiende leyendo esos elementos, no descifrando <em>prompts</em> incrustados.</p>
+<p>Esta explicitud reparte el trabajo según la pericia. El experto en el dominio define y etiqueta; el ingeniero construye el flujo y opera el ciclo; un revisor audita la métrica y los cambios (sección&nbsp;10.5). Cada rol aporta por donde más vale, y sus contribuciones se integran a través de artefactos versionados, como en cualquier proyecto de software maduro. La revisión por pares, imposible sobre un <em>prompt</em> artesanal que solo su autor entiende, se vuelve natural sobre un programa declarado, una métrica escrita y unos datos auditables.</p>
+<p>El contraste con la artesanía es revelador. Un sistema construido a base de <em>prompts</em> ajustados a mano es frágil ante la marcha de quien los escribió: nadie más sabe por qué están redactados así ni se atreve a tocarlos. Un sistema programado con DSPy sobrevive a sus autores, porque su conocimiento está codificado en datos, métricas y artefactos que el equipo comparte y entiende. La reproducibilidad (sección&nbsp;10.4) es, también, la condición de la colaboración.</p>
+</section>
+<section id="la-documentación-que-el-método-genera." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="la-documentación-que-el-método-genera.">La documentación que el método genera.</h5>
+<p>Un beneficio lateral de la disciplina es que buena parte de la documentación se genera sola. La firma de un módulo documenta su contrato —qué entra, qué sale (capítulo&nbsp;2)—; la métrica documenta qué significa «funciona» (sección&nbsp;10.1); el registro de experimentos documenta qué se probó y por qué se eligió la versión actual (sección&nbsp;10.4); y la traza documenta cómo se comportó el sistema en un caso concreto (sección&nbsp;10.3). El método no solo construye el sistema: deja, de paso, su documentación.</p>
+<p>Esto contrasta con el <em>prompt</em> artesanal, cuya intención hay que adivinar porque rara vez se documenta el porqué de cada frase. Un programa de DSPy es autodescriptivo en buena medida: leer sus firmas, su métrica y su artefacto compilado revela qué hace, qué optimiza y cómo se comporta, sin un documento aparte que inevitablemente se desactualiza. La documentación que de verdad importa —el contrato, el objetivo, la evidencia— es la que el método produce y mantiene sincronizada con el sistema.</p>
+<p>Queda, eso sí, documentación que el ingeniero debe escribir: las decisiones de diseño no obvias, los compromisos asumidos, las limitaciones conocidas (capítulo&nbsp;8). Pero esa documentación de alto nivel se apoya sobre la base autogenerada, y es más fácil de mantener porque no tiene que describir cada detalle, ya capturado en los artefactos. El resultado es un sistema que se explica a sí mismo en lo mecánico, dejando al humano solo las decisiones que exigen criterio.</p>
+</section>
+<section id="entornos-desarrollo-preproducción-producción." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="entornos-desarrollo-preproducción-producción.">Entornos: desarrollo, preproducción, producción.</h5>
+<p>Un sistema serio no se desarrolla directamente sobre producción. La práctica madura separa entornos: <em>desarrollo</em>, donde se itera con libertad y modelos baratos; <em>preproducción</em>, una réplica fiel donde se valida la versión candidata sobre datos realistas; y <em>producción</em>, donde el sistema atiende el tráfico real. Una versión asciende de un entorno al siguiente solo tras superar sus controles (sección&nbsp;10.4), de modo que ningún cambio llega a producción sin haberse probado en un entorno que la imita.</p>
+<p>La configuración acompaña a esta separación. El modelo, sus parámetros, las rutas de los artefactos y los umbrales varían entre entornos, y conviene externalizar esa configuración en lugar de incrustarla en el código. Así, el mismo programa corre en desarrollo con un modelo barato y en producción con el fijado (sección&nbsp;10.4), sin cambiar su lógica, solo su configuración. La abstracción <code>LM</code> (capítulo&nbsp;2) hace esto natural: el modelo es una dependencia inyectada, no una constante del código.</p>
+<p>Esta higiene de entornos previene la clase de fallo más embarazosa: el que aparece solo en producción porque allí algo era distinto. Una preproducción fiel al entorno real —mismos modelos, datos representativos, misma configuración salvo los secretos— atrapa esos fallos antes de que afecten a un usuario. Es la misma disciplina de separación que el aprendizaje automático aplica a sus conjuntos (sección&nbsp;10.1), llevada a la infraestructura del despliegue.</p>
+</section>
+</section>
+<section id="optimización-continua-y-el-futuro-del-método" class="level2">
+<h2 class="anchored" data-anchor-id="optimización-continua-y-el-futuro-del-método">Optimización continua y el futuro del método</h2>
+<p>La reoptimización ante la deriva (sección&nbsp;10.3) no tiene por qué ser reactiva. Un sistema maduro la <em>programa</em>: recompila a intervalos regulares con el corpus enriquecido por los fallos recogidos (sección&nbsp;10.3), evalúa la versión nueva contra la actual (sección&nbsp;10.7), y la promueve si mejora sin regresar. La mejora deja de depender de que alguien note un problema y se vuelve un proceso continuo, como la integración continua lo es para el código.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># tarea programada: recompilar con los fallos del periodo y comparar</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> reoptimizacion_periodica():</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    entreno_nuevo <span class="op">=</span> entreno <span class="op">+</span> recoger_correcciones(periodo<span class="op">=</span><span class="st">"ultimo_mes"</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    candidato <span class="op">=</span> optimizador.<span class="bu">compile</span>(programa, trainset<span class="op">=</span>entreno_nuevo,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>                                    valset<span class="op">=</span>desarrollo)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> mejora_significativa(candidato, produccion_actual, prueba):</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>        promover_canario(candidato)          <span class="co"># despliegue gradual</span></span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap10/fig_06.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;10.6.</strong> La reoptimización ante la deriva no tiene por qué ser reactiva: un sistema maduro la programa. Recompila a intervalos con el corpus enriquecido por los fallos, evalúa la versión nueva contra la actual y la promueve por despliegue gradual si mejora sin regresar.</figcaption>
+</figure>
+</div>
+<p>El cuidado a tener es no automatizar la imprudencia. Una recompilación automática que se promueve sin control podría desplegar una regresión o un sistema que aprendió un sesgo de los datos recientes. Por eso la optimización continua mantiene los frenos: la comparación con significancia (capítulo&nbsp;4), el despliegue gradual (sección&nbsp;10.7) y, para cambios de peso, la aprobación humana (sección&nbsp;10.5). La automatización acelera el ciclo; no suprime el juicio.</p>
+<p>Bien hecha, la optimización continua es la culminación de la tesis del libro. El sistema no solo se programó una vez en lugar de redactarse a mano: se mantiene programado, adaptándose al mundo cambiante con un proceso medible y repetible. La distancia con la artesanía —donde cada cambio de modelo o de distribución exigía reescribir y revalidar a mano— se vuelve aquí un abismo, y en ese abismo está el valor económico y operativo de programar <em>prompts</em>. La figura&nbsp;10.6 cierra el bucle programado.</p>
+<section id="el-futuro-de-la-programación-de-prompts." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-futuro-de-la-programación-de-prompts.">El futuro de la programación de <em>prompts</em>.</h5>
+<p>Conviene cerrar con la vista puesta adelante, sin caer en la profecía. La dirección del campo es clara: los modelos mejoran, pero la necesidad de <em>orquestarlos, medirlos y optimizarlos</em> no desaparece con ellos, sino que se agudiza. Un modelo más capaz amplía lo posible y, con ello, los sistemas que se construyen sobre él, que siguen necesitando datos, métricas y un ciclo de vida. La lección de Sutton (capítulo&nbsp;1) sugiere que la búsqueda automática ganará terreno a la artesanía a medida que el cómputo abarate optimizar <span class="citation" data-cites="sutton2019bitter">(<a href="#ref-sutton2019bitter" role="doc-biblioref">Sutton 2019</a>)</span>, no al revés.</p>
+<p>Las fronteras activas prolongan los capítulos del libro. La optimización conjunta de <em>prompts</em> y pesos (capítulos&nbsp;5 y&nbsp;8) difumina la línea entre programar y entrenar; los optimizadores reflexivos (capítulo&nbsp;6) extraen cada vez más de cada fallo <span class="citation" data-cites="agrawal2025gepa">(<a href="#ref-agrawal2025gepa" role="doc-biblioref"><span class="nocase">Agrawal et&nbsp;al.</span> 2025</a>)</span>; y los sistemas multimodales y agénticos (capítulos&nbsp;7 y&nbsp;8) componen piezas cada vez más ricas. No cambia el método: declarar, medir, optimizar y mantener, sobre cualquier modelo y cualquier modalidad.</p>
+<p>Por eso este libro ha enseñado un método antes que un catálogo de técnicas. Los optimizadores concretos —COPRO, MIPROv2, GEPA— evolucionarán y serán sustituidos; los modelos de hoy quedarán obsoletos; las cifras envejecerán. Pero la disciplina de tratar el <em>prompt</em> como un artefacto de ingeniería —declarado con firmas, medido contra datos, optimizado por búsqueda, versionado y mantenido— sobrevivirá a todos ellos, porque no depende de ninguna herramienta concreta, sino de una forma de pensar el problema. Esa forma de pensar es la herencia duradera de la programación de <em>prompts</em>.</p>
+</section>
+</section>
+<section id="seguridad-del-sistema-objetivos-de-servicio-e-incidentes" class="level2">
+<h2 class="anchored" data-anchor-id="seguridad-del-sistema-objetivos-de-servicio-e-incidentes">Seguridad del sistema, objetivos de servicio e incidentes</h2>
+<p>Un sistema de LM no es solo una herramienta de seguridad; es, él mismo, una superficie de ataque que hay que defender. Las amenazas recorren el libro, recogidas ahora desde la óptica de quien opera el sistema. La <em>inyección de </em>prompts** (capítulo&nbsp;7) busca secuestrar la conducta con entradas hostiles; el <em>envenenamiento de datos</em> corrompe el bucle de realimentación (sección&nbsp;10.3) colando ejemplos manipulados que degradan la siguiente compilación; y la <em>fuga de información</em> explota las trazas o las respuestas para extraer datos sensibles (sección&nbsp;10.5).</p>
+<p>El envenenamiento del bucle de realimentación merece atención propia, porque la disciplina que mejora el sistema (sección&nbsp;10.3) es también una vía de ataque. Si un adversario logra introducir ejemplos manipulados en el corpus que alimenta la recompilación —correcciones falsas, casos sesgados—, puede degradar el sistema o abrirle una puerta trasera. La defensa es tratar los datos de realimentación con la misma desconfianza que cualquier entrada: validarlos, revisarlos antes de incorporarlos (sección&nbsp;10.5) y vigilar que una recompilación no introduzca una regresión inexplicable (sección&nbsp;10.4).</p>
+<p>La postura correcta es la defensa en profundidad, sin ilusión de inmunidad. Varias barreras —validación de entradas y salidas (sección&nbsp;10.3), privilegio mínimo en las herramientas (capítulo&nbsp;7), revisión del corpus de realimentación, control de acceso a las trazas— reducen la superficie sin cerrarla del todo. En un sistema que defiende, ser uno mismo defendible no es opcional: un sistema de seguridad comprometido es peor que ninguno, porque inspira una confianza que ya no merece. La tabla&nbsp;10.4 empareja cada amenaza con su defensa.</p>
+<table class="caption-top table">
+<caption>Un sistema de LM es, él mismo, una superficie de ataque. La postura correcta es la defensa en profundidad —varias barreras, ninguna infalible—, sin ilusión de inmunidad.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Amenaza</th>
+<th style="text-align: left;">Defensa</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Inyección de <em>prompts</em></td>
+<td style="text-align: left;">dato, no orden; validar entradas</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Envenenamiento del bucle</td>
+<td style="text-align: left;">revisar el corpus de realimentación</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Fuga de información</td>
+<td style="text-align: left;">control de acceso a trazas; retención acotada</td>
+</tr>
+</tbody>
+</table>
+<section id="objetivos-de-servicio-y-fiabilidad." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="objetivos-de-servicio-y-fiabilidad.">Objetivos de servicio y fiabilidad.</h5>
+<p>Un sistema en producción se compromete a un nivel de servicio, y conviene fijarlo de forma explícita. Los <em>objetivos de servicio</em> cuantifican qué se promete: una disponibilidad —qué fracción del tiempo responde—, una latencia máxima en un percentil alto (sección&nbsp;10.3), y un nivel de calidad mínimo medido sobre la métrica acordada (sección&nbsp;10.1). Sin objetivos explícitos, «funciona bien» es una opinión; con ellos, es una propiedad medible y verificable.</p>
+<p>Estos objetivos guían el diseño y la operación. Una promesa de baja latencia descarta un flujo de muchos pasos o lo obliga a paralelizar (capítulo&nbsp;7); una de alta disponibilidad exige el modelo de reserva y la degradación elegante (secciones&nbsp;10.4 y&nbsp;10.3); una de calidad mínima fija el umbral de las pruebas de regresión (sección&nbsp;10.4) y dispara la reoptimización cuando la monitorización lo ve caer. El objetivo no es un adorno contractual: es el criterio que ordena las decisiones técnicas.</p>
+<p>La honestidad sobre los objetivos es, además, parte de la profesionalidad. Prometer una calidad que el sistema no sostiene, o una latencia que no cumple bajo carga, es sembrar una decepción. El profesional fija objetivos que ha medido y puede sostener, los vigila en producción, y avisa cuando el sistema se acerca a incumplirlos, en lugar de descubrir el incumplimiento cuando un usuario se queja. Medir antes de prometer es la misma disciplina del libro, aplicada al compromiso de servicio.</p>
+</section>
+<section id="respuesta-a-incidentes-del-sistema." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="respuesta-a-incidentes-del-sistema.">Respuesta a incidentes del sistema.</h5>
+<p>Por bien diseñado que esté, un sistema en producción tendrá incidentes —una caída de calidad, un fallo del proveedor, una conducta inesperada ante una entrada nueva—, y estar preparado para responder es tan profesional como evitarlos. La preparación se apoya en lo ya construido: la monitorización (sección&nbsp;10.3) detecta el incidente, las trazas (sección&nbsp;10.3) permiten diagnosticarlo, y la versión anterior, guardada (sección&nbsp;10.1), ofrece una vuelta atrás inmediata.</p>
+<p>La capacidad de revertir es la red de seguridad principal. Si una versión nueva resulta defectuosa en producción pese a las pruebas (sección&nbsp;10.4), restaurar el artefacto anterior devuelve el sistema a un estado bueno conocido en segundos, sin esperar a un arreglo. Esa reversión limpia —posible porque la conducta vive en un artefacto versionado, no en código disperso— es una ventaja directa de la disciplina del libro, y conviene ensayarla antes de necesitarla, no improvisarla en plena crisis. La figura&nbsp;10.7 dibuja esa vuelta atrás.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap10/fig_07.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;10.7.</strong> Si una versión nueva resulta defectuosa pese a las pruebas, restaurar el artefacto anterior devuelve el sistema a un estado bueno conocido en segundos. Esa reversión limpia es posible porque la conducta vive en un artefacto versionado, no en código disperso.</figcaption>
+</figure>
+</div>
+<p>El incidente, una vez resuelto, alimenta la mejora. Su análisis —qué falló, por qué la prueba no lo atrapó, cómo evitarlo— produce un caso nuevo para el conjunto (sección&nbsp;10.3) y, a menudo, una prueba nueva que lo cubra (sección&nbsp;10.4). Así, cada incidente deja el sistema más robusto que antes, en lugar de ser solo un susto superado. La operación madura no solo apaga fuegos: aprende de cada uno para que no se repita.</p>
+</section>
+<section id="cumplimiento-regulación-y-responsabilidad." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="cumplimiento-regulación-y-responsabilidad.">Cumplimiento, regulación y responsabilidad.</h5>
+<p>Los sistemas que deciden sobre asuntos sensibles operan bajo regulación creciente, y el profesional la tiene presente desde el diseño. Las exigencias habituales —transparencia sobre el uso de una decisión automática, capacidad de explicarla, trazabilidad de cómo se tomó, supervisión humana en los casos de riesgo— no son una carga ajena al método del libro: son, en buena medida, cuanto la disciplina ya produce (secciones&nbsp;10.5 y&nbsp;10.3). Un sistema construido con rigor llega al cumplimiento con buena parte del camino hecho.</p>
+<p>La explicabilidad y la supervisión humana, en particular, encajan con lo defendido a lo largo del libro. Un veredicto que cita su evidencia (capítulo&nbsp;8), un razonamiento auditable (capítulo&nbsp;7) y un humano que verifica los casos de peso (capítulo&nbsp;8) son a la vez buena ingeniería y requisitos regulatorios frecuentes. La transparencia que el método ofrece —firmas, métricas, trazas, artefactos versionados— responde a la demanda de poder rendir cuentas de una decisión automática.</p>
+<p>La responsabilidad última, conviene recordarlo, es humana. Un sistema de LM es una herramienta que asiste y amplifica (capítulo&nbsp;8), no un agente que responde por sus actos; quien lo opera responde de cuanto decide con su ayuda. Diseñar el sistema para mantener al humano informado y al mando en las decisiones que importan no es solo cumplir una norma: es reconocer dónde debe residir el juicio. La programación de <em>prompts</em>, con su énfasis en la medición y la verificación, sirve a esa responsabilidad en lugar de diluirla.</p>
+</section>
+</section>
+<section id="cuándo-no-usar-el-método-adopción-y-el-salto-de-capacidad" class="level2">
+<h2 class="anchored" data-anchor-id="cuándo-no-usar-el-método-adopción-y-el-salto-de-capacidad">Cuándo no usar el método, adopción y el salto de capacidad</h2>
+<p>La honestidad que el libro ha exigido a cada técnica vale también para el método entero: no siempre compensa. Para una tarea de una sola vez —un análisis puntual, una exploración— el ciclo completo de datos, métrica y optimización es excesivo; un <em>prompt</em> escrito a mano y revisado resuelve más rápido. Para una tarea que el modelo ya domina de cero ejemplos (capítulo&nbsp;3), optimizar añade coste sin mejora. El método rinde cuando hay un sistema que vive, se repite y se mantiene; para lo efímero o lo trivial, su disciplina es sobrecoste.</p>
+<p>Hay un requisito que, si falta, descalifica el enfoque: una métrica <em>medible</em>. Toda la maquinaria del libro descansa en poder cuantificar «funciona» (capítulo&nbsp;4); donde el éxito es irreductiblemente subjetivo y no admite ni siquiera un juez de modelo calibrado, la optimización no tiene brújula que seguir, y se vuelve a depender del juicio humano. Reconocer ese límite evita forzar el método sobre problemas que no encajan, un error tan poco profesional como ignorarlo donde sí encaja.</p>
+<p>La regla práctica equilibra ambos extremos. Ante un sistema nuevo, conviene preguntarse si vivirá lo bastante para amortizar la disciplina (sección&nbsp;10.5), si su éxito es medible, y si su volumen o su criticidad justifican el rigor. Cuando las tres respuestas son afirmativas, el método del libro paga con creces; cuando no, conviene la modestia de una solución más simple. Saber cuándo <em>no</em> aplicar la propia disciplina es, también, parte de dominarla. La tabla&nbsp;10.5 condensa las tres preguntas.</p>
+<table class="caption-top table">
+<caption>La honestidad que el libro exige a cada técnica vale para el método entero. Cuando las tres respuestas son afirmativas, paga con creces; cuando no, conviene una solución más simple.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Pregunta</th>
+<th style="text-align: left;">Si la respuesta es no…</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">¿Vivirá lo bastante para amortizar?</td>
+<td style="text-align: left;">un <em>prompt</em> a mano basta</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">¿Es su éxito medible?</td>
+<td style="text-align: left;">sin métrica no hay brújula</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">¿Lo justifica su volumen o criticidad?</td>
+<td style="text-align: left;">la disciplina es sobrecoste</td>
+</tr>
+</tbody>
+</table>
+<section id="adoptar-el-método-en-una-organización." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="adoptar-el-método-en-una-organización.">Adoptar el método en una organización.</h5>
+<p>Llevar esta forma de trabajar a una organización es un cambio cultural, no solo técnico, y conviene abordarlo con la misma gradualidad que un despliegue (sección&nbsp;10.7). El camino sensato empieza por un proyecto piloto bien elegido —uno con métrica clara, datos disponibles y valor visible—, donde el método demuestre su retorno sin arriesgar mucho. Un éxito medido y reproducible (sección&nbsp;10.4) convence más que cualquier argumento, y crea el apoyo para extender la práctica.</p>
+<p>La resistencia habitual nace de la inercia de la artesanía. Un equipo acostumbrado a ajustar <em>prompts</em> a mano percibe el ciclo de datos, métrica y optimización como una burocracia que ralentiza, hasta que vive el primer cambio de modelo que el método absorbe con un comando (sección&nbsp;10.1) mientras la artesanía exigiría rehacerlo todo. El argumento decisivo no es teórico, sino operativo: el método se sostiene cuando el mundo cambia, y la artesanía no.</p>
+<p>La adopción se apoya en herramientas y en personas. Plataformas internas que estandaricen el ciclo —el registro de experimentos (sección&nbsp;10.4), las pruebas de regresión (sección&nbsp;10.4), el despliegue gradual— bajan el coste de hacer las cosas bien, y un núcleo de practicantes que lo dominen difunde la disciplina con el ejemplo. El cambio de rol (sección&nbsp;10.6) se acompaña, no se impone: se muestra que programar <em>prompts</em> es más fiable y más llevadero que adivinarlos, y el resto sigue.</p>
+</section>
+<section id="el-salto-de-capacidad." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-salto-de-capacidad.">El salto de capacidad.</h5>
+<p>El campo avanza a saltos, y de cuando en cuando aparece un modelo notablemente más capaz que el anterior. Para la artesanía, ese salto es una amenaza: los <em>prompts</em> cuidadosamente ajustados al modelo viejo pueden no ser los mejores para el nuevo, y aprovecharlo exige rehacer el trabajo. Para quien programa <em>prompts</em>, el salto es una oportunidad que se cosecha con el ciclo de siempre: se recompila el mismo programa contra el modelo nuevo (sección&nbsp;10.1) y se mide cuánto mejora. La figura&nbsp;10.8 opone las dos reacciones.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap10/fig_08.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;10.8.</strong> Cuando aparece un modelo más capaz, la artesanía lo vive como amenaza —los <em>prompts</em> ajustados al viejo no son los mejores para el nuevo—; quien compila lo cosecha recompilando. Esa agilidad para incorporar lo último, sin reescribir, es una ventaja que se acumula.</figcaption>
+</figure>
+</div>
+<p>Esta diferencia es estratégica. Una organización que declara la conducta y la compila puede adoptar cada modelo nuevo casi tan rápido como aparece, recompilando y revalidando, mientras que una atada a <em>prompts</em> artesanales arrastra el coste de reescribirlos a cada salto. En un campo donde la capacidad de los modelos crece deprisa, esa agilidad para incorporar lo último —sin reescribir, solo recompilando— es una ventaja competitiva que se acumula con cada generación.</p>
+<p>El salto de capacidad reordena, además, las decisiones de diseño. Una tarea que hoy exige un flujo elaborado —descomponer, recuperar, razonar (capítulo&nbsp;7)— puede, con un modelo más capaz, resolverse con uno más simple, y conviene revisar esas decisiones cuando el modelo cambia. La medición vuelve a ser el árbitro: se comprueba si la complejidad que antes hacía falta sigue justificándose, y se simplifica donde el modelo nuevo lo permita. El método no solo absorbe el salto: lo aprovecha para aligerar el sistema.</p>
+</section>
+</section>
+<section id="la-trampa-de-la-demostración-la-transferencia-y-los-principios" class="level2">
+<h2 class="anchored" data-anchor-id="la-trampa-de-la-demostración-la-transferencia-y-los-principios">La trampa de la demostración, la transferencia y los principios</h2>
+<p>Hay un fracaso tan común que merece nombre propio: el sistema que deslumbra en la demostración y falla en producción. La demostración se elige —casos favorables, entradas limpias, el camino feliz—, y un sistema de LM, hábil con el lenguaje, produce respuestas convincentes que persuaden a quien mira. Esa misma elocuencia es traicionera: una respuesta plausible no es una respuesta correcta (capítulo&nbsp;8), y un puñado de casos lucidos no predice el comportamiento sobre la distribución real.</p>
+<p>La causa de fondo es confundir lo anecdótico con lo medido. Una demostración es un puñado de ejemplos sin rigor estadístico; la evaluación del libro (capítulo&nbsp;4) es una medición sobre un conjunto representativo y reservado, con su desviación y su prueba de significancia. La distancia entre ambas es la distancia entre creer que un sistema funciona y saberlo. Quien decide sobre la base de una demostración apuesta; quien decide sobre una evaluación, sabe (figura&nbsp;10.9).</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap10/fig_09.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;10.9.</strong> Una respuesta plausible no es una correcta, y un puñado de casos lucidos no predice el comportamiento sobre la distribución real. La demostración es anecdótica; la evaluación mide sobre un conjunto representativo. El primero a quien una buena demostración engaña es a su autor.</figcaption>
+</figure>
+</div>
+<p>La defensa es la disciplina entera del libro, y aquí se ve por qué importa tanto. Medir sobre datos reservados (sección&nbsp;10.1), con una métrica fiel (sección&nbsp;10.1), y confirmar en producción con un despliegue gradual (sección&nbsp;10.7) son las barreras que separan la impresión de la evidencia. Desconfiar de la propia demostración —preguntarse qué casos se eligieron y qué casos se evitaron— es un hábito profesional, porque el primero a quien una buena demostración engaña es a su autor.</p>
+<section id="transferencia-de-conocimiento-y-continuidad." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="transferencia-de-conocimiento-y-continuidad.">Transferencia de conocimiento y continuidad.</h5>
+<p>Un sistema profesional debe sobrevivir a la rotación de quien lo construyó, y la disciplina del libro hace de la continuidad una propiedad, no una esperanza. Cuando el conocimiento del sistema vive en artefactos explícitos —firmas que documentan los contratos, una métrica escrita, un conjunto de datos versionado, un registro de experimentos (secciones&nbsp;10.7 y&nbsp;10.4)—, incorporar a alguien nuevo es darle acceso a esos artefactos, no transmitirle una intuición intransferible.</p>
+<p>El contraste con la artesanía es severo. Un sistema de <em>prompts</em> ajustados a mano encierra su lógica en la cabeza de su autor: por qué cada frase dice lo que dice, qué casos motivaron cada ajuste, qué se probó y se descartó. Cuando esa persona se va, el sistema se vuelve intocable —nadie se atreve a cambiar algo que no entiende (sección&nbsp;10.7)— y, con el tiempo, se reescribe desde cero. El conocimiento codificado en datos y métricas, en cambio, se hereda y se construye sobre él.</p>
+<p>La continuidad es, al final, una forma de la reproducibilidad (sección&nbsp;10.4) extendida a las personas. Un resultado reproducible lo es para cualquiera que tenga los artefactos, hoy o dentro de un año, sea su autor o su sucesor. Esa propiedad —que el sistema no dependa de nadie en particular— convierte un proyecto frágil en un activo duradero de la organización, y es una de las consecuencias menos vistosas, pero más valiosas, de programar <em>prompts</em> en lugar de redactarlos.</p>
+</section>
+<section id="los-principios-del-oficio." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="los-principios-del-oficio.">Los principios del oficio.</h5>
+<p>Conviene destilar el libro en los pocos principios que lo gobiernan, porque las técnicas cambian pero los principios perduran. El primero: <em>declarar, no redactar</em>. Se especifica la conducta deseada con firmas y módulos (capítulo&nbsp;2), y se deja que la compilación encuentre el <em>prompt</em> que la realiza, en lugar de escribirlo a mano. El segundo: <em>medir, no opinar</em>. Toda afirmación sobre la calidad se respalda con una cifra sobre datos reservados (capítulo&nbsp;4); una mejora se demuestra, no se proclama.</p>
+<p>El tercero: <em>buscar, no adivinar</em>. Donde la artesanía apuesta por una redacción, la optimización prueba muchas y mide cuál rinde (capítulos&nbsp;5 y&nbsp;6), porque el espacio de buenos <em>prompts</em> guarda soluciones que la intuición no encuentra. El cuarto: <em>versionar y mantener</em>. El <em>prompt</em> compilado es un artefacto que se guarda, se versiona y se reajusta ante el cambio (secciones&nbsp;10.1 y&nbsp;10.3), no un texto que se reescribe en cada despliegue. Y el quinto, que atraviesa a todos: <em>honestidad</em>. Sobre los límites, sobre las cifras, sobre cuanto el sistema no sabe (capítulo&nbsp;8). La tabla&nbsp;10.6 los enuncia en una frase cada uno.</p>
+<table class="caption-top table">
+<caption>Las técnicas cambian, los principios perduran. No son específicos de DSPy: describen una forma de pensar el problema anterior a cualquier herramienta.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Principio</th>
+<th style="text-align: left;">En una frase</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Declarar, no redactar</td>
+<td style="text-align: left;">especificar la conducta, no el <em>prompt</em></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Medir, no opinar</td>
+<td style="text-align: left;">respaldar toda afirmación con una cifra</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Buscar, no adivinar</td>
+<td style="text-align: left;">probar muchas redacciones y medir cuál rinde</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Versionar y mantener</td>
+<td style="text-align: left;">el <em>prompt</em> es un artefacto, no un texto</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Honestidad</td>
+<td style="text-align: left;">sobre los límites y sobre cuanto no se sabe</td>
+</tr>
+</tbody>
+</table>
+<p>Estos principios no son específicos de DSPy ni de ninguna herramienta; DSPy es, simplemente, el marco que hoy los encarna con menos fricción. Otro marco, mañana, podría encarnarlos mejor, y los principios seguirían valiendo, porque describen una forma de pensar el problema —tratar la conducta de un modelo de lenguaje como algo que se programa, se mide y se mantiene— anterior a su realización concreta. Quien interioriza los principios sabrá aplicarlos con la herramienta que sea, y esa es la razón por la que este libro ha insistido en ellos más que en cualquier comando.</p>
+<p>La síntesis de los cinco es una sola convicción: que la calidad de un sistema de modelos de lenguaje no es cuestión de talento para redactar, sino de disciplina para declarar, medir, buscar, mantener y ser honesto. Esa convicción, sostenida con método a lo largo de nueve capítulos, es la herencia que el libro deja, y la que su lector se lleva para aplicarla mucho después de que las herramientas de hoy hayan quedado atrás.</p>
+</section>
+</section>
+<section id="métricas-operativas-mantenimiento-y-madurez" class="level2">
+<h2 class="anchored" data-anchor-id="métricas-operativas-mantenimiento-y-madurez">Métricas operativas, mantenimiento y madurez</h2>
+<p>Conviene distinguir dos familias de métricas que es fácil confundir. La <em>métrica de optimización</em> es la que guía la compilación (sección&nbsp;10.1): un escalar diferenciable por la búsqueda, que el optimizador maximiza (capítulo&nbsp;6). Las <em>métricas operativas</em> son los indicadores que el negocio vigila en producción —tiempo de resolución de un incidente, fracción de alertas accionadas, satisfacción del analista—, más amplios y a menudo no diferenciables. Optimizar contra la primera sirve a las segundas solo si está bien alineada con ellas.</p>
+<p>Esa alineación es el trabajo delicado. Una métrica de optimización que sube mientras los indicadores operativos no se mueven —o empeoran— denota un desajuste: el sistema mejora en el indicador que optimiza, no en el que de verdad importa al negocio (sección&nbsp;10.5). El profesional cierra esa brecha eligiendo una métrica de optimización que correlacione con los indicadores operativos, y revisándola cuando la correlación se rompe. La métrica no es sagrada: si no sirve a los indicadores que importan, se cambia. La figura&nbsp;10.10 sitúa las dos familias.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap10/fig_10.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;10.10.</strong> Optimizar contra la métrica sirve al negocio solo si está alineada con los indicadores operativos —tiempo de resolución, alertas accionadas—. Si sube mientras ellos no se mueven, hay un desajuste: la métrica no es sagrada; si no sirve a cuanto importa, se cambia.</figcaption>
+</figure>
+</div>
+<p>La vigilancia conjunta de ambas familias completa la monitorización (sección&nbsp;10.3). Se sigue la métrica de optimización como <em>proxy</em> continuo de la calidad técnica, y los indicadores operativos como la verdad del valor entregado. Cuando ambas suben, el sistema mejora de verdad; cuando divergen, hay una lección que aprender sobre la métrica o sobre el sistema. Mantener las dos a la vista evita el espejismo de optimizar un número cuyo significado real se ha perdido.</p>
+<section id="el-presupuesto-de-mantenimiento." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-presupuesto-de-mantenimiento.">El presupuesto de mantenimiento.</h5>
+<p>Un error de planificación frecuente es presupuestar la construcción de un sistema y olvidar su mantenimiento. Un sistema de LM en producción no es un entregable que se termina, sino un activo que se opera: la deriva exige recompilar (sección&nbsp;10.3), los modelos cambian y obligan a revalidar (sección&nbsp;10.4), los incidentes piden respuesta (sección&nbsp;10.9), y la monitorización consume atención continua. Ese coste recurrente es real y conviene presupuestarlo desde el inicio.</p>
+<p>La buena noticia es que la disciplina del libro abarata el mantenimiento más que la artesanía. Recompilar ante la deriva es un comando, no una reescritura (sección&nbsp;10.1); revertir un fallo es restaurar un artefacto, no depurar <em>prompts</em> (sección&nbsp;10.9); incorporar un modelo nuevo es reoptimizar, no rehacer (sección&nbsp;10.10). El coste de mantenimiento existe, pero el método lo convierte en operaciones rutinarias y baratas, frente a las costosas y manuales de la artesanía.</p>
+<p>Dimensionar ese presupuesto es, como todo, una decisión medida. Sistemas críticos o de alto volumen justifican un mantenimiento atento —monitorización fina, reoptimización frecuente—; los menores, uno ligero. No es opción el <em>cero</em> mantenimiento: un sistema desplegado y olvidado se degrada con la deriva hasta fallar (sección&nbsp;10.5), y el coste de ese fallo supera con creces el del mantenimiento que lo habría evitado. Presupuestar el mantenimiento no es un gasto, sino un seguro.</p>
+</section>
+<section id="de-prototipo-a-producto-a-plataforma." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="de-prototipo-a-producto-a-plataforma.">De prototipo a producto a plataforma.</h5>
+<p>Los sistemas atraviesan grados de madurez, y conviene saber en cuál se está para no exigir de uno lo propio de otro. Un <em>prototipo</em> prueba que la idea funciona: basta un <em>prompt</em> razonable y unos ejemplos, sin el ciclo completo (sección&nbsp;10.10). Un <em>producto</em> sirve a usuarios reales con fiabilidad: exige ya toda la disciplina —datos, métrica, optimización, monitorización, mantenimiento—. Una <em>plataforma</em> sostiene muchos sistemas: añade las herramientas comunes —registro de experimentos, despliegue gradual, estándares— que hacen barato construir bien el siguiente. La tabla&nbsp;10.7 resume los tres grados.</p>
+<table class="caption-top table">
+<caption>Conviene saber en qué grado está un sistema para no exigir de uno lo propio de otro. El ascenso es gradual: se gana midiendo el valor en cada grado y subiendo cuando el siguiente se justifica.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Grado</th>
+<th style="text-align: left;">Qué exige</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Prototipo</td>
+<td style="text-align: left;">un <em>prompt</em> razonable y unos ejemplos</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Producto</td>
+<td style="text-align: left;">todo el ciclo: datos, métrica, monitorización</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Plataforma</td>
+<td style="text-align: left;">herramientas comunes para muchos sistemas</td>
+</tr>
+</tbody>
+</table>
+<p>Forzar el grado equivocado es un error en ambas direcciones. Montar el ciclo completo para un prototipo desechable malgasta esfuerzo (sección&nbsp;10.5); desplegar un prototipo como si fuera un producto, sin su disciplina, siembra el fallo en producción (sección&nbsp;10.11). Reconocer en qué grado está un sistema —y cuándo conviene que ascienda al siguiente— es una decisión de ingeniería que ordena cuánta disciplina aplicar y cuándo.</p>
+<p>El ascenso de grado es, además, gradual y reversible. Un prototipo que demuestra su valor se promueve a producto añadiéndole el ciclo (sección&nbsp;10.10); varios productos que comparten necesidades justifican invertir en la plataforma que los sirva a todos. La madurez no se decreta: se gana midiendo el valor en cada grado y subiendo cuando el siguiente se justifica. Es la misma lógica empírica del libro —medir antes de invertir— aplicada a la evolución del propio sistema.</p>
+</section>
+</section>
+<section id="señales-de-un-sistema-sano-y-su-vida-en-el-tiempo" class="level2">
+<h2 class="anchored" data-anchor-id="señales-de-un-sistema-sano-y-su-vida-en-el-tiempo">Señales de un sistema sano y su vida en el tiempo</h2>
+<p>Conviene cerrar la parte práctica con un retrato de las señales visibles cuando todo se hace bien, porque reconocer la salud de un sistema es tan útil como diagnosticar su enfermedad. Un sistema sano <em>se entiende</em>: cualquiera del equipo lee sus firmas, su métrica y su artefacto compilado, y sabe qué hace y por qué (secciones&nbsp;10.7 y&nbsp;10.11). Un sistema enfermo es opaco —su conducta vive en <em>prompts</em> que solo su autor descifra—, y esa opacidad es el primer síntoma de fragilidad.</p>
+<p>Un sistema sano <em>se mide y se reproduce</em>: sus cifras salen de datos reservados con su desviación (capítulo&nbsp;4), y una corrida repite el resultado de otra (sección&nbsp;10.4). Un sistema sano <em>se mantiene solo en lo rutinario</em>: ante la deriva se recompila con un comando (sección&nbsp;10.3), ante un fallo se revierte a la versión anterior (sección&nbsp;10.9), ante un modelo nuevo se reoptimiza (sección&nbsp;10.10). Y un sistema sano <em>es honesto</em>: conoce sus límites, los reporta, y mantiene al humano al mando donde el juicio importa (capítulo&nbsp;8). La tabla&nbsp;10.8 opone las señales de salud a las de enfermedad.</p>
+<table class="caption-top table">
+<caption>Las señales del libro entero, vistas desde el resultado en lugar del método. El profesional las usa como una revisión de salud continua, no espera a que el sistema falle.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Un sistema sano…</th>
+<th style="text-align: left;">frente a uno enfermo…</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">se entiende</td>
+<td style="text-align: left;">opaco, solo su autor lo descifra</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">se mide y se reproduce</td>
+<td style="text-align: left;">cifras irrepetibles</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">se mantiene con rutina</td>
+<td style="text-align: left;">cada cambio es una crisis</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">es honesto</td>
+<td style="text-align: left;">promete sin sostener</td>
+</tr>
+</tbody>
+</table>
+<p>Estas señales son las del libro entero, vistas desde el resultado en lugar del método. Si el sistema se entiende, se mide, se reproduce, se mantiene con rutina y es honesto, la disciplina se aplicó; si falla en alguna, ahí está el trabajo pendiente. El profesional las usa como una revisión de salud: no espera a que el sistema falle para preguntarse si está bien construido, sino que comprueba estas señales de continuo, porque un sistema sano es barato de operar y uno enfermo, una crisis que aún no ha estallado.</p>
+<p>La conclusión práctica es que la calidad de un sistema de LM no se ve solo en su exactitud, sino en estas propiedades de segundo orden —comprensibilidad, reproducibilidad, mantenibilidad, honestidad— que la disciplina del libro produce. Un sistema muy exacto pero opaco, irreproducible o abandonado a la deriva es un fracaso aplazado; uno honesto, medible y mantenible es un activo que dura. Programar <em>prompts</em>, al final, no es solo conseguir que un sistema acierte, sino que sea sano, y esa es la diferencia entre una proeza puntual y una ingeniería.</p>
+<section id="seis-meses-en-la-vida-de-un-sistema." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="seis-meses-en-la-vida-de-un-sistema.">Seis meses en la vida de un sistema.</h5>
+<p>El valor de la disciplina se aprecia mejor en el tiempo que en una instantánea. Sígase un sistema de triaje desde su nacimiento. En el <em>primer mes</em> se declara, se reúnen los datos, se escribe la métrica y se compila un primer artefacto que supera al <em>baseline</em> con un margen significativo (sección&nbsp;10.6); se despliega en canario (sección&nbsp;10.7), se confirma sobre tráfico real, y se extiende. El sistema entra en producción con su monitorización vigilando calidad, coste y latencia (sección&nbsp;10.3).</p>
+<p>Pasan los meses sin sobresaltos: la caché abarata el servicio, los fallos recogidos se acumulan en silencio (sección&nbsp;10.3), y los indicadores operativos confirman que el sistema aporta valor (sección&nbsp;10.12). Al <em>tercer mes</em>, la monitorización detecta una caída lenta de calidad: ha aparecido un tipo de incidente nuevo, y la distribución ha derivado (sección&nbsp;10.3). No hay crisis: se añaden los casos recogidos al corpus, se recompila con un comando, se comprueba que no hay regresión (sección&nbsp;10.4), y la versión nueva sube en canario. El sistema se ha adaptado en una tarde.</p>
+<p>Al <em>quinto mes</em> aparece un modelo notablemente mejor y más barato (sección&nbsp;10.10). El equipo recompila el mismo programa contra él, mide una mejora clara a menor coste, y migra tras revalidar —sin reescribir un solo <em>prompt</em>—. Poco después, un despliegue defectuoso pasa las pruebas pero falla ante un caso real; la monitorización lo detecta, se revierte al artefacto anterior en segundos (sección&nbsp;10.9), y el análisis del incidente produce un caso nuevo y una prueba que lo cubre. El sistema sale del percance más robusto que antes.</p>
+<p>Este medio año condensa la tesis del libro en su forma operativa. Nada de lo ocurrido —la deriva, el modelo nuevo, el incidente— exigió rehacer el sistema a mano; cada evento se absorbió con una operación rutinaria del ciclo (figura&nbsp;10.1). Un sistema artesanal habría vivido los mismos eventos como otras tantas crisis de reescritura y revalidación manual. La diferencia —entre la crisis y la rutina, entre el sobresalto y el comando— es, al cabo, el valor que programar <em>prompts</em> entrega cada día que el sistema vive, mucho después de que la emoción de construirlo haya pasado.</p>
+</section>
+</section>
+<section id="cierre" class="level2">
+<h2 class="anchored" data-anchor-id="cierre">Cierre</h2>
+<p>El libro empezó con una tesis: el <em>prompt</em> debe dejar de escribirse y pasar a compilarse. La teoría del aprendizaje en contexto la justificó; la anatomía del <em>prompt</em> la materializó; la evaluación le dio rigor; los optimizadores la hicieron operativa; los flujos la llevaron a sistemas reales; y los binarios la empujaron hasta la frontera del campo. No queda una técnica, sino una forma de trabajar: declarar la intención, medir con honestidad y dejar que la búsqueda, no la artesanía, encuentre la realización.</p>
+<p>El recorrido tuvo un orden deliberado. Primero el <em>porqué</em>: por qué la artesanía de <em>prompts</em> no escala y por qué la teoría del aprendizaje en contexto convierte la selección de demostraciones y la redacción de instrucciones en un problema de búsqueda, no de inspiración. Luego el <em>cómo</em>: la anatomía de un <em>prompt</em> y sus firmas tipadas, la clasificación como primer caso, y la evaluación rigurosa sin la cual ninguna optimización tiene sentido. Después las <em>herramientas</em>: la optimización de demostraciones y de instrucciones, las dos mitades del <em>prompt</em> compilado. Y, por fin, los <em>sistemas</em>: los flujos de varios pasos, el dominio adverso de los binarios, y la práctica profesional que los sostiene en producción. Cada capítulo asumió el anterior y preparó el siguiente.</p>
+<p>Si una sola idea resume el libro, es que el <em>prompt</em> es un artefacto de ingeniería, no un texto que se retoca. Como artefacto, se declara con un contrato, se mide contra datos, se optimiza por búsqueda, se versiona, se despliega, se monitoriza y se mantiene. Esa mudanza —del arte irreproducible a la ingeniería medible— es la que da a la programación de <em>prompts</em> su valor duradero: no depende de un truco que mañana caduca, sino de una disciplina que sobrevive al cambio de modelo, de tarea y de moda. Las técnicas concretas envejecerán; la forma de pensar el problema, no.</p>
+<p>Queda una invitación más que una conclusión. Las herramientas seguirán cambiando —vendrán optimizadores mejores, modelos más capaces, dominios nuevos—, pero el método es transferible a todos ellos, porque es anterior a cualquiera. Quien lo adopte dejará de depender de la suerte y de la intuición, y construirá sistemas de modelos de lenguaje que se entienden, se miden y se sostienen. Esa es la programación de <em>prompts</em>, y este libro ha sido su método; el resto es practicarlo.</p>
+</section>
+<section id="lecturas-recomendadas" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="lecturas-recomendadas">Lecturas recomendadas</h2>
+<ul>
+<li><p><span class="citation" data-cites="khattab2024dspy">Khattab et&nbsp;al. (<a href="#ref-khattab2024dspy" role="doc-biblioref">2024</a>)</span>: el flujo de desarrollo recomendado por el marco.</p></li>
+<li><p><span class="citation" data-cites="opsahlong2024mipro"><span class="nocase">Opsahl-Ong et&nbsp;al.</span> (<a href="#ref-opsahlong2024mipro" role="doc-biblioref">2024</a>)</span>: lecciones de optimización para el profesional.</p></li>
+<li><p><span class="citation" data-cites="agrawal2025gepa"><span class="nocase">Agrawal et&nbsp;al.</span> (<a href="#ref-agrawal2025gepa" role="doc-biblioref">2025</a>)</span>: eficiencia muestral en presupuestos ajustados.</p></li>
+</ul>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">Referencias</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-agrawal2025gepa" class="csl-entry" role="listitem">
+<span class="nocase">Agrawal, Lakshya A. et&nbsp;al.</span> 2025. <span>«<span>GEPA</span>: Reflective Prompt Evolution Can Outperform Reinforcement Learning»</span>. <a href="https://arxiv.org/abs/2507.19457">https://arxiv.org/abs/2507.19457</a>.
+</div>
+<div id="ref-litellm" class="csl-entry" role="listitem">
+BerriAI. 2024. <span>«<span>LiteLLM</span>: llamada unificada a más de 100 modelos de lenguaje»</span>. <a href="https://github.com/BerriAI/litellm">https://github.com/BerriAI/litellm</a>.
+</div>
+<div id="ref-khattab2024dspy" class="csl-entry" role="listitem">
+Khattab, Omar, Arnav Singhvi, Paridhi Maheshwari, et&nbsp;al. 2024. <span>«<span>DSPy</span>: Compiling Declarative Language Model Calls into Self-Improving Pipelines»</span>. <em>The Twelfth International Conference on Learning Representations (ICLR)</em>.
+</div>
+<div id="ref-kwon2023vllm" class="csl-entry" role="listitem">
+Kwon, Woosuk, Zhuohan Li, Siyuan Zhuang, et&nbsp;al. 2023. <span>«Efficient Memory Management for Large Language Model Serving with <span>PagedAttention</span>»</span>. <em>Proceedings of the 29th Symposium on Operating Systems Principles (SOSP)</em>. <a href="https://arxiv.org/abs/2309.06180">https://arxiv.org/abs/2309.06180</a>.
+</div>
+<div id="ref-opsahlong2024mipro" class="csl-entry" role="listitem">
+<span class="nocase">Opsahl-Ong, Krista et&nbsp;al.</span> 2024. <span>«Optimizing Instructions and Demonstrations for Multi-Stage Language Model Programs»</span>. <a href="https://arxiv.org/abs/2406.11695">https://arxiv.org/abs/2406.11695</a>.
+</div>
+<div id="ref-sutton2019bitter" class="csl-entry" role="listitem">
+Sutton, Richard S. 2019. <span>«The Bitter Lesson»</span>. <a href="http://www.incompleteideas.net/IncIdeas/BitterLesson.html">http://www.incompleteideas.net/IncIdeas/BitterLesson.html</a>.
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copiado");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copiado");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./cap09.html" class="pagination-link" aria-label="Capítulo 9. DSPy para privacidad: detección, minimización y no fuga de datos">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Capítulo 9. DSPy para privacidad: detección, minimización y no fuga de datos</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>© 2026 Manuel Muñoz Plá · Edición web bajo licencia <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.es">CC BY-NC-ND 4.0</a> (uso académico con atribución; sin uso comercial ni obras derivadas) · El código va aparte bajo licencia MIT</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

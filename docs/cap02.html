@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Capítulo 2. Anatomía de un prompt y primer programa DSPy – Programación de prompts con DSPy</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./cap03.html" rel="next">
+<link href="./cap01.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-f7bd9765ec068e3aae6dba6073a1e2a9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No se han encontrado resultados",
+    "search-matching-documents-text": "documentos encontrados",
+    "search-copy-link-title": "Copiar el enlace en la búsqueda",
+    "search-hide-matches-text": "Ocultar resultados adicionales",
+    "search-more-match-text": "resultado adicional en este documento",
+    "search-more-matches-text": "resultados adicionales en este documento",
+    "search-clear-button-title": "Borrar",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancelar",
+    "search-submit-button-title": "Enviar",
+    "search-label": "Buscar"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./cap02.html">Capítulo 2. Anatomía de un prompt y primer programa DSPy</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Buscar" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Programación de prompts con DSPy</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Alternar modo lector">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Buscar"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Inicio</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap01.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 1. Por qué programar prompts</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap02.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Capítulo 2. Anatomía de un prompt y primer programa DSPy</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap03.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 3. Clasificación de intenciones en un SOC</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap04.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 4. Evaluación rigurosa de programas DSPy</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap05.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 5. Optimización de demostraciones</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap06.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 6. Optimización de instrucciones</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap07.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 7. Flujos complejos: RAG, agentes y herramientas en seguridad</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap08.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 8. DSPy en análisis de binarios: embeddings de código y razonamiento con LLM</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap09.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 9. DSPy para privacidad: detección, minimización y no fuga de datos</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap10.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 10. Cierre: práctica profesional con DSPy</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">En esta página</h2>
+   
+  <ul>
+  <li><a href="#del-texto-a-los-tokens-y-la-ventana-de-contexto" id="toc-del-texto-a-los-tokens-y-la-ventana-de-contexto" class="nav-link active" data-scroll-target="#del-texto-a-los-tokens-y-la-ventana-de-contexto">Del texto a los <em>tokens</em> y la ventana de contexto</a></li>
+  <li><a href="#anatomía-de-un-prompt-y-su-decodificación" id="toc-anatomía-de-un-prompt-y-su-decodificación" class="nav-link" data-scroll-target="#anatomía-de-un-prompt-y-su-decodificación">Anatomía de un <em>prompt</em> y su decodificación</a></li>
+  <li><a href="#la-abstracción-lm-instalación-caché-y-coste" id="toc-la-abstracción-lm-instalación-caché-y-coste" class="nav-link" data-scroll-target="#la-abstracción-lm-instalación-caché-y-coste">La abstracción <code>LM</code>: instalación, caché y coste</a></li>
+  <li><a href="#firmas-como-contratos-tipados" id="toc-firmas-como-contratos-tipados" class="nav-link" data-scroll-target="#firmas-como-contratos-tipados">Firmas como contratos tipados</a></li>
+  <li><a href="#adaptadores-del-campo-tipado-al-texto-y-de-vuelta" id="toc-adaptadores-del-campo-tipado-al-texto-y-de-vuelta" class="nav-link" data-scroll-target="#adaptadores-del-campo-tipado-al-texto-y-de-vuelta">Adaptadores: del campo tipado al texto y de vuelta</a></li>
+  <li><a href="#módulos-del-predict-al-razonamiento" id="toc-módulos-del-predict-al-razonamiento" class="nav-link" data-scroll-target="#módulos-del-predict-al-razonamiento">Módulos: del <code>Predict</code> al razonamiento</a></li>
+  <li><a href="#el-primer-programa-y-las-salidas-estructuradas" id="toc-el-primer-programa-y-las-salidas-estructuradas" class="nav-link" data-scroll-target="#el-primer-programa-y-las-salidas-estructuradas">El primer programa y las salidas estructuradas</a></li>
+  <li><a href="#entradas-multimodales-streaming-y-latencia" id="toc-entradas-multimodales-streaming-y-latencia" class="nav-link" data-scroll-target="#entradas-multimodales-streaming-y-latencia">Entradas multimodales, <em>streaming</em> y latencia</a></li>
+  <li><a href="#observabilidad-y-el-modelo-de-programación" id="toc-observabilidad-y-el-modelo-de-programación" class="nav-link" data-scroll-target="#observabilidad-y-el-modelo-de-programación">Observabilidad y el modelo de programación</a></li>
+  <li><a href="#errores-límites-de-tasa-y-reproducibilidad" id="toc-errores-límites-de-tasa-y-reproducibilidad" class="nav-link" data-scroll-target="#errores-límites-de-tasa-y-reproducibilidad">Errores, límites de tasa y reproducibilidad</a></li>
+  <li><a href="#lecturas-recomendadas" id="toc-lecturas-recomendadas" class="nav-link" data-scroll-target="#lecturas-recomendadas">Lecturas recomendadas</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Capítulo 2. Anatomía de un prompt y primer programa DSPy</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>El capítulo anterior defendió, con teoría, por qué el <em>prompt</em> debe compilarse en vez de escribirse. Este desciende al detalle material de ese objeto. Antes de delegar su construcción a un optimizador conviene saber de qué está hecho un <em>prompt</em> —de <em>tokens</em>, no de palabras—, cómo se transforma la distribución del modelo en texto, y qué piezas ensambla DSPy a partir de una firma. Solo quien reconoce esa anatomía sabe leer la salida del compilador y diagnosticar un fallo con criterio.</p>
+<p>El recorrido va de lo micro a lo macro: del <em>token</em> a la firma. Primero, la tokenización y la decodificación, que gobiernan coste y variabilidad; después, la abstracción de modelo que independiza el código del proveedor; luego, las firmas tipadas y los módulos, que son las unidades sobre las que operarán la evaluación y los optimizadores; y, al cerrar, el primer programa de extremo a extremo, con su <em>prompt</em> diseccionado pieza a pieza. El tono mantiene el del libro: se asume soltura con Python y con el manejo de modelos; no se explican preliminares.</p>
+<section id="del-texto-a-los-tokens-y-la-ventana-de-contexto" class="level2">
+<h2 class="anchored" data-anchor-id="del-texto-a-los-tokens-y-la-ventana-de-contexto">Del texto a los <em>tokens</em> y la ventana de contexto</h2>
+<p>Un modelo de lenguaje no ve caracteres ni palabras: ve <em>tokens</em>, las unidades de su vocabulario. La tokenización por subpalabras, hoy estándar, fragmenta el texto en piezas de tamaño variable mediante un algoritmo que aprende, sobre un corpus, las secuencias de caracteres más frecuentes —la idea original del <em>byte pair encoding</em> para traducción <span class="citation" data-cites="sennrich2016bpe">(<a href="#ref-sennrich2016bpe" role="doc-biblioref">Sennrich et&nbsp;al. 2016</a>)</span>—. Una palabra común ocupa un <em>token</em>; una rara se parte en varios; un número o un fragmento de código pueden estallar en muchos. El vocabulario típico ronda las decenas o centenas de miles de entradas, y cada <em>token</em> se proyecta en un vector antes de entrar en la red. La figura&nbsp;2.1 lo ilustra.</p>
+<p>Esta granularidad no es un tecnicismo inocuo: condiciona tres aspectos prácticos del trabajo con <em>prompts</em>. El primero es el coste. La facturación de las API y el límite de la ventana de contexto se cuentan en <em>tokens</em>, no en palabras, de modo que estimar el gasto exige contar <em>tokens</em>, no caracteres. El segundo es el sesgo lingüístico: un texto en español suele requerir más <em>tokens</em> que su equivalente en inglés, porque los tokenizadores se entrenan con corpus dominados por el inglés; el mismo contenido cuesta más y consume más contexto en otras lenguas. El tercero son los artefactos de frontera: como el modelo razona sobre <em>tokens</em>, tareas en apariencia triviales —contar letras, operar dígito a dígito— se complican cuando la unidad no coincide con el símbolo relevante.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap02/fig_01.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;2.1.</strong> Una palabra poco frecuente se fragmenta en varias subpalabras, y cada una se asigna a un identificador del vocabulario. El modelo opera sobre esos identificadores, no sobre caracteres ni palabras.</figcaption>
+</figure>
+</div>
+<p>La consecuencia operativa es que toda contabilidad —de coste, de longitud, de truncamiento— se hace en <em>tokens</em>, y DSPy expone ese conteo en el historial del modelo (sección&nbsp;2.3). Tener presente la unidad real evita sorpresas en la factura y en el límite de contexto.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap02/fig_02.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;2.2.</strong> La misma frase, tokenizada en dos lenguas (recuento ilustrativo). Como los tokenizadores se entrenan con corpus dominados por el inglés, el español fragmenta en más piezas: el mismo contenido cuesta más y consume más contexto.</figcaption>
+</figure>
+</div>
+<p>El algoritmo que aprende esas piezas es sencillo y revelador. Partiendo de los caracteres sueltos como vocabulario inicial, se cuenta en el corpus qué par de unidades adyacentes aparece con más frecuencia y se fusiona en una nueva unidad; el conteo se repite, fusión a fusión, hasta alcanzar el tamaño de vocabulario deseado <span class="citation" data-cites="sennrich2016bpe">(<a href="#ref-sennrich2016bpe" role="doc-biblioref">Sennrich et&nbsp;al. 2016</a>)</span>. Las secuencias frecuentes —prefijos, sufijos, palabras comunes— acaban como <em>tokens</em> únicos; las raras quedan descompuestas en piezas. De ahí la asimetría práctica: «seguridad» puede ocupar un <em>token</em>, mientras que un identificador como «<code>x7f_init</code>» se fragmenta en varios. Las ventanas de contexto típicas de los modelos actuales van de unos miles a cientos de miles de <em>tokens</em>, y conocer el orden de magnitud del propio presupuesto evita diseñar un <em>prompt</em> que no quepa.</p>
+<section id="la-ventana-de-contexto." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="la-ventana-de-contexto.">La ventana de contexto.</h5>
+<p>Los <em>tokens</em> no solo se pagan: también caben en un espacio finito. Cada modelo tiene una <em>ventana de contexto</em> —un número máximo de <em>tokens</em> que admite entre el <em>prompt</em> y la respuesta—, y todo cuanto entra compite por ese presupuesto: la instrucción, el contexto recuperado, las demostraciones y la propia salida. Programar <em>prompts</em> es, en parte, administrar esa ventana.</p>
+<p>La gestión tiene tres frentes. El primero es el <em>recorte</em>: cuando el material excede la ventana, hay que decidir qué se descarta —los documentos menos relevantes, las demostraciones sobrantes— en vez de dejar que el proveedor trunque a ciegas por el final. El segundo es el <em>empaquetado</em>: como las demostraciones consumen contexto, su número óptimo no es «cuantas más mejor», sino el que equilibra señal y presupuesto, y de ahí que seleccionarlas con criterio (capítulo&nbsp;5) importe también por coste. El tercero es la <em>atención</em>: el cómputo de un <em>transformer</em> crece con el cuadrado de la longitud, de modo que un contexto largo no solo cuesta más <em>tokens</em>, sino más tiempo por <em>token</em>.</p>
+<p>La lección de diseño es que el contexto es un recurso escaso que se reparte, no un saco sin fondo. Un sistema que apila documentos sin medir su aporte paga doble —en factura y en latencia— y, peor, diluye la señal útil entre ruido. DSPy hace explícito ese reparto al construir el <em>prompt</em>, y los optimizadores lo respetan al elegir cuántas demostraciones inyectar. La figura&nbsp;2.3 dibuja ese reparto.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap02/fig_03.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;2.3.</strong> Todo cuanto entra compite por un presupuesto fijo: la instrucción, el contexto recuperado, las demostraciones y la salida reservada. El contexto es un recurso escaso que se reparte, no un saco sin fondo; apilar material sin medir su aporte paga en factura y en latencia.</figcaption>
+</figure>
+</div>
+</section>
+<section id="tokens-especiales-y-plantilla-de-chat." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="tokens-especiales-y-plantilla-de-chat."><em>Tokens</em> especiales y plantilla de chat.</h5>
+<p>No todos los <em>tokens</em> representan texto. El vocabulario reserva <em>tokens especiales</em> que estructuran la secuencia: marcas de inicio y fin, delimitadores que abren y cierran cada papel del diálogo, señales de fin de turno que detienen la generación. La <em>plantilla de chat</em> (<em>chat template</em>) es la receta que convierte la lista de mensajes con papeles —sistema, usuario, asistente— en esa secuencia exacta de <em>tokens</em>, y es específica de cada familia de modelos: la misma conversación se serializa distinto para cada una. El detalle denota diseño, no decoración. Un modelo ajustado por instrucciones aprendió a responder <em>dentro</em> de su plantilla; servirle el texto con otra —o con ninguna— degrada la obediencia sin mensaje de error alguno, el fallo silencioso más desconcertante del trabajo con modelos locales. Con proveedores por API la plantilla la aplica el servidor; con un modelo local, el servidor de inferencia la toma de la configuración del modelo, y usar un modelo base —sin ajuste por instrucciones— con plantilla de chat produce exactamente esa degradación. DSPy queda por encima de este estrato —habla en mensajes con papeles, no en <em>tokens</em>—, pero cuando un modelo local «no obedece», la plantilla es el primer sospechoso que revisar. La forma general se ve mejor en código que en prosa:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>mensajes <span class="op">=</span> [</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"role"</span>: <span class="st">"system"</span>, <span class="st">"content"</span>: <span class="st">"Clasifica el mensaje."</span>},</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"role"</span>: <span class="st">"user"</span>,   <span class="st">"content"</span>: <span class="st">"conexion SSH fallida"</span>},</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># la plantilla del modelo serializa los papeles a tokens especiales:</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># &lt;|inicio|&gt;system&lt;|sep|&gt;Clasifica el mensaje.&lt;|fin|&gt;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># &lt;|inicio|&gt;user&lt;|sep|&gt;conexion SSH fallida&lt;|fin|&gt;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># &lt;|inicio|&gt;assistant&lt;|sep|&gt;            &lt;- aqui empieza a generar</span></span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Los nombres exactos de las marcas varían por familia; la estructura —papeles delimitados por <em>tokens</em> reservados y un arranque de asistente que invita a generar— es común, y verla desarma su misterio.</p>
+</section>
+<section id="bytes-tildes-y-caracteres-invisibles." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="bytes-tildes-y-caracteres-invisibles.">Bytes, tildes y caracteres invisibles.</h5>
+<p>Bajo las subpalabras hay otra capa: los tokenizadores modernos operan sobre <em>bytes</em>, no sobre caracteres, con lo cual ningún texto queda fuera del vocabulario —todo byte tiene representación— pero los alfabetos alejados del inglés pagan peaje doble. Una tilde es un carácter para el lector y dos bytes para el tokenizador; un emoji, hasta cuatro; el efecto se suma al sesgo de corpus de la figura&nbsp;2.2. Y hay bytes que el lector no ve: caracteres de anchura cero, marcas de dirección, homóglifos de otros alfabetos. Para el modelo son <em>tokens</em> como cualesquiera otros, y esa asimetría —invisible para la persona, presente para la máquina— es materia prima de ataques: instrucciones escondidas en texto en apariencia limpio, ya en el terreno de la inyección que el capítulo&nbsp;7 trata en serio. La higiene mínima en la frontera del sistema: normalizar la codificación, retirar los caracteres de control que la tarea no exige y tratar el texto de origen externo como entrada no confiable también en este estrato.</p>
+</section>
+<section id="contar-y-presupuestar." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="contar-y-presupuestar.">Contar y presupuestar.</h5>
+<p>La contabilidad seria se hace con el tokenizador del modelo, no con reglas de tres sobre caracteres: la heurística de «cuatro caracteres por <em>token</em>» se desvía justo donde más duele —código, identificadores, otros idiomas—. Las fuentes fiables son dos: el tokenizador oficial del proveedor, para estimar antes de llamar, y el conteo real que cada respuesta trae consigo y que DSPy conserva en el historial (sección&nbsp;2.3), para auditar después. Con esa medida, la ventana se administra como cualquier presupuesto: una partida por componente —instrucción, demostraciones, contexto recuperado— y una <em>reserva explícita para la salida</em>, porque el tope de generación compite por la misma ventana y un <em>prompt</em> que la agota trunca su propia respuesta. La política de recorte se escribe, no se improvisa: qué componente cede primero cuando no cabe todo —normalmente el contexto menos relevante, nunca la instrucción— y con qué criterio se poda, decisión que el capítulo&nbsp;7 refina para el material recuperado.</p>
+</section>
+<section id="truncar-no-es-neutral-el-centro-perdido." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="truncar-no-es-neutral-el-centro-perdido.">Truncar no es neutral: el centro perdido.</h5>
+<p>Aun cuando todo cabe, no todo lugar de la ventana vale igual. Está medido que los modelos usan mejor la información situada al principio y al final del contexto y peor la del centro: ante la misma pregunta con la evidencia colocada en posiciones distintas, el acierto dibuja una curva en U, y la degradación crece con la longitud <span class="citation" data-cites="liu2024lostmiddle">(<a href="#ref-liu2024lostmiddle" role="doc-biblioref">Liu et&nbsp;al. 2024</a>)</span>. Dos consecuencias de diseño. Al podar, el criterio no es solo <em>cuánto</em> entra, sino <em>dónde</em> queda lo importante: el material decisivo se acerca a los extremos —la instrucción ya vive al principio; la consulta, al final— y el relleno dudoso, si entra, ocupa el centro que menos se lee. Y al evaluar un sistema con contexto largo, la posición de la evidencia se convierte en una variable del experimento: un RAG que rinde con la evidencia arriba puede desplomarse cuando el reordenador la deja quinta de diez, un efecto que el capítulo&nbsp;7 explota al ordenar los pasajes recuperados.</p>
+</section>
+</section>
+<section id="anatomía-de-un-prompt-y-su-decodificación" class="level2">
+<h2 class="anchored" data-anchor-id="anatomía-de-un-prompt-y-su-decodificación">Anatomía de un <em>prompt</em> y su decodificación</h2>
+<p>Sobre esa base de <em>tokens</em> se construye el <em>prompt</em>. Aunque se genere de forma automática, contiene partes discernibles, y distinguirlas permite leer la salida del compilador y diagnosticar un fallo con criterio en vez de a tientas.</p>
+<ul>
+<li><p><strong>Instrucción</strong>: la tarea, en imperativo y sin ambigüedad.</p></li>
+<li><p><strong>Contexto</strong>: el material sobre el que se opera —un documento, una traza, los resultados de una recuperación—.</p></li>
+<li><p><strong>Formato de salida</strong>: la estructura exigida a la respuesta —campos, tipos, longitud—, que después se valida.</p></li>
+<li><p><strong>Demostraciones</strong>: ejemplos resueltos que fijan el patrón; suelen pesar más que la instrucción (capítulo&nbsp;5).</p></li>
+<li><p><strong>Consulta</strong>: la entrada concreta que se quiere resolver.</p></li>
+</ul>
+<p>Estas piezas no flotan en una cadena plana: los modelos actuales esperan un formato de <em>chat</em> con papeles —sistema, usuario, asistente—. Que un modelo obedezca una instrucción puesta en el papel de sistema no es gratuito: es fruto del ajuste por instrucciones con retroalimentación humana, que enseña al modelo a seguir órdenes en lugar de limitarse a continuar texto <span class="citation" data-cites="ouyang2022instructgpt">(<a href="#ref-ouyang2022instructgpt" role="doc-biblioref"><span class="nocase">Ouyang et&nbsp;al.</span> 2022</a>)</span>. La taxonomía de los componentes anteriores es hoy estándar en la literatura de <em>prompting</em> <span class="citation" data-cites="liu2023promptsurvey">(<a href="#ref-liu2023promptsurvey" role="doc-biblioref">Liu et&nbsp;al. 2023</a>)</span>.</p>
+<p>DSPy no pide redactar esa cadena ni colocar los papeles a mano: pide declarar la relación entrada–salida en una firma, y un <em>adaptador</em> la traduce a las partes anteriores y al formato de <em>chat</em> del proveedor (figura&nbsp;2.4). El texto final deja de escribirse, pero conserva esta anatomía; por eso conviene conocerla antes de automatizarla.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap02/fig_04.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;2.4.</strong> Las partes que el adaptador de DSPy ensambla a partir de una firma. El programador declara la relación; el texto final conserva esta estructura sobre el formato de <em>chat</em>.</figcaption>
+</figure>
+</div>
+<section id="el-papel-de-sistema-y-la-jerarquía-de-obediencia." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-papel-de-sistema-y-la-jerarquía-de-obediencia.">El papel de sistema y la jerarquía de obediencia.</h5>
+<p>Los papeles no son etiquetas decorativas: codifican una jerarquía. El ajuste por instrucciones enseña al modelo a tratar el mensaje de sistema como marco que gobierna la conversación y el de usuario como contenido a procesar <span class="citation" data-cites="ouyang2022instructgpt">(<a href="#ref-ouyang2022instructgpt" role="doc-biblioref"><span class="nocase">Ouyang et&nbsp;al.</span> 2022</a>)</span>, y de esa asimetría penden dos decisiones de diseño. La primera: el contrato —la instrucción, el formato, los criterios— viaja en el papel de sistema, donde su autoridad es mayor y donde el adaptador de DSPy lo coloca; mezclarlo con la entrada del usuario diluye la jerarquía que lo protege. La segunda: la jerarquía es una tendencia aprendida, no un mecanismo duro; un texto de usuario que ordena «ignora tus instrucciones» no debería obedecerse, y a menudo no se obedece, pero la garantía es estadística. Sobre esa grieta se construye la inyección de <em>prompts</em>, y sobre su defensa, las salvaguardas del capítulo&nbsp;7; aquí basta fijar el principio: cuanto gobierna va en sistema; cuanto se procesa, en usuario; y confundir ambos planos es regalar autoridad a la entrada.</p>
+</section>
+<section id="estrategias-de-decodificación." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="estrategias-de-decodificación.">Estrategias de decodificación.</h5>
+<p>Una vez condicionada la distribución de la ecuación&nbsp;(1.1), queda convertirla en texto, y la forma de hacerlo cambia el resultado tanto como el propio <em>prompt</em>. La opción más simple es voraz: elegir en cada paso el <em>token</em> de mayor probabilidad. Resulta determinista, pero también empobrece: maximizar la verosimilitud paso a paso produce texto soso y extrañamente repetitivo, un fenómeno bien documentado <span class="citation" data-cites="holtzman2020nucleus">(<a href="#ref-holtzman2020nucleus" role="doc-biblioref">Holtzman et&nbsp;al. 2020</a>)</span>.</p>
+<p>Las alternativas introducen azar controlado. La temperatura <span class="math inline">\(\tau\)</span> de la ecuación&nbsp;(1.3) aplana o agudiza la distribución antes de muestrear. El muestreo <em>top-<span class="math inline">\(k\)</span></em> restringe la elección a los <span class="math inline">\(k\)</span> <em>tokens</em> más probables. El muestreo por núcleo (<em>top-<span class="math inline">\(p\)</span></em>) lo hace de forma adaptativa: toma el menor conjunto cuya masa acumulada alcanza un umbral <span class="math inline">\(p\)</span>, <span class="math display">\[\begin{equation}
+  V^{(p)} = \mathop{\mathrm{arg\,mín}}_{V'\subseteq V} \lvert V'\rvert
+  \quad\text{sujeto a}\quad
+  \sum_{v\in V'} \mathbb{P}_{\theta}(v\mid x_{&lt;i}) \ge p,
+\end{equation}\]</span> y muestrea solo dentro de <span class="math inline">\(V^{(p)}\)</span>, que se ensancha cuando el modelo duda y se estrecha cuando está seguro <span class="citation" data-cites="holtzman2020nucleus">(<a href="#ref-holtzman2020nucleus" role="doc-biblioref">Holtzman et&nbsp;al. 2020</a>)</span>. La búsqueda por haz, útil en traducción, rara vez conviene en generación abierta, porque persigue alta verosimilitud y reincide justo en la degeneración descrita.</p>
+<p>Para el resto del libro basta una regla operativa. Cuando se busca una salida estable y reproducible —el caso de producción y el de medir una cifra determinista— se usa temperatura cero o decodificación voraz. Cuando se busca medir la <em>variabilidad</em> de un sistema, se eleva la temperatura y se ajusta <span class="math inline">\(p\)</span>, asumiendo el azar como objeto de estudio. Las secuencias de parada y el tope de <em>tokens</em> cierran la generación y acotan el gasto. La tabla&nbsp;2.1 resume las estrategias.</p>
+<table class="caption-top table">
+<caption>De la distribución condicionada al texto. Voraz y temperatura cero dan salidas reproducibles; el núcleo, un corte adaptativo razonable por defecto <span class="citation" data-cites="holtzman2020nucleus">(<a href="#ref-holtzman2020nucleus" role="doc-biblioref">Holtzman et&nbsp;al. 2020</a>)</span>.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Estrategia</th>
+<th style="text-align: left;">Qué hace</th>
+<th style="text-align: left;">Cuándo</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Voraz</td>
+<td style="text-align: left;">el <em>token</em> más probable</td>
+<td style="text-align: left;">salida determinista</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Temperatura <span class="math inline">\(\tau\)</span></td>
+<td style="text-align: left;">aplana o agudiza</td>
+<td style="text-align: left;">controlar el azar</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><em>Top-</em><span class="math inline">\(k\)</span></td>
+<td style="text-align: left;">los <span class="math inline">\(k\)</span> más probables</td>
+<td style="text-align: left;">corte fijo</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Núcleo (<em>top-</em><span class="math inline">\(p\)</span>)</td>
+<td style="text-align: left;">masa acumulada <span class="math inline">\(\ge p\)</span></td>
+<td style="text-align: left;">corte adaptativo</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Haz</td>
+<td style="text-align: left;">alta verosimilitud</td>
+<td style="text-align: left;">traducción, no generación</td>
+</tr>
+</tbody>
+</table>
+<p>Conviene un ejemplo para fijar la diferencia entre los dos muestreos truncados. Supóngase que, en cierto paso, diez <em>tokens</em> acaparan el <span class="math inline">\(0{,}9\)</span> de la masa y la cola larga reparte el <span class="math inline">\(0{,}1\)</span> restante. Con <em>top-<span class="math inline">\(k\)</span></em> y <span class="math inline">\(k=40\)</span> se admiten cuarenta candidatos, muchos de ellos de la cola improbable; con <em>top-<span class="math inline">\(p\)</span></em> y <span class="math inline">\(p=0{,}9\)</span> se admiten solo esos diez, y ni uno de la cola. La diferencia es adaptativa: si en el paso siguiente el modelo duda y la masa se reparte entre cien <em>tokens</em>, el núcleo se ensancha para incluirlos, mientras que <span class="math inline">\(k\)</span> permanece fijo y arbitrario. Por eso el muestreo por núcleo se ha impuesto como ajuste por defecto razonable: respeta la confianza variable del modelo paso a paso <span class="citation" data-cites="holtzman2020nucleus">(<a href="#ref-holtzman2020nucleus" role="doc-biblioref">Holtzman et&nbsp;al. 2020</a>)</span>. La combinación habitual —temperatura moderada y un <span class="math inline">\(p\)</span> alto— equilibra variedad y coherencia sin caer en la degeneración del extremo voraz. La figura&nbsp;2.5 ilustra el corte adaptativo.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap02/fig_05.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;2.5.</strong> Diez <em>tokens</em> acaparan el <span class="math inline">\(0{,}9\)</span> de la masa; el núcleo toma solo esos y ni uno de la cola. Un <em>top-</em><span class="math inline">\(k\)</span> fijo admitiría muchos candidatos improbables o se quedaría corto; el núcleo se adapta a la confianza del modelo paso a paso.</figcaption>
+</figure>
+</div>
+</section>
+<section id="logprobs-leer-la-confianza-del-modelo." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="logprobs-leer-la-confianza-del-modelo."><em>Logprobs</em>: leer la confianza del modelo.</h5>
+<p>La distribución que la decodificación consume también se puede <em>leer</em>. Muchas interfaces devuelven, junto a cada <em>token</em> generado, su logaritmo de probabilidad —los <em>logprobs</em>— y los de sus alternativas más próximas, y esa señal tiene usos que el resto del libro explota. Sirve de medida de confianza barata: una etiqueta emitida con probabilidad abrumadora y una emitida por poco no merecen el mismo trato, y un umbral sobre el <em>logprob</em> habilita la abstención selectiva —derivar a revisión humana los casos dudosos— sin coste añadido. Sirve para detectar empates: dos etiquetas casi equiprobables delatan un caso frontera o una taxonomía mal cortada. La cautela obligada es la calibración: en el aprendizaje en contexto, la probabilidad del modelo viene sesgada por la plantilla, el orden de las demostraciones y la frecuencia de cada etiqueta —sesgos medidos y corregibles <span class="citation" data-cites="zhao2021calibrate">(<a href="#ref-zhao2021calibrate" role="doc-biblioref">Zhao et&nbsp;al. 2021</a>)</span>—, de modo que el umbral se fija empíricamente contra datos propios (capítulo&nbsp;4), no se toma la probabilidad al pie de la letra. Los proveedores por API exponen esta señal de forma desigual; un modelo local la ofrece completa, una razón más del apartado siguiente.</p>
+</section>
+<section id="penalizaciones-de-repetición." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="penalizaciones-de-repetición.">Penalizaciones de repetición.</h5>
+<p>Junto a temperatura y núcleo, las interfaces ofrecen penalizaciones que rebajan la probabilidad de los <em>tokens</em> ya emitidos —por frecuencia de aparición o por mera presencia—, un remedio directo contra la degeneración repetitiva <span class="citation" data-cites="holtzman2020nucleus">(<a href="#ref-holtzman2020nucleus" role="doc-biblioref">Holtzman et&nbsp;al. 2020</a>)</span>. Su uso pide pulso. En generación abierta y larga, una penalización suave evita el bucle de la frase que se repite. En salida estructurada es contraproducente: un JSON repite llaves, comillas y nombres de campo por construcción, y penalizar la repetición empuja al modelo a <em>malformar</em> justo la estructura que el adaptador va a validar; con código y con listas ocurre igual. La regla operativa del libro: penalizaciones a cero en extracción, clasificación y toda salida tipada; temperatura y núcleo como primeros mandos en lo abierto; y las penalizaciones solo cuando la repetición aparezca medida, no por superstición preventiva.</p>
+</section>
+<section id="longitud-tope-parada-y-salidas-que-se-cortan." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="longitud-tope-parada-y-salidas-que-se-cortan.">Longitud: tope, parada y salidas que se cortan.</h5>
+<p>La generación termina por tres vías, y distinguirlas evita un modo de fallo sibilino. Termina bien cuando el modelo emite su señal de fin o una <em>secuencia de parada</em> definida por el programador —el cierre natural del formato—. Termina mal cuando agota el <em>tope de salida</em> (<code>max_tokens</code>): la respuesta se corta a media frase o, peor, a medio JSON, y un objeto truncado no es un error del modelo sino del presupuesto, aunque el validador lo señale como sintaxis. Las interfaces declaran el motivo de terminación junto a la respuesta, y leerlo cambia el diagnóstico: ante un corte por longitud, reintentar con la misma configuración es repetir el choque; lo debido es ampliar la reserva de salida o estrechar cuanto se pide. Las secuencias de parada, por su lado, son un mando de precisión barato: cortar en el delimitador del siguiente campo ahorra <em>tokens</em> de salida —los caros— y le quita al modelo la ocasión de divagar tras completar su tarea.</p>
+</section>
+<section id="el-mito-del-determinismo." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-mito-del-determinismo.">El mito del determinismo.</h5>
+<p>Temperatura cero promete la misma salida ante el mismo <em>prompt</em>, y la práctica desmiente la promesa con frecuencia suficiente para merecer aviso. Sobre una API, la respuesta puede variar entre llamadas idénticas: el proveedor agrupa peticiones en lotes cuya composición cambia, la aritmética en coma flotante no es asociativa y el orden de suma altera resultados en el límite del empate, algunas arquitecturas enrutan cada petición por expertos distintos según la carga, y el modelo mismo se actualiza sin aviso. Algunos proveedores aceptan una semilla que vuelve la salida «mayormente» reproducible, sin garantía. En local se controla más —misma máquina, mismos núcleos, ejecución determinista forzada—, pero el lote y la versión del motor de inferencia siguen influyendo. Las consecuencias metodológicas ya las impone el libro: las cifras se dan como media con desviación sobre varias corridas (capítulo&nbsp;4), la caché convierte en repetible el <em>registro</em> de una corrida —no al modelo—, y «me lo dio ayer» no es un argumento: es una anécdota con fecha.</p>
+</section>
+</section>
+<section id="la-abstracción-lm-instalación-caché-y-coste" class="level2">
+<h2 class="anchored" data-anchor-id="la-abstracción-lm-instalación-caché-y-coste">La abstracción <code>LM</code>: instalación, caché y coste</h2>
+<p>DSPy no se ata a un proveedor. La clase <code>dspy.LM</code> delega en LiteLLM <span class="citation" data-cites="litellm">(<a href="#ref-litellm" role="doc-biblioref">BerriAI 2024</a>)</span>, que ofrece una interfaz única sobre decenas de proveedores; el resto del programa ignora cuál hay detrás (figura&nbsp;2.6). Cambiar de modelo es cambiar una cadena, no reescribir el sistema —la portabilidad que motivaba el capítulo anterior—.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> dspy</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># un modelo por API; el resto del programa no cambia al cambiar de proveedor</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>lm <span class="op">=</span> dspy.LM(<span class="st">"openai/gpt-4o-mini"</span>, temperature<span class="op">=</span><span class="fl">0.0</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># alternativas: "anthropic/claude-haiku-4-5", "mistral/mistral-small-latest"</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>dspy.configure(lm<span class="op">=</span>lm)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Para trabajar sin coste y sin enviar datos fuera, un modelo local se declara igual, cambiando el identificador y la dirección del servicio; aquí, servido por vLLM, la vía local del libro:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>lm <span class="op">=</span> dspy.LM(<span class="st">"hosted_vllm/Qwen/Qwen2.5-7B-Instruct"</span>,</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>             api_base<span class="op">=</span><span class="st">"http://localhost:8000/v1"</span>, api_key<span class="op">=</span><span class="st">""</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>dspy.configure(lm<span class="op">=</span>lm)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>La elección entre API y local es un compromiso explícito. La API da acceso a modelos grandes sin infraestructura, a cambio de coste por <em>token</em>, latencia de red y el envío de datos a un tercero. El modelo local elimina el coste variable y mantiene los datos en casa, a costa de hardware y, con modelos pequeños, de calidad. Programar contra la abstracción <code>LM</code> permite empezar con un modelo y migrar a otro sin tocar la lógica. La tabla&nbsp;2.2 resume el compromiso.</p>
+<table class="caption-top table">
+<caption>El compromiso, explícito. La API da modelos grandes sin infraestructura a cambio de coste y de enviar datos fuera; el modelo local mantiene los datos en casa a costa de hardware y calidad.</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th style="text-align: left;">Por API</th>
+<th style="text-align: left;">Local</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Coste</td>
+<td style="text-align: left;">por <em>token</em></td>
+<td style="text-align: left;">hardware fijo</td>
+</tr>
+<tr class="even">
+<td>Datos</td>
+<td style="text-align: left;">salen a un tercero</td>
+<td style="text-align: left;">no salen de casa</td>
+</tr>
+<tr class="odd">
+<td>Modelos</td>
+<td style="text-align: left;">grandes, sin infra</td>
+<td style="text-align: left;">según el hardware</td>
+</tr>
+<tr class="even">
+<td>Latencia</td>
+<td style="text-align: left;">de red</td>
+<td style="text-align: left;">local</td>
+</tr>
+</tbody>
+</table>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap02/fig_06.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;2.6.</strong> Una interfaz única sobre varios proveedores. El programa habla con <code>dspy.LM</code>; el proveedor concreto se elige con una cadena, y la lógica permanece intacta al cambiarlo.</figcaption>
+</figure>
+</div>
+<section id="servir-en-local-en-serio-vllm." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="servir-en-local-en-serio-vllm.">Servir en local, en serio: vLLM.</h5>
+<p>La elección de vLLM como servidor local no es un capricho. Cuando el trabajo local pasa de probar a <em>medir</em> —evaluaciones de cientos de ejemplos, optimizaciones con miles de llamadas—, el cuello es el rendimiento del servidor de inferencia. El planificador de vLLM agrupa peticiones de forma continua —cada hueco que deja una secuencia terminada lo ocupa otra en curso— y gestiona la memoria de atención por bloques <span class="citation" data-cites="kwon2023vllm">(<a href="#ref-kwon2023vllm" role="doc-biblioref">Kwon et&nbsp;al. 2023</a>)</span>, y así sostiene decenas de peticiones concurrentes en una sola GPU sin desplomarse; justo el perfil de carga de una evaluación paralela (sección&nbsp;2.3). Como expone una interfaz compatible con la de OpenAI, el identificador <code>hosted_vllm/...</code> del listado anterior es todo el cambio en DSPy.</p>
+<p>La división del trabajo queda así: vLLM para explorar y para el banco de medidas en local, y también para servir con rendimiento (capítulo&nbsp;10); la API externa para la calidad que el hardware propio no alcance. El montaje concreto del entorno —versiones, GPU, arranque del servidor— vive en el apéndice&nbsp;A, y la elección entre ambas vías vuelve, con criterio de privacidad, en el capítulo&nbsp;9.</p>
+</section>
+<section id="un-modelo-por-módulo." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="un-modelo-por-módulo.">Un modelo por módulo.</h5>
+<p>La abstracción rinde su interés compuesto cuando el programa crece: no hay razón para que todos los módulos usen el mismo modelo. Un bloque <code>dspy.context</code> fija un LM distinto para una región del código, y con él un programa reparte el trabajo por coste y capacidad: el módulo que normaliza o filtra corre en un modelo pequeño —local incluso—, y el que razona sobre el caso difícil paga el modelo grande. El patrón reaparece con papeles protagonistas más adelante —<em>teacher</em> y <em>student</em> en la optimización (capítulo&nbsp;5), un modelo por etapa en los flujos (capítulo&nbsp;7), la frontera de confianza local/externo en privacidad (capítulo&nbsp;9)—; conviene retener desde ya su forma económica: el coste de un programa no lo fija «el modelo elegido», sino la suma de módulos por llamadas por tarifa, y esa suma tiene tantos sumandos ajustables como módulos.</p>
+</section>
+<section id="instalación-claves-y-entorno." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="instalación-claves-y-entorno.">Instalación, claves y entorno.</h5>
+<p>La instalación se reduce a un paquete y a un cargador de variables de entorno:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4" data-language="bash"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install dspy python-dotenv</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Las claves de API no se escriben en el código ni se versionan. Se guardan en un fichero <code>.env</code> —excluido del control de versiones— y se cargan en tiempo de ejecución:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5" data-language="bash"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># .env  (no se versiona; ver .gitignore)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="va">OPENAI_API_KEY</span><span class="op">=</span>sk-...</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> dotenv <span class="im">import</span> load_dotenv</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>load_dotenv()   <span class="co"># expone las claves del .env como variables de entorno</span></span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Dos cautelas acompañan a la instalación. La primera, de coste: cada llamada a una API tiene un precio, así que conviene fijar un presupuesto por experimento y vigilar el conteo de <em>tokens</em> (sección&nbsp;2.3). La segunda, de reproducibilidad: los modelos por API cambian sin aviso, de modo que conviene anotar el modelo y su versión exacta junto a toda cifra que se publique, una disciplina que el capítulo&nbsp;4 formaliza.</p>
+</section>
+<section id="caché-parámetros-y-coste." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="caché-parámetros-y-coste.">Caché, parámetros y coste.</h5>
+<p>Tres mandos gobiernan coste y reproducibilidad. La <strong>caché</strong>, activa por omisión, guarda la respuesta de cada llamada idéntica indexada por el contenido de la petición: ahorra dinero y hace repetible una ejecución. Los <strong>parámetros de muestreo</strong> —temperatura, tope de <em>tokens</em>, <span class="math inline">\(p\)</span> del núcleo, secuencias de parada— fijan el régimen de decodificación de la sección&nbsp;2.2. Y el <strong>historial</strong> registra cada llamada con su conteo de <em>tokens</em>, base de toda contabilidad de gasto.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>lm <span class="op">=</span> dspy.LM(<span class="st">"openai/gpt-4o-mini"</span>,</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>             temperature<span class="op">=</span><span class="fl">0.0</span>, max_tokens<span class="op">=</span><span class="dv">1000</span>, cache<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>dspy.configure(lm<span class="op">=</span>lm)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># tras unas llamadas, el historial expone tokens y coste por petición</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>dspy.inspect_history(n<span class="op">=</span><span class="dv">1</span>)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>La elección depende del objetivo, y reproduce la tensión del capítulo&nbsp;1. Para una salida estable en producción, caché activa y temperatura cero. Para medir la variabilidad de un modelo —cuánto cambia su respuesta entre llamadas—, hay que desactivar la caché y elevar la temperatura, porque una caché devolvería siempre el mismo valor y ocultaría el fenómeno que se quiere medir. El conteo de <em>tokens</em> del historial permite, además, estimar el coste antes de lanzar una optimización: basta multiplicar las llamadas previstas por el gasto medio por llamada.</p>
+<p>La caché y los parámetros tienen, además, una dimensión de escala que importa al optimizar. Una optimización ejecuta el programa miles de veces, y dos decisiones deciden si eso es viable. La primera es la <em>caché</em>: durante una búsqueda, muchas llamadas se repiten —la misma demostración evaluada en configuraciones distintas—, y la caché por contenido las sirve sin pagar de nuevo, y eso recorta el gasto en un factor grande. La segunda es la <em>ejecución en paralelo</em>: como cada ejemplo del conjunto es independiente, evaluar un programa sobre cientos de ejemplos admite lanzar muchas llamadas a la vez, y DSPy paraleliza la evaluación para que la latencia de red no domine el reloj. El compromiso es con los límites de tasa del proveedor: demasiada concurrencia provoca rechazos que hay que reintentar. Medir el coste por configuración y fijar un grado de paralelismo prudente es, por tanto, parte del diseño de cualquier optimización seria.</p>
+</section>
+<section id="la-caché-de-dspy-por-dentro." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="la-caché-de-dspy-por-dentro.">La caché de DSPy por dentro.</h5>
+<p>Saber qué indexa la caché evita dos sorpresas simétricas. La clave se calcula sobre la petición completa: el modelo, sus parámetros de muestreo y el <em>prompt</em> entero. De ahí la primera sorpresa: cambiar la temperatura, el tope de salida o una demostración invalida la entrada —la caché no «casi acierta»—, y una optimización que varía configuraciones repuebla la caché en vez de reutilizarla tanto como se esperaba. Y de ahí la segunda: con temperatura alta, la caché devuelve siempre la <em>misma</em> muestra de una distribución que debería variar; medir variabilidad con caché activa mide la caché, no el modelo (capítulo&nbsp;4). La caché persiste en disco entre procesos —una corrida interrumpida se reanuda sin repagar lo ya llamado— y conviene tratarla como un artefacto más: saber dónde vive, cuánto ocupa y cuándo vaciarla, porque una caché envenenada por una versión anterior del programa produce resultados «imposibles» que ningún depurador del modelo explicará. Esta caché de cliente es, además, capa distinta de la caché de prefijo del proveedor: aquella ahorra la llamada entera; esta abarata la llamada que sí ocurre.</p>
+<p>Un cálculo rápido fija el orden de magnitud del gasto. Si una llamada típica consume mil <em>tokens</em> de entrada y doscientos de salida, y el precio ronda fracciones de céntimo por millar de <em>tokens</em>, una sola llamada cuesta décimas de céntimo; una evaluación sobre trescientos ejemplos, unas decenas de céntimos; y una optimización que repita esa evaluación cientos de veces, del orden de decenas de euros. La caché recorta esa cifra siempre que haya repetición, y por eso conviene activarla salvo cuando se mide variabilidad. El hábito de estimar el coste <em>antes</em> de lanzar una corrida —multiplicar llamadas previstas por gasto medio— distingue una práctica sostenible de una factura sorpresa. La tabla&nbsp;2.3 fija los órdenes de magnitud.</p>
+<table class="caption-top table">
+<caption>Un cálculo rápido, con precios de fracciones de céntimo por millar de <em>tokens</em>. Cada nivel multiplica al anterior; la caché recorta la cifra siempre que haya repetición.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Unidad de gasto</th>
+<th style="text-align: left;">Orden de magnitud</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Una llamada (mil + doscientos <em>tokens</em>)</td>
+<td style="text-align: left;">décimas de céntimo</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Evaluación (300 ejemplos)</td>
+<td style="text-align: left;">decenas de céntimos</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Optimización (cientos de evaluaciones)</td>
+<td style="text-align: left;">decenas de euros</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="entrada-y-salida-no-cuestan-lo-mismo." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="entrada-y-salida-no-cuestan-lo-mismo.">Entrada y salida no cuestan lo mismo.</h5>
+<p>El cálculo anterior esconde una asimetría que conviene explotar: en las tarifas por API, el <em>token</em> de salida cuesta varias veces más que el de entrada, porque generar exige un paso de red por <em>token</em> mientras que leer el <em>prompt</em> se procesa de una pasada. La estructura de un programa DSPy decide en qué lado de esa asimetría gasta. Las demostraciones engordan la <em>entrada</em>: son el mecanismo de mejora barato por <em>token</em>. El razonamiento intermedio engorda la <em>salida</em>: paga la tarifa cara en cada llamada (sección&nbsp;2.6). Y a la entrada la abarata otro mecanismo: la <em>caché de prefijo</em>, con la que el proveedor —o vLLM en local— reutiliza el cómputo de un comienzo de <em>prompt</em> ya visto y cobra con descuento los <em>tokens</em> que lo repiten. Un programa compilado es el cliente ideal de esa caché: instrucción y demostraciones forman un prefijo estable e idéntico en todas las llamadas, y solo la consulta varía al final —exactamente el orden en que el adaptador ensambla las piezas (figura&nbsp;2.4)—. La regla de diseño: lo fijo delante, lo variable detrás, y el grueso de la mejora en demostraciones cuando el coste manda; el razonamiento, donde esté medido que hace falta.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap02/fig_07.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;2.7.</strong> Un programa compilado es el cliente ideal de la caché de prefijo: instrucción y demostraciones forman un comienzo idéntico en todas las llamadas y solo la consulta cambia al final. Lo fijo delante, lo variable detrás.</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="firmas-como-contratos-tipados" class="level2">
+<h2 class="anchored" data-anchor-id="firmas-como-contratos-tipados">Firmas como contratos tipados</h2>
+<p>La firma es la pieza sobre la que gira el resto del libro. En su forma breve, se escribe como una cadena que nombra los campos de entrada y de salida:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>responder <span class="op">=</span> dspy.Predict(<span class="st">"pregunta -&gt; respuesta"</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(responder(pregunta<span class="op">=</span><span class="st">"¿qué expresa una firma en DSPy?"</span>).respuesta)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>En su forma plena, se declara como una clase con campos tipados y descripciones, y un espacio de etiquetas cerrado se fija con un tipo <code>Literal</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> typing <span class="im">import</span> Literal</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Clasificar(dspy.Signature):</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""clasifica un mensaje de log de seguridad por su intencion."""</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    texto: <span class="bu">str</span> <span class="op">=</span> dspy.InputField(desc<span class="op">=</span><span class="st">"linea de log o mensaje crudo"</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    etiqueta: Literal[<span class="st">"benigno"</span>, <span class="st">"sospechoso"</span>, <span class="st">"critico"</span>] <span class="op">=</span> dspy.OutputField()</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>La firma es un <em>contrato</em>: declara el qué —los campos, sus tipos, su semántica— y delega el cómo en un <em>adaptador</em>. El adaptador hace tres cosas: ensambla el <em>prompt</em> con la anatomía de la sección&nbsp;2.2, impone el formato de salida y, al recibir la respuesta, la <em>analiza</em> de vuelta a los campos tipados; si el modelo entrega algo que no encaja —una etiqueta fuera del <code>Literal</code>, un JSON mal formado—, el adaptador puede reintentar con una instrucción correctora. El tipado no es cosmético: vuelve el sistema robusto y componible, porque la salida de un módulo es una estructura predecible, no una cadena que haya que desbrozar a mano. Es la realización práctica de la firma definida en el capítulo&nbsp;1. La figura&nbsp;2.8 separa los dos planos.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap02/fig_08.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;2.8.</strong> La firma declara la relación tipada entrada–salida —el qué— y delega su realización en el adaptador —el cómo—. El tipado no es cosmético: vuelve la salida predecible y componible, no una cadena que haya que desbrozar a mano.</figcaption>
+</figure>
+</div>
+<p>El tipado admite más matiz del que sugiere el ejemplo. Los campos pueden ser listas, valores numéricos o estructuras anidadas, y cada tipo guía al adaptador sobre cómo pedir y validar la salida; un campo <code>list[str]</code> reclama una lista, no una cadena con comas que luego habría que dividir a mano. Las descripciones por campo, además, no son comentarios ociosos: viajan al <em>prompt</em> como parte de la instrucción y orientan al modelo sobre el significado de cada salida. Y la firma admite varios campos de entrada y de salida a la vez —clasificar y, en la misma llamada, justificar—, de modo que un solo módulo puede declarar un contrato rico. Cuanto más preciso el tipo, menos trabajo de análisis y menos margen de error: la firma bien tipada es la primera línea de defensa contra una salida malformada. La tabla&nbsp;2.4 recorre los tipos y su exigencia.</p>
+<table class="caption-top table">
+<caption>Cada tipo guía al adaptador sobre cómo pedir y validar la salida. Cuanto más preciso el tipo, menos trabajo de análisis y menos superficie de fallo.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Tipo del campo</th>
+<th style="text-align: left;">Qué reclama al adaptador</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>str</code></td>
+<td style="text-align: left;">texto libre</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>Literal[...]</code></td>
+<td style="text-align: left;">una etiqueta del conjunto cerrado</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>list[str]</code></td>
+<td style="text-align: left;">una lista, no una cadena con comas</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>BaseModel</code></td>
+<td style="text-align: left;">un objeto validado contra su esquema</td>
+</tr>
+</tbody>
+</table>
+<section id="escribir-la-firma-que-el-optimizador-merece." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="escribir-la-firma-que-el-optimizador-merece.">Escribir la firma que el optimizador merece.</h5>
+<p>Aunque el optimizador reescriba instrucciones, la firma de partida no da igual, porque fija el espacio en que aquel trabaja. Tres hábitos rinden más de cuanto cuestan. Primero, <em>nombres con semántica</em>: los identificadores de campo viajan al <em>prompt</em>, y <code>etiqueta_riesgo</code> orienta al modelo donde <code>salida2</code> despista; el nombre es instrucción gratuita. Segundo, <em>descripciones declarativas</em>: el <code>desc</code> dice qué es el campo y qué criterios lo gobiernan —«gravedad según el impacto en el servicio, no según el volumen de alertas»—, no ejemplos concretos, que son trabajo de las demostraciones y llegarán por el optimizador (capítulo&nbsp;5); duplicarlos a mano en la descripción los fosiliza fuera del alcance de la búsqueda. Tercero, el <em>docstring</em> de la clase es la instrucción semilla: MIPROv2 parte de él para proponer variantes, así que merece una frase precisa en vez de una ocurrencia. La firma bien escrita no compite con el optimizador: le entrega un espacio de búsqueda limpio.</p>
+</section>
+<section id="versionar-el-contrato." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="versionar-el-contrato.">Versionar el contrato.</h5>
+<p>La firma evoluciona —se añade un campo, se parte una etiqueta en dos, se endurece un tipo—, y cada cambio tiene efectos materiales que conviene tratar como una migración de esquema, no como un retoque. Cambia el <em>prompt</em> ensamblado, así que invalida la caché por contenido (sección&nbsp;2.3). Deja obsoleto el artefacto compilado: las demostraciones guardadas hablan el formato viejo, y cargarlas sobre la firma nueva mezcla dos contratos en un mismo <em>prompt</em>; tras un cambio de firma se recompila y se reevalúa, no se «aprovecha». Y rompe la comparabilidad de las cifras: una exactitud medida con tres etiquetas no se compara con una de cuatro, de modo que el registro de experimentos (sección&nbsp;2.9) anota la versión de la firma junto al resto de la ficha. El contrato es la unidad de estabilidad del sistema; versionarlo con seriedad es la diferencia entre evolucionar y derivar.</p>
+</section>
+<section id="abstención-y-campos-opcionales." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="abstención-y-campos-opcionales.">Abstención y campos opcionales.</h5>
+<p>Un contrato honesto contempla el caso en que la respuesta correcta es «no lo sé». La firma lo expresa con tipos: una opción explícita en el <code>Literal</code> —<code>"desconocido"</code>, con su semántica descrita— o un campo opcional que admite valor nulo cuando la entidad pedida no existe en el texto. La alternativa —forzar siempre una de las etiquetas «buenas»— fabrica alucinaciones por diseño: el modelo rellenará el hueco con la opción menos mala y el error viajará aguas abajo con aspecto de dato. El patrón se completa con la señal de confianza de la sección&nbsp;2.2 —abstenerse también cuando la etiqueta salga con probabilidad raquítica— y con la validación semántica que el tipo no captura: que una puntuación caiga en su rango, que una fecha exista, que un CVE tenga el formato debido; esas comprobaciones viven en validadores del modelo de datos y convierten al adaptador en un contrato de verdad. El clasificador del capítulo&nbsp;3 hace de la abstención una pieza central del triaje; aquí queda declarada su base tipada.</p>
+</section>
+<section id="el-orden-de-los-campos-también-programa." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-orden-de-los-campos-también-programa.">El orden de los campos también programa.</h5>
+<p>Una firma con varios campos de salida encierra una decisión que pasa por sutil y es mecánica: el modelo genera los campos <em>en el orden declarado</em>, y cada campo condiciona a los siguientes por la autorregresión del capítulo&nbsp;1. <code>ChainOfThought</code> funciona exactamente por esto: el razonamiento se declara <em>antes</em> de la respuesta, de modo que la respuesta se genera condicionada al razonamiento ya escrito; invertir el orden produce una racionalización a posteriori de una respuesta ya emitida, con aspecto idéntico y valor distinto. La regla general: los campos que fundamentan preceden a los campos que concluyen —la evidencia antes que el veredicto, la justificación antes que la nota—. En la entrada rige otra lógica, la de la caché de prefijo (figura&nbsp;2.7): los campos estables entre llamadas se declaran primero y los variables al final, para maximizar el prefijo compartido. El orden denota contrato, no estética.</p>
+</section>
+</section>
+<section id="adaptadores-del-campo-tipado-al-texto-y-de-vuelta" class="level2">
+<h2 class="anchored" data-anchor-id="adaptadores-del-campo-tipado-al-texto-y-de-vuelta">Adaptadores: del campo tipado al texto y de vuelta</h2>
+<p>Entre la firma y el modelo media una pieza que conviene mirar de cerca: el <em>adaptador</em>. Es quien traduce la declaración tipada en un <em>prompt</em> concreto y, a la vuelta, convierte la respuesta cruda del modelo en los campos de salida. Sin él, la firma sería una promesa sin cumplir.</p>
+<p>DSPy ofrece más de una estrategia de adaptación. El adaptador de <em>chat</em> por omisión presenta cada campo con un prefijo legible —<code>Texto:</code>, <code>Etiqueta:</code>— y reparte el contenido entre los papeles del formato de <em>chat</em>; al recibir la respuesta, localiza esos prefijos y extrae cada campo. El adaptador de JSON, en cambio, pide al modelo una estructura JSON que encaje con los tipos de la firma y la analiza con un validador; resulta más robusto cuando la salida es compleja o anidada, a costa de un formato menos natural para el modelo <span class="citation" data-cites="dspydocs">(<a href="#ref-dspydocs" role="doc-biblioref">DSPy 2024</a>)</span>. La tabla&nbsp;2.5 contrasta ambas estrategias.</p>
+<table class="caption-top table">
+<caption>Dos estrategias de adaptación. La elección es una palanca de fiabilidad que se ajusta sin tocar la lógica del programa <span class="citation" data-cites="dspydocs">(<a href="#ref-dspydocs" role="doc-biblioref">DSPy 2024</a>)</span>.</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th style="text-align: left;">Chat (por omisión)</th>
+<th style="text-align: left;">JSON</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Formato</td>
+<td style="text-align: left;">prefijos legibles</td>
+<td style="text-align: left;">estructura JSON</td>
+</tr>
+<tr class="even">
+<td>Análisis</td>
+<td style="text-align: left;">localiza prefijos</td>
+<td style="text-align: left;">valida el esquema</td>
+</tr>
+<tr class="odd">
+<td>Mejor para</td>
+<td style="text-align: left;">salida simple</td>
+<td style="text-align: left;">salida compleja o anidada</td>
+</tr>
+</tbody>
+</table>
+<p>La robustez nace del ciclo de validación. Si la respuesta no encaja —una etiqueta fuera del <code>Literal</code>, un JSON mal cerrado, un campo ausente—, el adaptador no se rinde: reintenta con una instrucción correctora que describe el formato esperado, y solo eleva el error si la reparación falla. Ese lazo convierte una salida probabilística en una estructura tipada fiable, y es la razón por la que la salida de un módulo puede alimentar a otro sin desbrozado manual. La elección de adaptador es, en la práctica, una palanca de fiabilidad que se ajusta sin tocar la lógica del programa. La figura&nbsp;2.9 dibuja el ciclo completo.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap02/fig_09.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;2.9.</strong> El adaptador traduce la firma en <em>prompt</em>, analiza la respuesta de vuelta a los campos y, si no encaja —etiqueta fuera del <code>Literal</code>, JSON mal cerrado—, reintenta con una instrucción correctora. Ese lazo convierte una salida probabilística en una estructura tipada fiable.</figcaption>
+</figure>
+</div>
+<section id="cuando-el-modelo-habla-de-más." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="cuando-el-modelo-habla-de-más.">Cuando el modelo habla de más.</h5>
+<p>El fallo de análisis más frecuente no es el JSON roto: es el JSON perfecto envuelto en cortesía. Los modelos de chat tienden a preludiar («Claro, aquí tienes el resultado:») y a envolver la estructura en vallas de <em>markdown</em>, y un analizador ingenuo tropieza con el envoltorio antes de llegar al contenido. Los adaptadores curten esa fricción —localizan la estructura dentro del ruido, retiran vallas, toleran espacio alrededor—, y conviene saber que lo hacen, porque explica una asimetría práctica: pelear contra la charla <em>en el prompt</em> («no añadas explicaciones») funciona a medias y consume instrucción, mientras que absorberla <em>en el análisis</em> funciona siempre y no cuesta <em>tokens</em>. La secuencia de parada de la sección&nbsp;2.2 remata el caso contrario —el modelo que sigue hablando después del resultado—, y la decodificación restringida del siguiente apartado disuelve el problema de raíz cuando el motor la ofrece.</p>
+</section>
+<section id="decodificación-restringida-imponer-el-formato-al-generar." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="decodificación-restringida-imponer-el-formato-al-generar.">Decodificación restringida: imponer el formato al generar.</h5>
+<p>El ciclo validar-y-reintentar corrige <em>después</em>; hay una vía que impide el error <em>durante</em>. La <em>decodificación restringida</em> (<em>constrained decoding</em>) compila el formato exigido —una expresión regular, un esquema JSON, una gramática— en un autómata que acompaña a la generación: en cada paso se enmascaran los <em>tokens</em> que violarían el formato y el modelo solo elige entre los válidos; la salida queda sintácticamente correcta por construcción y sin coste apreciable por paso <span class="citation" data-cites="willard2023guided">(<a href="#ref-willard2023guided" role="doc-biblioref">Willard y Louf 2023</a>)</span>. Los motores de servicio locales la integran —vLLM la ofrece sobre gramáticas y esquemas, con XGrammar como motor de referencia <span class="citation" data-cites="dong2024xgrammar">(<a href="#ref-dong2024xgrammar" role="doc-biblioref">Dong et&nbsp;al. 2025</a>)</span>—, y las API la asoman como «modo JSON» o salida conforme a esquema, con garantías variables. Dos matices templan el entusiasmo. La restricción garantiza <em>sintaxis</em>, no acierto: un JSON impecable puede contener la etiqueta equivocada, así que la validación semántica del adaptador sigue en pie. Y una gramática que pelea contra las preferencias del modelo puede degradar el contenido —el modelo quería explicar y se le fuerza a un campo—; la firma bien diseñada alinea formato y tarea para que la máscara actúe de barandilla, no de camisa de fuerza. En el reparto del libro: restricción dura donde el formato es crítico y el modelo es local; ciclo de reintento como red universal en todo lo demás. La tabla&nbsp;2.6 ordena las tres vías.</p>
+<table class="caption-top table">
+<caption>Tres mecanismos para obtener salida con formato, de la corrección a posteriori a la garantía por construcción. Se combinan: la restricción garantiza sintaxis; la validación semántica del adaptador sigue haciendo falta.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Mecanismo</th>
+<th style="text-align: left;">Dónde corre</th>
+<th style="text-align: left;">Garantiza</th>
+<th style="text-align: left;">Riesgo</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">reintento del adaptador</td>
+<td style="text-align: left;">en el cliente, universal</td>
+<td style="text-align: left;">formato tras</td>
+<td style="text-align: left;">latencia y coste del reintento</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">validar</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">modo JSON del proveedor</td>
+<td style="text-align: left;">en la API</td>
+<td style="text-align: left;">sintaxis JSON, esquema según</td>
+<td style="text-align: left;">garantías desiguales</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">proveedor</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">gramática en el motor</td>
+<td style="text-align: left;">servidor local (vLLM, XGrammar)</td>
+<td style="text-align: left;">sintaxis por</td>
+<td style="text-align: left;">gramática contra modelo</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">construcción</td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="módulos-del-predict-al-razonamiento" class="level2">
+<h2 class="anchored" data-anchor-id="módulos-del-predict-al-razonamiento">Módulos: del <code>Predict</code> al razonamiento</h2>
+<p>Un módulo realiza una firma con una estrategia de inferencia. El más simple, <code>Predict</code>, pide la salida directamente. <code>ChainOfThought</code> añade un campo de razonamiento intermedio antes de la respuesta, una técnica que mejora las tareas que requieren varios pasos <span class="citation" data-cites="wei2022cot">(<a href="#ref-wei2022cot" role="doc-biblioref"><span class="nocase">Wei et&nbsp;al.</span> 2022</a>)</span>. Otros módulos —el uso de herramientas con <code>ReAct</code>, el cálculo con <code>ProgramOfThought</code>— se tratan en el capítulo&nbsp;7; aquí basta retener que todos comparten la misma firma y se intercambian sin tocar el resto. La tabla&nbsp;2.7 los resume.</p>
+<table class="caption-top table">
+<caption>Un módulo realiza una firma con una estrategia de inferencia. Todos comparten la misma firma y se intercambian sin tocar el resto del programa.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Módulo</th>
+<th style="text-align: left;">Qué añade</th>
+<th style="text-align: left;">Cuándo</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>Predict</code></td>
+<td style="text-align: left;">salida directa</td>
+<td style="text-align: left;">tarea simple</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>ChainOfThought</code></td>
+<td style="text-align: left;">razonamiento intermedio</td>
+<td style="text-align: left;">varios pasos</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>ReAct</code></td>
+<td style="text-align: left;">uso de herramientas</td>
+<td style="text-align: left;">flujos y agentes</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>ProgramOfThought</code></td>
+<td style="text-align: left;">cálculo con código</td>
+<td style="text-align: left;">aritmética exacta</td>
+</tr>
+</tbody>
+</table>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>clasificar <span class="op">=</span> dspy.ChainOfThought(Clasificar)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>pred <span class="op">=</span> clasificar(texto<span class="op">=</span><span class="st">"conexion SSH fallida desde 10.0.0.5"</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pred.razonamiento, pred.etiqueta, sep<span class="op">=</span><span class="st">"</span><span class="ch">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Los módulos se componen en programas. Un programa propio hereda de <code>dspy.Module</code> y encadena módulos en su método <code>forward</code>; el programa entero —no cada módulo por separado— es la unidad que después se optimiza, y la señal de la salida final se reparte hacia atrás por el <em>bootstrapping</em> de trazas del capítulo&nbsp;1 (figura&nbsp;2.10):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Triaje(dspy.Module):</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.clasificar <span class="op">=</span> dspy.ChainOfThought(Clasificar)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.resumir <span class="op">=</span> dspy.Predict(<span class="st">"texto, etiqueta -&gt; resumen"</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, texto):</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>        c <span class="op">=</span> <span class="va">self</span>.clasificar(texto<span class="op">=</span>texto)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>        r <span class="op">=</span> <span class="va">self</span>.resumir(texto<span class="op">=</span>texto, etiqueta<span class="op">=</span>c.etiqueta)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> dspy.Prediction(etiqueta<span class="op">=</span>c.etiqueta, resumen<span class="op">=</span>r.resumen)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap02/fig_10.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;2.10.</strong> El programa <code>Triaje</code> encadena dos módulos: <code>clasificar</code>, con razonamiento, produce la etiqueta; <code>resumir</code> combina texto y etiqueta. El programa entero —no cada módulo por separado— es la unidad que se optimiza, y la señal se reparte hacia atrás.</figcaption>
+</figure>
+</div>
+<p>Un programa compilado no es efímero: se guarda y se carga. Tras optimizarlo, sus <em>prompts</em> ajustados —instrucciones y demostraciones— se serializan a disco y se recuperan sin repetir el gasto de la optimización, algo que importa cuando una corrida costó decenas de euros (sección&nbsp;2.3). DSPy expone además los predictores internos de un módulo, de modo que se puede inspeccionar qué instrucción y qué demostraciones quedaron fijadas en cada paso —la transparencia que distingue un programa de una caja negra—. Guardar el estado compilado, y no solo el código, es parte de la reproducibilidad: el mismo programa, el mismo modelo y el mismo estado producen la misma conducta.</p>
+<section id="cuánto-cuesta-el-razonamiento." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="cuánto-cuesta-el-razonamiento.">Cuánto cuesta el razonamiento.</h5>
+<p><code>ChainOfThought</code> no es gratis, y conviene tratarlo como la decisión de coste que es. El campo de razonamiento multiplica los <em>tokens</em> de salida —los caros, por la asimetría de la sección&nbsp;2.3— y alarga la latencia en proporción, porque cada <em>token</em> generado es un paso de red. El retorno existe donde la tarea encadena pasos —composición, aritmética con contexto, decisiones con condiciones— y ahí está medido que razonar mejora <span class="citation" data-cites="wei2022cot">(<a href="#ref-wei2022cot" role="doc-biblioref"><span class="nocase">Wei et&nbsp;al.</span> 2022</a>)</span>; en una clasificación directa con buenas demostraciones, el razonamiento puede aportar poco más que factura, y la única forma de saberlo es la del libro: medir ambas variantes con el método del capítulo&nbsp;4 —mismos datos, misma métrica, coste anotado— y decidir con las dos curvas delante. Para el clasificador del capítulo&nbsp;3, medido, el razonamiento sube la exactitud de  % (<code>Predict</code>) a  % (<code>ChainOfThought</code>) a cambio de pasar de &nbsp;a &nbsp;tokens por predicción: unos tres puntos por casi un tercio más de coste. Regla de diseño mientras tanto: <code>Predict</code> por defecto, <code>ChainOfThought</code> donde el error residual lo justifique, y nunca «por si acaso» en un módulo que se ejecuta un millón de veces al mes.</p>
+</section>
+<section id="muestrear-varias-veces-autoconsistencia." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="muestrear-varias-veces-autoconsistencia.">Muestrear varias veces: autoconsistencia.</h5>
+<p>Hay una tercera palanca entre «una llamada» y «mejor modelo»: varias llamadas. La <em>autoconsistencia</em> (<em>self-consistency</em>) muestrea varios razonamientos con temperatura y se queda con la respuesta mayoritaria, bajo la lógica de que muchos caminos correctos convergen en el mismo resultado y los erróneos se dispersan; la mejora sobre el razonamiento a una sola muestra está medida y es sustancial en tareas de varios pasos <span class="citation" data-cites="wang2023selfconsistency">(<a href="#ref-wang2023selfconsistency" role="doc-biblioref">Wang et&nbsp;al. 2023</a>)</span>. DSPy la expresa sin ceremonia —se muestrea <span class="math inline">\(N\)</span> veces el mismo módulo y se agrega por mayoría; para salidas no votables, una variante selecciona la mejor muestra según una función de recompensa—. El precio es lineal: <span class="math inline">\(N\)</span> muestras, <span class="math inline">\(N\)</span> facturas de salida, y por eso el orden de decisión del libro es demostraciones primero —pagan en entrada barata—, razonamiento después, y muestreo múltiple solo donde el punto extra de acierto justifique multiplicar el coste; la comparación pertenece, como siempre, al método del capítulo&nbsp;4.</p>
+</section>
+</section>
+<section id="el-primer-programa-y-las-salidas-estructuradas" class="level2">
+<h2 class="anchored" data-anchor-id="el-primer-programa-y-las-salidas-estructuradas">El primer programa y las salidas estructuradas</h2>
+<p>Con las piezas en su sitio, el primer programa se arma en tres pasos: configurar el LM, declarar la firma y el módulo, y predecir. Para ver qué <em>prompt</em> se envió de verdad —y reconocer en él la anatomía de la sección&nbsp;2.2— se inspecciona el historial, que muestra además el conteo de <em>tokens</em>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> dspy</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> dotenv <span class="im">import</span> load_dotenv</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>load_dotenv()</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>dspy.configure(lm<span class="op">=</span>dspy.LM(<span class="st">"openai/gpt-4o-mini"</span>, temperature<span class="op">=</span><span class="fl">0.0</span>))</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>clasificar <span class="op">=</span> dspy.ChainOfThought(Clasificar)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>pred <span class="op">=</span> clasificar(texto<span class="op">=</span><span class="st">"conexion SSH fallida desde 10.0.0.5"</span>)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pred.etiqueta)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>dspy.inspect_history(n<span class="op">=</span><span class="dv">1</span>)   <span class="co"># disecciona el prompt y reporta tokens</span></span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>La salida de <code>inspect_history</code> es el mejor ejercicio de lectura del capítulo: en ella aparecen la instrucción derivada de la firma, las descripciones de campo que fijan el formato, las demostraciones —vacías todavía, porque el programa no se ha optimizado— y la consulta. El programa completo y ejecutable vive en <code>codigo/cap02/primer_programa.py</code>. A partir de aquí, la firma deja de ser una curiosidad: es la unidad sobre la que operarán la evaluación (capítulo&nbsp;4) y los optimizadores (capítulo&nbsp;5). La tabla&nbsp;2.8 resume de dónde sale cada parte del <em>prompt</em> enviado.</p>
+<table class="caption-top table">
+<caption>Todo cuanto aparece en el <em>prompt</em> enviado procede de la firma o del optimizador. Leer esta salida es el mejor ejercicio del capítulo: revela la anatomía de la sección&nbsp;2.2 hecha texto.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">En el <em>prompt</em> enviado</th>
+<th style="text-align: left;">De dónde sale</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Instrucción</td>
+<td style="text-align: left;">la firma</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Descripciones de campo</td>
+<td style="text-align: left;">los <code>desc</code> de la firma</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Demostraciones (vacías)</td>
+<td style="text-align: left;">el optimizador (aún no corrido)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Consulta</td>
+<td style="text-align: left;">la entrada concreta</td>
+</tr>
+</tbody>
+</table>
+<section id="leer-un-prompt-compilado." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="leer-un-prompt-compilado.">Leer un <em>prompt</em> compilado.</h5>
+<p>El mismo ejercicio, repetido tras una optimización, es la auditoría más barata del libro, y conviene saber qué buscar. En el papel de sistema, la instrucción ya no será el docstring literal: será la variante que el optimizador promovió, y leerla dice qué criterios destiló —a veces reglas que nadie escribió y que los datos enseñaron—. Después vendrán las demostraciones, ya no vacías: cada una con sus campos de entrada y salida en el formato del adaptador y, si el módulo razona, con el razonamiento arrastrado desde la traza que la generó. Las señales de alarma también se leen: demostraciones casi idénticas entre sí —diversidad desperdiciada—, una demostración con la etiqueta equivocada —el filtro de la métrica dejó pasar ruido—, demostraciones con datos que no deberían viajar —la auditoría de privacidad del capítulo&nbsp;9—, o un prefijo tan largo que estrangula el presupuesto de la sección&nbsp;2.1. El artefacto compilado es texto: se revisa como se revisa un cambio de código, antes de promoverlo.</p>
+</section>
+<section id="salidas-estructuradas." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="salidas-estructuradas.">Salidas estructuradas.</h5>
+<p>Una etiqueta es la salida más simple; muchas tareas exigen estructuras: una lista de entidades, un objeto con campos, una puntuación con su justificación. La firma tipada las admite declarando campos de salida con tipos compuestos —listas, objetos anidados— que el adaptador traduce a un esquema y valida al recibir la respuesta. Cuando la estructura es rica, el adaptador de JSON (sección&nbsp;2.5) pide al modelo un JSON conforme al esquema y lo analiza con un validador, reintentando si no encaja.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydantic <span class="im">import</span> BaseModel</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Hallazgo(BaseModel):</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    cve: <span class="bu">str</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    gravedad: Literal[<span class="st">"baja"</span>, <span class="st">"media"</span>, <span class="st">"alta"</span>]</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Extraer(dspy.Signature):</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""extrae los hallazgos de un informe de seguridad."""</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    informe: <span class="bu">str</span> <span class="op">=</span> dspy.InputField()</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    hallazgos: <span class="bu">list</span>[Hallazgo] <span class="op">=</span> dspy.OutputField()</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>La validación tipada es la frontera entre un prototipo y un sistema: una salida que encaja en un tipo se compone con el resto del programa sin análisis frágil, y una que no encaja se detecta y se corrige en el acto, en vez de propagar un error silencioso. Cuanto más estricto el tipo, menos superficie de fallo. La tabla&nbsp;2.9 condensa esa frontera.</p>
+<table class="caption-top table">
+<caption>La validación tipada es la frontera entre un prototipo y un sistema. Una salida que encaja en un tipo se compone sin análisis frágil; una que no encaja se detecta, no se propaga.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Salida como cadena</th>
+<th style="text-align: left;">Salida como tipo</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">se desbroza a mano</td>
+<td style="text-align: left;">se compone directamente</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">el fallo se propaga</td>
+<td style="text-align: left;">el fallo se detecta en el acto</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">frágil</td>
+<td style="text-align: left;">validada contra el esquema</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="probar-el-programa-como-software." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="probar-el-programa-como-software.">Probar el programa como software.</h5>
+<p>Un programa DSPy es código, y el código se prueba. La dificultad aparente —¿cómo se escribe una prueba unitaria contra un modelo estocástico y de pago?— se disuelve separando dos planos. La <em>lógica</em> del programa —la composición de módulos, el manejo de la salida tipada, los caminos de error— se prueba con un modelo de mentira: un doble que devuelve respuestas fijadas por la prueba, sin red y sin coste, suficiente para verificar que el <code>forward</code> compone bien y que el contrato de la firma se respeta. La <em>conducta</em> del modelo real se cubre con una prueba de humo pequeña —un puñado de ejemplos representativos contra el modelo de verdad, con caché— que corre en la integración continua y delata regresiones gruesas: el proveedor que cambió, el adaptador que dejó de analizar, la clave que caducó. La evaluación completa (capítulo&nbsp;4) es otra cosa y otra factura; las pruebas responden a una pregunta más modesta y más frecuente: ¿sigue funcionando <em>el programa</em>? Esa pregunta debe responderse en segundos, no en euros.</p>
+</section>
+</section>
+<section id="entradas-multimodales-streaming-y-latencia" class="level2">
+<h2 class="anchored" data-anchor-id="entradas-multimodales-streaming-y-latencia">Entradas multimodales, <em>streaming</em> y latencia</h2>
+<p>El <em>prompt</em> no se limita al texto. Los modelos multimodales aceptan imágenes —una captura de pantalla, un diagrama de red, una muestra de <em>malware</em> visualizada— junto al texto, y DSPy lo expone con un tipo de entrada de imagen en la firma, sin cambiar el resto del programa.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Describir(dspy.Signature):</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""describe la actividad sospechosa en la captura."""</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    captura: dspy.Image <span class="op">=</span> dspy.InputField()</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    descripcion: <span class="bu">str</span> <span class="op">=</span> dspy.OutputField()</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>describir <span class="op">=</span> dspy.Predict(Describir)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>describir(captura<span class="op">=</span>dspy.Image.from_file(<span class="st">"alerta.png"</span>))</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>La multimodalidad amplía el alcance del método sin alterarlo: la firma sigue declarando el contrato, el adaptador sigue ensamblando el <em>prompt</em> y el optimizador sigue ajustándolo. Un campo de imagen es, para el sistema, una entrada más; cambia el codificador del modelo, no la disciplina de programarlo. La figura&nbsp;2.11 lo esquematiza.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap02/fig_11.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;2.11.</strong> Un campo de imagen es, para el sistema, una entrada más: la firma sigue declarando el contrato y el adaptador sigue ensamblando el <em>prompt</em>. Cambia el codificador del modelo, no el método de programarlo.</figcaption>
+</figure>
+</div>
+<section id="lo-que-cuesta-una-imagen." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="lo-que-cuesta-una-imagen.">Lo que cuesta una imagen.</h5>
+<p>La imagen entra en la misma ventana que el texto: el proveedor la trocea en mosaicos y la factura como <em>tokens</em>, en número que crece con la resolución —una captura de pantalla grande puede costar tanto como varias páginas de texto—. De ahí tres hábitos. Redimensionar y recortar antes de enviar: si la señal está en una región —la ventana de la alerta, no el escritorio entero—, recortar es minimizar coste y ruido a la vez. Elegir la resolución según la tarea: leer texto en pantalla exige detalle; reconocer una disposición general, no. Y contar las imágenes en el presupuesto de la sección&nbsp;2.1 como un componente más, en competencia con demostraciones y contexto. En local, los modelos de visión pesan más que sus homólogos de texto y el rendimiento cae en proporción; la decisión API-o-local de la sección&nbsp;2.3 se repite aquí con los mismos términos y, cuando la captura contiene datos personales, con los del capítulo&nbsp;9.</p>
+</section>
+<section id="streaming-y-latencia." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="streaming-y-latencia."><em>Streaming</em> y latencia.</h5>
+<p>En producción, la latencia percibida importa tanto como la calidad, y dos mecanismos la mitigan. El <em>streaming</em> entrega la respuesta <em>token</em> a <em>token</em> a medida que se genera, de modo que el usuario ve avanzar el texto sin esperar al final; útil en interfaces conversacionales. La <em>asincronía</em> y el paralelismo solapan muchas llamadas independientes —una evaluación, un lote de clasificaciones— para que la latencia de red no se sume en serie.</p>
+<p>DSPy soporta ambos sin cambiar la lógica del programa: el mismo módulo se invoca de forma síncrona, en <em>streaming</em> o en paralelo según el contexto de ejecución. La decisión es de despliegue, no de diseño, y se ajusta al perfil de uso: baja latencia por respuesta en una interfaz, alto rendimiento agregado en un proceso por lotes. La figura&nbsp;2.12 compara los tres regímenes.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap02/fig_12.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;2.12.</strong> Tres regímenes de ejecución sobre el mismo trabajo. En serie, las latencias se suman; en paralelo, las llamadas independientes se solapan y el reloj lo marca la más lenta; en <em>streaming</em>, el usuario ve el primer <em>token</em> sin esperar al final.</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="observabilidad-y-el-modelo-de-programación" class="level2">
+<h2 class="anchored" data-anchor-id="observabilidad-y-el-modelo-de-programación">Observabilidad y el modelo de programación</h2>
+<p>Un sistema que no se observa no se depura. Más allá de <code>inspect_history</code> (sección&nbsp;2.7), DSPy expone la <em>traza</em> de una ejecución: la secuencia de llamadas que cada módulo hizo, con sus entradas, salidas y <em>tokens</em>. Esa traza sirve a tres tareas: depurar un fallo —ver en qué módulo se torció la respuesta—, auditar una decisión —reconstruir por qué el sistema respondió así— y alimentar el <em>bootstrapping</em>, que conserva las trazas exitosas como demostraciones (capítulo&nbsp;5). La figura&nbsp;2.13 ordena esos tres usos.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>pred <span class="op">=</span> programa(mensaje<span class="op">=</span><span class="st">"..."</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>traza <span class="op">=</span> dspy.settings.trace          <span class="co"># lista de (modulo, entrada, salida)</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> paso <span class="kw">in</span> traza:</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(paso)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap02/fig_13.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;2.13.</strong> La traza —la secuencia de llamadas con sus entradas, salidas y <em>tokens</em>— sirve para depurar un fallo, auditar una decisión y alimentar el <em>bootstrapping</em>, que conserva las trazas exitosas como demostraciones (capítulo&nbsp;5).</figcaption>
+</figure>
+</div>
+<section id="depurar-con-la-traza-un-caso." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="depurar-con-la-traza-un-caso.">Depurar con la traza: un caso.</h5>
+<p>Un fallo concreto enseña el método. El programa <code>Triaje</code> de la sección&nbsp;2.6 devuelve un resumen que habla de «actividad benigna» para una alerta claramente crítica. Sin traza, la tentación es culpar al resumen y retocar su instrucción; con traza, el diagnóstico tarda un minuto: el primer paso muestra que <code>clasificar</code> ya emitió <code>benigno</code>, y el resumen, obediente, resumió conforme a la etiqueta que recibió. El fallo vive en el clasificador —quizá en sus demostraciones, quizá en un caso frontera de la taxonomía—, y todo retoque aguas abajo habría sido maquillaje. La moraleja generaliza: en un programa compuesto, el módulo que <em>muestra</em> el error rara vez es el que lo <em>comete</em>, y la traza convierte la búsqueda del culpable en una lectura secuencial en vez de una conjetura. Por eso la traza no es un lujo de depuración sino el sustrato del método completo: la misma estructura que aquí localiza el fallo es la que el <em>bootstrapping</em> recorre para repartir mérito (capítulo&nbsp;5).</p>
+<p>La integración con herramientas de seguimiento de experimentos —registro de ejecuciones, comparación de versiones— convierte la observabilidad en una práctica sistemática, no en una inspección manual. Un programa de LM en producción se instrumenta como cualquier otro servicio: con registros, métricas y trazas.</p>
+</section>
+<section id="el-registro-de-experimentos." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-registro-de-experimentos.">El registro de experimentos.</h5>
+<p>Esa práctica sistemática tiene forma concreta: cada corrida que produzca una cifra —una evaluación, una optimización— se registra con cuanto haría falta para repetirla. El mínimo del libro: el modelo y su versión exacta, los parámetros de muestreo, el estado compilado del programa —o su ruta versionada—, la partición de datos con su semilla, la métrica y su valor, el conteo de <em>tokens</em> y el coste, y la fecha. DSPy se integra con herramientas de seguimiento tipo MLflow, que capturan las trazas y los parámetros de cada ejecución sin instrumentación manual <span class="citation" data-cites="dspydocs">(<a href="#ref-dspydocs" role="doc-biblioref">DSPy 2024</a>)</span>; con o sin herramienta, la disciplina es la misma que esta obra aplica a sus propias cifras (capítulo&nbsp;4): el número sin su ficha de reproducción es una anécdota. El hábito rinde el día menos pensado —¿por qué la versión de marzo puntuaba dos puntos más?— y cuesta minutos si se adquiere el primer día, y semanas si se improvisa el último.</p>
+</section>
+<section id="el-modelo-de-programación." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-modelo-de-programación.">El modelo de programación.</h5>
+<p>Conviene recapitular la arquitectura del marco, porque sobre ella se monta todo lo demás. Un programa hereda de <code>dspy.Module</code> y declara, como atributos, los módulos que compone; DSPy descubre así sus <em>predictores</em> internos —los puntos que un optimizador puede ajustar— y permite guardarlos y cargarlos como un estado. La configuración global vive en <code>dspy.settings</code> —el LM por defecto, la caché, el número de hilos—, y un bloque <code>dspy.context</code> la modifica de forma local, para una región del código, sin afectar al resto.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> dspy.context(lm<span class="op">=</span>dspy.LM(<span class="st">"openai/gpt-4o"</span>)):</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    fuerte <span class="op">=</span> programa(mensaje<span class="op">=</span><span class="st">"..."</span>)   <span class="co"># usa el modelo grande solo aqui</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co"># fuera del bloque se restaura el LM por defecto</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> nombre, pred <span class="kw">in</span> programa.named_predictors():</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(nombre, pred.signature)      <span class="co"># los puntos optimizables del programa</span></span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Este modelo —módulos componibles, configuración global, contexto local, estado serializable— es el rasgo que hace de DSPy un marco de programación y no una colección de funciones. La firma declara el qué, el módulo lo realiza, el optimizador lo ajusta y <code>settings</code> gobierna el entorno: cuatro piezas que bastan para construir sistemas de cualquier tamaño. La figura&nbsp;2.14 las alinea.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap02/fig_14.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;2.14.</strong> Cuatro piezas —módulos componibles, configuración global, contexto local, estado serializable— hacen de DSPy un marco de programación y no una colección de funciones. Bastan para construir sistemas de cualquier tamaño.</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="errores-límites-de-tasa-y-reproducibilidad" class="level2">
+<h2 class="anchored" data-anchor-id="errores-límites-de-tasa-y-reproducibilidad">Errores, límites de tasa y reproducibilidad</h2>
+<p>Trabajar contra una API añade modos de fallo que un programa serio contempla. Los límites de tasa devuelven errores transitorios que conviene reintentar con espera creciente; los tiempos de espera y los cortes de red exigen idempotencia, para no pagar dos veces por una llamada perdida. Las validaciones se hacen con <code>raise</code> y nunca con <code>assert</code>, que desaparece bajo optimización del intérprete. DSPy absorbe parte de esta fricción —reintentos del adaptador, caché ante repeticiones—, pero el diseño del programa decide el resto. La figura&nbsp;2.15 dibuja el lazo de reintento.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap02/fig_15.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;2.15.</strong> Los límites de tasa devuelven errores transitorios que conviene reintentar con espera creciente; los cortes de red exigen idempotencia, para no pagar dos veces por una llamada perdida. DSPy absorbe parte de esta fricción, pero el diseño decide el resto.</figcaption>
+</figure>
+</div>
+<section id="errores-con-significado." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="errores-con-significado.">Errores con significado.</h5>
+<p>No todo error transitorio se trata igual, y leerlos con criterio ahorra noches. El límite de tasa pide espera creciente y menos concurrencia, no más reintentos furiosos —cada reintento inmediato alarga el castigo—. El tiempo de espera agotado en una generación larga suele pedir <em>streaming</em> o un tope de salida menor, no un plazo mayor. El rechazo por filtro de contenido merece mención propia porque no es transitorio: el proveedor moderó la petición o la respuesta, reintentarlo tal cual es inútil, y en dominios de seguridad —donde el texto legítimo habla de exploits y de <em>malware</em>— es un modo de fallo estructural que se gestiona con proveedor, contrato o modelo local, no con bucles. Y el error de contexto excedido es un error de presupuesto (sección&nbsp;2.1): la solución es podar, no partir la petición a ciegas. La política de reintentos del programa declara qué clase de error reintenta, cuántas veces y con qué espera; el resto se eleva con su causa intacta, porque un error bien tipado es información y uno tragado en silencio es deuda.</p>
+</section>
+<section id="idempotencia-y-el-doble-cobro." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="idempotencia-y-el-doble-cobro.">Idempotencia y el doble cobro.</h5>
+<p>El reintento tiene letra pequeña: solo es inocuo si repetir la operación no duplica sus efectos. Una llamada de <em>solo lectura</em> —clasificar, extraer, resumir— se reintenta sin remordimiento: el peor caso es pagar dos veces una respuesta, y la caché suele evitar hasta eso. Una llamada con <em>efectos</em> —el agente del capítulo&nbsp;7 que abre un tique, envía un aviso o escribe en una base— no se reintenta a ciegas: el corte de red que se llevó la respuesta no se llevó necesariamente el efecto, y el reintento ingenuo abre dos tiques. El remedio es de manual y conviene aplicarlo desde el primer día: claves de idempotencia en las operaciones con efecto —el segundo intento con la misma clave no repite el efecto—, o el diseño que separa proponer de ejecutar, con la ejecución fuera del bucle de reintentos. En la frontera del modelo casi todo es lectura; en la frontera de las herramientas, casi nada, y confundir ambos regímenes es la clase de error que solo se descubre contando tiques duplicados un lunes.</p>
+<p>La reproducibilidad merece una nota final. Un modelo por API es un blanco móvil: su versión cambia sin aviso, y con ella las salidas. Por eso toda cifra que se publique se acompaña del modelo y su versión exacta, de la semilla de barajado de los datos y de la fecha; y, por la estocasticidad de la sección&nbsp;2.2, se da como media con desviación sobre varias corridas, nunca como un único decimal. El capítulo&nbsp;4 convierte estas cautelas en un método de evaluación con todas sus garantías. La tabla&nbsp;2.10 lista qué anotar junto a cada cifra.</p>
+<table class="caption-top table">
+<caption>Un modelo por API es un blanco móvil: su versión cambia sin aviso, y con ella las salidas. Estas anotaciones separan una disciplina de una colección de anécdotas (capítulo&nbsp;4).</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Dato</th>
+<th style="text-align: left;">Por qué</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Modelo y versión exacta</td>
+<td style="text-align: left;">un modelo por API es un blanco móvil</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Semilla de barajado</td>
+<td style="text-align: left;">fija la partición de los datos</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Fecha de la corrida</td>
+<td style="text-align: left;">el proveedor cambia sin aviso</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Media <span class="math inline">\(\pm\)</span> desviación</td>
+<td style="text-align: left;">la salida es estocástica</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="lecturas-recomendadas" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="lecturas-recomendadas">Lecturas recomendadas</h2>
+<ul>
+<li><p><span class="citation" data-cites="dspydocs">DSPy (<a href="#ref-dspydocs" role="doc-biblioref">2024</a>)</span>: la API de <code>LM</code>, <code>Signature</code>, <code>Predict</code> y los adaptadores, con ejemplos actualizados.</p></li>
+<li><p><span class="citation" data-cites="litellm">BerriAI (<a href="#ref-litellm" role="doc-biblioref">2024</a>)</span>: la interfaz unificada de proveedores en que se apoya <code>dspy.LM</code>.</p></li>
+<li><p><span class="citation" data-cites="holtzman2020nucleus">Holtzman et&nbsp;al. (<a href="#ref-holtzman2020nucleus" role="doc-biblioref">2020</a>)</span>: el muestreo por núcleo y el problema de la degeneración del texto.</p></li>
+<li><p><span class="citation" data-cites="ouyang2022instructgpt"><span class="nocase">Ouyang et&nbsp;al.</span> (<a href="#ref-ouyang2022instructgpt" role="doc-biblioref">2022</a>)</span>: por qué los modelos siguen instrucciones en los papeles del formato de <em>chat</em>.</p></li>
+</ul>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">Referencias</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-litellm" class="csl-entry" role="listitem">
+BerriAI. 2024. <span>«<span>LiteLLM</span>: llamada unificada a más de 100 modelos de lenguaje»</span>. <a href="https://github.com/BerriAI/litellm">https://github.com/BerriAI/litellm</a>.
+</div>
+<div id="ref-dong2024xgrammar" class="csl-entry" role="listitem">
+Dong, Yixin, Charlie F. Ruan, Yaxing Cai, et&nbsp;al. 2025. <span>«<span>XGrammar</span>: Flexible and Efficient Structured Generation Engine for Large Language Models»</span>. <em>Proceedings of Machine Learning and Systems (MLSys)</em>. <a href="https://arxiv.org/abs/2411.15100">https://arxiv.org/abs/2411.15100</a>.
+</div>
+<div id="ref-dspydocs" class="csl-entry" role="listitem">
+DSPy. 2024. <span>«Documentación de DSPy»</span>. <a href="https://dspy.ai">https://dspy.ai</a>.
+</div>
+<div id="ref-holtzman2020nucleus" class="csl-entry" role="listitem">
+Holtzman, Ari, Jan Buys, Li Du, Maxwell Forbes, y Yejin Choi. 2020. <span>«The Curious Case of Neural Text Degeneration»</span>. <em>International Conference on Learning Representations (ICLR)</em>. <a href="https://arxiv.org/abs/1904.09751">https://arxiv.org/abs/1904.09751</a>.
+</div>
+<div id="ref-kwon2023vllm" class="csl-entry" role="listitem">
+Kwon, Woosuk, Zhuohan Li, Siyuan Zhuang, et&nbsp;al. 2023. <span>«Efficient Memory Management for Large Language Model Serving with <span>PagedAttention</span>»</span>. <em>Proceedings of the 29th Symposium on Operating Systems Principles (SOSP)</em>. <a href="https://arxiv.org/abs/2309.06180">https://arxiv.org/abs/2309.06180</a>.
+</div>
+<div id="ref-liu2024lostmiddle" class="csl-entry" role="listitem">
+Liu, Nelson F., Kevin Lin, John Hewitt, et&nbsp;al. 2024. <span>«Lost in the Middle: How Language Models Use Long Contexts»</span>. <em>Transactions of the Association for Computational Linguistics</em> 12: 157-73. <a href="https://arxiv.org/abs/2307.03172">https://arxiv.org/abs/2307.03172</a>.
+</div>
+<div id="ref-liu2023promptsurvey" class="csl-entry" role="listitem">
+Liu, Pengfei, Weizhe Yuan, Jinlan Fu, Zhengbao Jiang, Hiroaki Hayashi, y Graham Neubig. 2023. <span>«Pre-train, Prompt, and Predict: A Systematic Survey of Prompting Methods in Natural Language Processing»</span>. <em>ACM Computing Surveys</em>. <a href="https://arxiv.org/abs/2107.13586">https://arxiv.org/abs/2107.13586</a>.
+</div>
+<div id="ref-ouyang2022instructgpt" class="csl-entry" role="listitem">
+<span class="nocase">Ouyang, Long et&nbsp;al.</span> 2022. <span>«Training Language Models to Follow Instructions with Human Feedback»</span>. <em>Advances in Neural Information Processing Systems (NeurIPS)</em>. <a href="https://arxiv.org/abs/2203.02155">https://arxiv.org/abs/2203.02155</a>.
+</div>
+<div id="ref-sennrich2016bpe" class="csl-entry" role="listitem">
+Sennrich, Rico, Barry Haddow, y Alexandra Birch. 2016. <span>«Neural Machine Translation of Rare Words with Subword Units»</span>. <em>Proceedings of ACL</em>.
+</div>
+<div id="ref-wang2023selfconsistency" class="csl-entry" role="listitem">
+Wang, Xuezhi, Jason Wei, Dale Schuurmans, et&nbsp;al. 2023. <span>«Self-Consistency Improves Chain of Thought Reasoning in Language Models»</span>. <em>The Eleventh International Conference on Learning Representations (ICLR)</em>. <a href="https://arxiv.org/abs/2203.11171">https://arxiv.org/abs/2203.11171</a>.
+</div>
+<div id="ref-wei2022cot" class="csl-entry" role="listitem">
+<span class="nocase">Wei, Jason et&nbsp;al.</span> 2022. <span>«Chain-of-Thought Prompting Elicits Reasoning in Large Language Models»</span>. <a href="https://arxiv.org/abs/2201.11903">https://arxiv.org/abs/2201.11903</a>.
+</div>
+<div id="ref-willard2023guided" class="csl-entry" role="listitem">
+Willard, Brandon T., y Rémi Louf. 2023. <span>«Efficient Guided Generation for Large Language Models»</span>. <a href="https://arxiv.org/abs/2307.09702">https://arxiv.org/abs/2307.09702</a>.
+</div>
+<div id="ref-zhao2021calibrate" class="csl-entry" role="listitem">
+Zhao, Tony Z., Eric Wallace, Shi Feng, Dan Klein, y Sameer Singh. 2021. <span>«Calibrate Before Use: Improving Few-Shot Performance of Language Models»</span>. <em>International Conference on Machine Learning (ICML)</em>. <a href="https://arxiv.org/abs/2102.09690">https://arxiv.org/abs/2102.09690</a>.
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copiado");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copiado");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./cap01.html" class="pagination-link" aria-label="Capítulo 1. Por qué programar prompts">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Capítulo 1. Por qué programar prompts</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./cap03.html" class="pagination-link" aria-label="Capítulo 3. Clasificación de intenciones en un SOC">
+        <span class="nav-page-text">Capítulo 3. Clasificación de intenciones en un SOC</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>© 2026 Manuel Muñoz Plá · Edición web bajo licencia <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.es">CC BY-NC-ND 4.0</a> (uso académico con atribución; sin uso comercial ni obras derivadas) · El código va aparte bajo licencia MIT</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

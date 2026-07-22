@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Capítulo 1. Por qué programar prompts – Programación de prompts con DSPy</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./cap02.html" rel="next">
+<link href="./index.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-f7bd9765ec068e3aae6dba6073a1e2a9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No se han encontrado resultados",
+    "search-matching-documents-text": "documentos encontrados",
+    "search-copy-link-title": "Copiar el enlace en la búsqueda",
+    "search-hide-matches-text": "Ocultar resultados adicionales",
+    "search-more-match-text": "resultado adicional en este documento",
+    "search-more-matches-text": "resultados adicionales en este documento",
+    "search-clear-button-title": "Borrar",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancelar",
+    "search-submit-button-title": "Enviar",
+    "search-label": "Buscar"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./cap01.html">Capítulo 1. Por qué programar prompts</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Buscar" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Programación de prompts con DSPy</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Alternar modo lector">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Buscar"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Inicio</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap01.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Capítulo 1. Por qué programar prompts</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap02.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 2. Anatomía de un prompt y primer programa DSPy</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap03.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 3. Clasificación de intenciones en un SOC</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap04.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 4. Evaluación rigurosa de programas DSPy</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap05.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 5. Optimización de demostraciones</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap06.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 6. Optimización de instrucciones</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap07.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 7. Flujos complejos: RAG, agentes y herramientas en seguridad</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap08.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 8. DSPy en análisis de binarios: embeddings de código y razonamiento con LLM</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap09.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 9. DSPy para privacidad: detección, minimización y no fuga de datos</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap10.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 10. Cierre: práctica profesional con DSPy</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">En esta página</h2>
+   
+  <ul>
+  <li><a href="#el-prompt-como-condicionamiento-una-formalización" id="toc-el-prompt-como-condicionamiento-una-formalización" class="nav-link active" data-scroll-target="#el-prompt-como-condicionamiento-una-formalización">El <em>prompt</em> como condicionamiento: una formalización</a></li>
+  <li><a href="#el-aprendizaje-en-contexto" id="toc-el-aprendizaje-en-contexto" class="nav-link" data-scroll-target="#el-aprendizaje-en-contexto">El aprendizaje en contexto</a></li>
+  <li><a href="#mecanismos-y-límites-del-aprendizaje-en-contexto" id="toc-mecanismos-y-límites-del-aprendizaje-en-contexto" class="nav-link" data-scroll-target="#mecanismos-y-límites-del-aprendizaje-en-contexto">Mecanismos y límites del aprendizaje en contexto</a></li>
+  <li><a href="#la-fragilidad-del-ajuste-manual-con-evidencia" id="toc-la-fragilidad-del-ajuste-manual-con-evidencia" class="nav-link" data-scroll-target="#la-fragilidad-del-ajuste-manual-con-evidencia">La fragilidad del ajuste manual, con evidencia</a></li>
+  <li><a href="#de-la-artesanía-al-programa" id="toc-de-la-artesanía-al-programa" class="nav-link" data-scroll-target="#de-la-artesanía-al-programa">De la artesanía al programa</a></li>
+  <li><a href="#el-espacio-de-búsqueda-de-los-prompts" id="toc-el-espacio-de-búsqueda-de-los-prompts" class="nav-link" data-scroll-target="#el-espacio-de-búsqueda-de-los-prompts">El espacio de búsqueda de los <em>prompts</em></a></li>
+  <li><a href="#los-optimizadores-y-su-economía" id="toc-los-optimizadores-y-su-economía" class="nav-link" data-scroll-target="#los-optimizadores-y-su-economía">Los optimizadores y su economía</a></li>
+  <li><a href="#escala-emergencia-y-la-lección-amarga" id="toc-escala-emergencia-y-la-lección-amarga" class="nav-link" data-scroll-target="#escala-emergencia-y-la-lección-amarga">Escala, emergencia y la lección amarga</a></li>
+  <li><a href="#evaluación-reproducibilidad-y-medición" id="toc-evaluación-reproducibilidad-y-medición" class="nav-link" data-scroll-target="#evaluación-reproducibilidad-y-medición">Evaluación, reproducibilidad y medición</a></li>
+  <li><a href="#un-caso-de-extremo-a-extremo" id="toc-un-caso-de-extremo-a-extremo" class="nav-link" data-scroll-target="#un-caso-de-extremo-a-extremo">Un caso de extremo a extremo</a></li>
+  <li><a href="#programar-ajustar-o-recuperar" id="toc-programar-ajustar-o-recuperar" class="nav-link" data-scroll-target="#programar-ajustar-o-recuperar">Programar, ajustar o recuperar</a></li>
+  <li><a href="#intuición-humana-y-deuda-técnica" id="toc-intuición-humana-y-deuda-técnica" class="nav-link" data-scroll-target="#intuición-humana-y-deuda-técnica">Intuición humana y deuda técnica</a></li>
+  <li><a href="#cuándo-conviene-dspy" id="toc-cuándo-conviene-dspy" class="nav-link" data-scroll-target="#cuándo-conviene-dspy">Cuándo conviene DSPy</a></li>
+  <li><a href="#ecosistema-y-riesgos" id="toc-ecosistema-y-riesgos" class="nav-link" data-scroll-target="#ecosistema-y-riesgos">Ecosistema y riesgos</a></li>
+  <li><a href="#lecturas-recomendadas" id="toc-lecturas-recomendadas" class="nav-link" data-scroll-target="#lecturas-recomendadas">Lecturas recomendadas</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Capítulo 1. Por qué programar prompts</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Programar un computador y programar un modelo de lenguaje son actos distintos. Al primero se le dicta una secuencia de instrucciones deterministas; al segundo se le ofrece un texto —el <em>prompt</em>— que condiciona una distribución de probabilidad sobre sus posibles respuestas. Esa diferencia, que parece de grado, es de naturaleza, y de ella arranca todo el libro. Un <em>prompt</em> no es código: es evidencia que inclina al modelo hacia una conducta que ya posee. El problema revela una contradicción de fondo: la industria escribe esa evidencia a mano, la afina por ensayo y error y la trata como un artefacto acabado, cuando la teoría del aprendizaje en contexto y las leyes de escala apuntan en sentido contrario.</p>
+<p>Este capítulo fundamenta la tesis del libro: el <em>prompt</em> debe dejar de escribirse y pasar a <em>compilarse</em>. Para sostenerlo no basta la intuición; se recorre la teoría que la respalda —cómo condiciona un modelo, por qué funcionan las demostraciones, cuán frágil resulta el ajuste manual, qué dice la lección amarga— y se llega a una formulación precisa del autoajuste como un problema de optimización. El recorrido no es un rodeo erudito: cada pieza de teoría fija una decisión de ingeniería posterior. La inferencia bayesiana implícita dicta qué se optimiza; la fragilidad documentada dicta por qué no se hace a mano; las leyes de escala dictan hacia dónde apostar. Al cerrar, el lector entenderá no solo que conviene programar <em>prompts</em>, sino por qué la alternativa está condenada a no escalar.</p>
+<p>El tono es deliberadamente denso. Se asume familiaridad con probabilidad, con los rudimentos del aprendizaje automático —riesgo empírico, sobreajuste, conjuntos de validación— y con el manejo práctico de modelos de lenguaje. No se explican preliminares; se va al mecanismo, al compromiso de diseño y al estado del campo.</p>
+<section id="el-prompt-como-condicionamiento-una-formalización" class="level2">
+<h2 class="anchored" data-anchor-id="el-prompt-como-condicionamiento-una-formalización">El <em>prompt</em> como condicionamiento: una formalización</h2>
+<p>Conviene empezar por la definición de un modelo de lenguaje, porque de ella se deduce todo lo demás. Un modelo autorregresivo define una distribución de probabilidad sobre secuencias de <em>tokens</em>. Dado un vocabulario <span class="math inline">\(V\)</span> y una secuencia <span class="math inline">\(\mathbf{x}=(x_1,\dots,x_n)\)</span> con <span class="math inline">\(x_i\in V\)</span>, el modelo de parámetros <span class="math inline">\(\theta\)</span> factoriza la probabilidad conjunta por la regla de la cadena, <span class="math display">\[\begin{equation}
+  \mathbb{P}_{\theta}(\mathbf{x})
+    = \prod_{i=1}^{n} \mathbb{P}_{\theta}(x_i \mid x_{&lt;i}),
+  \qquad x_{&lt;i} = (x_1,\dots,x_{i-1}).
+\end{equation}\]</span> Cada factor <span class="math inline">\(\mathbb{P}_{\theta}(x_i\mid x_{&lt;i})\)</span> es una distribución categórica sobre <span class="math inline">\(V\)</span>, obtenida al normalizar con <span class="math inline">\(\mathop{\mathrm{softmax}}\)</span> las puntuaciones de la última capa. Generar texto es muestrear repetidamente de esa distribución condicionada por el prefijo ya producido.</p>
+<p>Ahí reside la idea entera del <em>prompt</em>: el prefijo no es un dato accesorio, es el mando. Para resolver una tarea que transforma una entrada <span class="math inline">\(\mathbf{x}\)</span> en una salida <span class="math inline">\(\mathbf{y}\)</span>, se antepone un contexto <span class="math inline">\(\mathbf{c}\)</span> y se muestrea <span class="math display">\[\begin{equation}
+  \mathbf{y} \sim \mathbb{P}_{\theta}\!\left(\,\cdot \mid \mathbf{c}\oplus\mathbf{x}\right),
+\end{equation}\]</span> donde <span class="math inline">\(\oplus\)</span> representa la concatenación. El <em>prompt</em> es ese <span class="math inline">\(\mathbf{c}\)</span>, y construirlo es elegir un punto en un espacio de textos que reconfigura la distribución de salida <strong>sin tocar</strong> <span class="math inline">\(\theta\)</span>. La diferencia con el entrenamiento es tajante: entrenar mueve <span class="math inline">\(\theta\)</span> y altera la función; hacer <em>prompting</em> mantiene <span class="math inline">\(\theta\)</span> fijo y solo cambia el punto en que se la evalúa.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap01/fig_01.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;1.1.</strong> El <em>prompt</em> <span class="math inline">\(\mathbf{c}\)</span> se antepone a la entrada <span class="math inline">\(\mathbf{x}\)</span>; el modelo, con <span class="math inline">\(\theta\)</span> congelado, define una distribución sobre las salidas de la que se muestrea <span class="math inline">\(\mathbf{y}\)</span>. Construir el <em>prompt</em> elige un punto de evaluación, no modifica el modelo.</figcaption>
+</figure>
+</div>
+<p>La figura&nbsp;1.1 resume esa mecánica: el <em>prompt</em> es la palanca que reconfigura la distribución sin tocar <span class="math inline">\(\theta\)</span>.</p>
+<div class="definicion">
+<p>Se denomina <em>prompting</em> a la construcción de un contexto <span class="math inline">\(\mathbf{c}\)</span> que condiciona la distribución <span class="math inline">\(\mathbb{P}_{\theta}(\cdot\mid \mathbf{c}\oplus\mathbf{x})\)</span> hacia la conducta deseada, con los parámetros <span class="math inline">\(\theta\)</span> congelados. El <em>prompt</em> no modifica el modelo: selecciona, entre las conductas que el modelo ya codifica, la que se quiere evocar.</p>
+</div>
+<p>La distinción importa porque delimita el alcance del <em>prompt</em>: lo posible y lo vedado. No puede dotar al modelo de una capacidad ausente de <span class="math inline">\(\theta\)</span>: ningún contexto enseña un idioma que el modelo no vio. Sí puede <em>localizar</em> y <em>amplificar</em> una conducta latente, desplazando masa de probabilidad hacia las salidas correctas. Por eso un <em>prompt</em> bien construido no «explica» la tarea en el sentido humano; la <em>evoca</em>. Esta lectura —que la sección&nbsp;1.2 convierte en teoría— ya anticipa una consecuencia incómoda para la artesanía: si el contexto evoca en vez de enseñar, la redacción exacta importa menos que la elección de la evidencia presentada.</p>
+<p>El contexto, además, no es monolítico. Una taxonomía hoy estándar <span class="citation" data-cites="liu2023promptsurvey">(<a href="#ref-liu2023promptsurvey" role="doc-biblioref">Liu et&nbsp;al. 2023</a>)</span> distingue en <span class="math inline">\(\mathbf{c}\)</span> una instrucción, un conjunto de demostraciones y un formato, junto a la consulta. Cada componente tira de la distribución en una dirección, y entre ellos hay interacciones: una instrucción nítida reduce la dependencia de las demostraciones; un formato estricto acota el espacio de salidas plausibles. La pregunta que organiza el libro es quién construye <span class="math inline">\(\mathbf{c}\)</span> y cómo —una persona que teclea y retoca, o un programa que lo deriva de una especificación y lo ajusta contra datos—. La primera vía es la dominante; la segunda, la que aquí se defiende. El resto del capítulo muestra que la segunda no es una preferencia estética, sino la conclusión a la que obliga la teoría.</p>
+<p>La forma de muestrear de la ecuación&nbsp;(1.1) introduce un mando adicional. Cada paso normaliza las puntuaciones <span class="math inline">\(z_v\)</span> de la última capa con una <em>temperatura</em> <span class="math inline">\(\tau\)</span>, <span class="math display">\[\begin{equation}
+  \mathbb{P}_{\theta}(x_i = v \mid x_{&lt;i})
+    = \frac{\exp(z_v/\tau)}{\sum_{w\in V}\exp(z_w/\tau)} .
+\end{equation}\]</span> Con <span class="math inline">\(\tau\to 0\)</span> el muestreo se vuelve determinista —se elige siempre el <em>token</em> de mayor puntuación, el régimen voraz—; al crecer <span class="math inline">\(\tau\)</span>, la distribución se aplana y la salida gana variedad y riesgo. La temperatura no cambia <span class="math inline">\(\theta\)</span> ni el contexto <span class="math inline">\(\mathbf{c}\)</span>: redistribuye la masa que el modelo ya asigna.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap01/fig_02.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;1.2.</strong> La misma puntuación de la última capa, con dos temperaturas. Una <span class="math inline">\(\tau\)</span> baja concentra la masa en el <em>token</em> más probable (régimen casi voraz); una <span class="math inline">\(\tau\)</span> alta la reparte, ganando variedad a costa de riesgo. La temperatura no cambia <span class="math inline">\(\theta\)</span> ni <span class="math inline">\(\mathbf{c}\)</span>: redistribuye.</figcaption>
+</figure>
+</div>
+<p>La figura&nbsp;1.2 ilustra ese aplanamiento (ecuación&nbsp;(1.3)). De aquí salen dos consecuencias para el resto del libro. La primera, que la salida es una variable aleatoria salvo en el límite voraz, y por eso toda métrica medida sobre ella hereda una varianza que habrá que cuantificar (sección&nbsp;1.9). La segunda, que medir la <em>variabilidad</em> de un sistema exige elevar <span class="math inline">\(\tau\)</span> y desactivar la caché, mientras que perseguir reproducibilidad pide el régimen opuesto: dos objetivos en tensión que se resuelven por separado.</p>
+<section id="una-breve-historia." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="una-breve-historia.">Una breve historia.</h5>
+<p>Conviene situar la tesis en una línea temporal, porque programar <em>prompts</em> es el último eslabón de una tendencia larga: el conocimiento humano se desplaza, una y otra vez, hacia capas más altas y más automatizadas. En la primera era, la del aprendizaje automático clásico, ese conocimiento vivía en los <em>rasgos</em>: un experto diseñaba a mano las variables que el modelo consumía, y el sistema se limitaba a ponderarlas. La pericia estaba en la ingeniería de rasgos.</p>
+<p>La segunda era trasladó el conocimiento del rasgo al gradiente. Con el preentrenamiento y el ajuste fino, un modelo grande se entrena sobre un corpus general y luego se especializa moviendo sus pesos sobre los datos de cada tarea. El experto deja de diseñar variables y pasa a curar datos y a supervisar el ajuste; el modelo aprende la representación por sí mismo.</p>
+<p>La tercera era nace con el aprendizaje en contexto. Un modelo lo bastante grande resuelve una tarea descrita en el <em>prompt</em>, sin mover un solo peso <span class="citation" data-cites="brown2020gpt3">(<a href="#ref-brown2020gpt3" role="doc-biblioref"><span class="nocase">Brown et&nbsp;al.</span> 2020</a>)</span>, y de ahí surge el <em>prompt engineering</em>: el conocimiento se codifica ahora en el texto del contexto. Pronto se advierte que ese texto es más un programa que un conjuro —de ahí la expresión <em>prompt programming</em> <span class="citation" data-cites="reynolds2021prompt">(<a href="#ref-reynolds2021prompt" role="doc-biblioref">Reynolds y McDonell 2021</a>)</span>— y que su forma desbloquea capacidades, como muestra la cadena de pensamiento al hacer explícito el razonamiento intermedio <span class="citation" data-cites="wei2022cot">(<a href="#ref-wei2022cot" role="doc-biblioref"><span class="nocase">Wei et&nbsp;al.</span> 2022a</a>)</span>. El paradigma queda sistematizado bajo el lema «preentrenar, instruir, predecir» <span class="citation" data-cites="liu2023promptsurvey">(<a href="#ref-liu2023promptsurvey" role="doc-biblioref">Liu et&nbsp;al. 2023</a>)</span>.</p>
+<p>La cuarta era es la de este libro: preentrenar y <em>compilar</em>. El conocimiento deja de teclearse en el contexto y pasa a declararse en una especificación que un optimizador realiza, primero con el marco <em>Demonstrate–Search–Predict</em> <span class="citation" data-cites="khattab2022demonstrate">(<a href="#ref-khattab2022demonstrate" role="doc-biblioref">Khattab et&nbsp;al. 2022</a>)</span> y después con DSPy <span class="citation" data-cites="khattab2024dspy">(<a href="#ref-khattab2024dspy" role="doc-biblioref">Khattab et&nbsp;al. 2024</a>)</span>. Cada era automatiza la anterior: del rasgo al gradiente, del gradiente al contexto, del contexto al compilador. Ver el <em>prompt</em> como un artefacto que se escribe a mano es quedarse en la tercera era cuando ya existe la cuarta.</p>
+<table class="caption-top table">
+<caption>Cada era desplaza el conocimiento humano a una capa más alta y automatiza la anterior. Este libro defiende la cuarta: declarar la conducta y compilar el <em>prompt</em>.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Era</th>
+<th style="text-align: left;">Conocimiento en</th>
+<th style="text-align: left;">El experto</th>
+<th style="text-align: left;">Mecanismo</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">aprendizaje clásico</td>
+<td style="text-align: left;">los rasgos</td>
+<td style="text-align: left;">diseña variables</td>
+<td style="text-align: left;">ponderar rasgos</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">preentrenar y ajustar</td>
+<td style="text-align: left;">el gradiente</td>
+<td style="text-align: left;">cura datos</td>
+<td style="text-align: left;">mover <span class="math inline">\(\theta\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">contexto</td>
+<td style="text-align: left;">el <em>prompt</em></td>
+<td style="text-align: left;">lo escribe a mano</td>
+<td style="text-align: left;">condicionar, <span class="math inline">\(\theta\)</span> fijo</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">compilar</td>
+<td style="text-align: left;">la especificación</td>
+<td style="text-align: left;">declara y mide</td>
+<td style="text-align: left;">optimizar el <em>prompt</em></td>
+</tr>
+</tbody>
+</table>
+<p>La tabla&nbsp;1.1 ordena esa progresión: del rasgo al gradiente, del gradiente al contexto, del contexto al compilador.</p>
+</section>
+</section>
+<section id="el-aprendizaje-en-contexto" class="level2">
+<h2 class="anchored" data-anchor-id="el-aprendizaje-en-contexto">El aprendizaje en contexto</h2>
+<p>La eficacia de las demostraciones dentro de <span class="math inline">\(\mathbf{c}\)</span> descansa en un fenómeno descrito al presentarse los modelos de gran escala: el <em>aprendizaje en contexto</em> (<em>in-context learning</em>, ICL). El trabajo que populariza el término entrena un modelo de 175 mil millones de parámetros —diez veces mayor que cualquier modelo de lenguaje denso anterior— y muestra que, descrita la tarea y ofrecidos unos pocos ejemplos en el <em>prompt</em>, el modelo resuelve casos nuevos sin ningún ajuste de pesos, solo con la especificación textual y las demostraciones <span class="citation" data-cites="brown2020gpt3">(<a href="#ref-brown2020gpt3" role="doc-biblioref"><span class="nocase">Brown et&nbsp;al.</span> 2020</a>)</span>. La adaptación ocurre por entero en la pasada hacia delante.</p>
+<p>Conviene medir cuánto rompe esto con el aprendizaje automático clásico. En el paradigma habitual, adaptar un modelo a una tarea exige datos etiquetados, una función de pérdida y un proceso de optimización que mueve los pesos; el resultado es un modelo nuevo. En el aprendizaje en contexto no hay ninguna de esas tres cosas: ni pérdida, ni gradiente, ni pesos nuevos. El mismo modelo, con los mismos parámetros, exhibe conductas distintas según el contexto que se le antepone. Es como si un programa cambiara de comportamiento no al recompilarlo, sino al cambiarle los datos de entrada —y, sin embargo, esos «datos» codifican una tarea, no un caso—. La figura&nbsp;1.3 contrasta ambos regímenes.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap01/fig_03.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;1.3.</strong> La adaptación clásica mueve los pesos con datos y pérdida y produce un modelo nuevo; el aprendizaje en contexto cambia la conducta con solo anteponer un contexto, sin tocar <span class="math inline">\(\theta\)</span>. Ni pérdida, ni gradiente, ni pesos nuevos.</figcaption>
+</figure>
+</div>
+<p>El fenómeno, además, aparece con la escala: el mismo estudio observa que la ventaja del régimen de pocos ejemplos sobre el de cero ejemplos se ensancha con el tamaño del modelo <span class="citation" data-cites="brown2020gpt3">(<a href="#ref-brown2020gpt3" role="doc-biblioref"><span class="nocase">Brown et&nbsp;al.</span> 2020</a>)</span>. Esa dependencia no es anecdótica: es la primera señal de que el aprendizaje en contexto pertenece a la familia de capacidades que las leyes de escala gobiernan, asunto que la sección&nbsp;1.8 retoma; la figura&nbsp;1.4 dibuja ese ensanchamiento. Comprender qué sucede en esa pasada hacia delante no es un lujo especulativo: determina qué parte del <em>prompt</em> pesa y, por tanto, qué debe optimizar un compilador. Si lo decisivo fuera la redacción literal de la instrucción, habría que optimizar texto; si lo fueran las demostraciones, habría que optimizar su selección. La respuesta condiciona el diseño entero, y por eso merece tres lecturas detenidas.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap01/fig_04.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;1.4.</strong> Forma cualitativa del fenómeno: la ventaja del régimen de pocos ejemplos sobre el de cero ejemplos se ensancha con el tamaño del modelo <span class="citation" data-cites="brown2020gpt3">(<a href="#ref-brown2020gpt3" role="doc-biblioref"><span class="nocase">Brown et&nbsp;al.</span> 2020</a>)</span>, señal de que el aprendizaje en contexto es una capacidad gobernada por las leyes de escala (sección&nbsp;1.8).</figcaption>
+</figure>
+</div>
+<section id="tres-lecturas-del-fenómeno." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="tres-lecturas-del-fenómeno.">Tres lecturas del fenómeno.</h5>
+<p>Ninguna de las tres explicaciones que siguen es definitiva, y no se excluyen entre sí: iluminan caras distintas del mismo hecho. Importan aquí porque las tres, por caminos diferentes, desembocan en la misma moraleja de ingeniería (tabla&nbsp;1.2).</p>
+<table class="caption-top table">
+<caption>Las tres lecturas del ICL iluminan caras distintas del mismo hecho y desembocan en una misma moraleja: qué debe optimizar un compilador.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Lectura</th>
+<th style="text-align: left;">Idea central</th>
+<th style="text-align: left;">Implicación de ingeniería</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">inferencia bayesiana</td>
+<td style="text-align: left;">infiere el concepto</td>
+<td style="text-align: left;">elegir demos representativas</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">cabezas de inducción</td>
+<td style="text-align: left;">copia patrones</td>
+<td style="text-align: left;">mantener el formato estable</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">descenso implícito</td>
+<td style="text-align: left;">la pasada <span class="math inline">\(\approx\)</span> GD</td>
+<td style="text-align: left;">las demos son datos</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="inferencia-bayesiana-implícita." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="inferencia-bayesiana-implícita.">Inferencia bayesiana implícita.</h5>
+<p>La primera lectura entiende el preentrenamiento como el aprendizaje de una mezcla sobre <em>conceptos latentes</em>. Sea <span class="math inline">\(z\)</span> una variable latente que indexa una tarea, un estilo o un dominio; el corpus de preentrenamiento se modela como una mezcla, <span class="math display">\[\begin{equation}
+  \mathbb{P}(\mathbf{x}) = \int \mathbb{P}(\mathbf{x}\mid z)\,\mathbb{P}(z)\,dz,
+\end{equation}\]</span> donde <span class="math inline">\(\mathbb{P}(z)\)</span> es una distribución sobre conceptos y <span class="math inline">\(\mathbb{P}(\mathbf{x}\mid z)\)</span> genera texto coherente con el concepto <span class="math inline">\(z\)</span>. Un modelo que ajusta bien (1.4) ha aprendido, implícitamente, a representar y a separar esos conceptos. Bajo este prisma, al recibir unas demostraciones <span class="math inline">\(\mathcal{D}\)</span> en el contexto, el modelo no memoriza un mapa entrada–salida: infiere el concepto compatible con ellas y predice marginalizando, <span class="math display">\[\begin{equation}
+  \mathbb{P}_{\theta}(\mathbf{y}\mid \mathbf{x}, \mathcal{D})
+    \;\approx\; \int \mathbb{P}_{\theta}(\mathbf{y}\mid \mathbf{x}, z)\,
+                       \mathbb{P}(z\mid \mathcal{D})\,dz .
+\end{equation}\]</span> Las demostraciones actúan como evidencia que <em>afila</em> la posterior <span class="math inline">\(\mathbb{P}(z\mid\mathcal{D})\)</span> en torno al concepto correcto (figura&nbsp;1.5); cuanto más nítida la posterior, más fiable la predicción <span class="citation" data-cites="xie2022icl">(<a href="#ref-xie2022icl" role="doc-biblioref">Xie et&nbsp;al. 2022</a>)</span>. El aprendizaje en contexto se interpreta así como inferencia bayesiana implícita: el modelo ya contiene las tareas, y el contexto selecciona entre ellas.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap01/fig_05.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;1.5.</strong> Esquema cualitativo de la idea de <span class="citation" data-cites="xie2022icl">Xie et&nbsp;al. (<a href="#ref-xie2022icl" role="doc-biblioref">2022</a>)</span>. Las demostraciones estrechan la distribución sobre el concepto latente: el modelo no aprende la tarea, la <em>localiza</em>. Sin escala numérica por ser ilustrativo.</figcaption>
+</figure>
+</div>
+<p>Esta lectura tiene una predicción comprobable y algo contraintuitiva. Si las demostraciones sirven como evidencia sobre <span class="math inline">\(z\)</span>, entonces las señales que ayuden a identificar el concepto —el formato, el espacio de etiquetas, la distribución de las entradas— deberían pesar más que la corrección de cada par concreto. La sección&nbsp;1.2 muestra que la evidencia empírica confirma justamente eso.</p>
+<p>La marginalización de la ecuación&nbsp;(1.5) explica además por qué más demostraciones ayudan, hasta cierto punto. Si las <span class="math inline">\(k\)</span> demostraciones de <span class="math inline">\(\mathcal{D}\)</span> son condicionalmente independientes dado el concepto, la posterior factoriza como <span class="math display">\[\begin{equation}
+  \mathbb{P}(z\mid\mathcal{D}) \;\propto\; \mathbb{P}(z)\,\prod_{j=1}^{k}\mathbb{P}(d_j\mid z).
+\end{equation}\]</span> Cada nuevo ejemplo <span class="math inline">\(d_j\)</span> añade un factor que premia a los conceptos compatibles con él y penaliza al resto; al crecer <span class="math inline">\(k\)</span>, el producto concentra la masa en el concepto <span class="math inline">\(z^\star\)</span> que mejor explica todas las demostraciones, y la posterior se estrecha (figura&nbsp;1.5). El modelo de <span class="citation" data-cites="xie2022icl">Xie et&nbsp;al. (<a href="#ref-xie2022icl" role="doc-biblioref">2022</a>)</span> levanta este argumento sobre un proceso latente de tipo cadena oculta, donde el preentrenamiento aprende las transiciones y el contexto hace de evidencia. La predicción operativa es nítida: el factor que más afila la posterior es la <em>calidad de la señal</em> de cada demostración sobre el concepto —su formato y su representatividad—, no su mera cantidad, y de ahí que añadir ejemplos redundantes rinda cada vez menos.</p>
+</section>
+<section id="cabezas-de-inducción." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="cabezas-de-inducción.">Cabezas de inducción.</h5>
+<p>La segunda lectura es mecanicista y desciende al circuito. El estudio de los componentes internos del <em>transformer</em> identifica las <em>cabezas de inducción</em>: cabezas de atención que completan patrones de la forma <span class="math inline">\([A][B]\dots[A]\to[B]\)</span>, esto es, que localizan la aparición previa del <em>token</em> actual y copian la continuación que entonces siguió. Una cabeza así implementa, en miniatura, la regla «si ya viste esto, sigue como seguiste la última vez», que es el núcleo de copiar un patrón desde el contexto.</p>
+<p>El hallazgo decisivo es temporal: la formación de estas cabezas durante el entrenamiento coincide con un cambio brusco —una pequeña inflexión en la curva de pérdida— a partir del cual la capacidad de aprendizaje en contexto da un salto, señal de que sostienen buena parte del fenómeno <span class="citation" data-cites="olsson2022induction">(<a href="#ref-olsson2022induction" role="doc-biblioref"><span class="nocase">Olsson et&nbsp;al.</span> 2022</a>)</span>. Donde la lectura bayesiana describe <em>qué</em> computa el modelo —una posterior sobre conceptos—, esta describe <em>con qué maquinaria</em> lo hace. Ambas coinciden en el punto que aquí interesa: la información del contexto se reutiliza por reconocimiento de patrón, no por reentrenamiento, y el sistema es por tanto sensible a la <em>forma</em> del patrón que se le presenta.</p>
+</section>
+<section id="localización-de-tareas-no-meta-aprendizaje." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="localización-de-tareas-no-meta-aprendizaje.">Localización de tareas, no meta-aprendizaje.</h5>
+<p>La tercera lectura es empírica y más incómoda para la artesanía del <em>prompt</em>. Dos resultados la sostienen. El primero: un <em>prompt</em> de cero ejemplos bien formulado puede igualar o superar a uno de pocos ejemplos, de modo que las demostraciones <em>sitúan</em> una tarea que el modelo ya conoce, antes que enseñarla <span class="citation" data-cites="reynolds2021prompt">(<a href="#ref-reynolds2021prompt" role="doc-biblioref">Reynolds y McDonell 2021</a>)</span>. El segundo, más sorprendente: al sustituir las etiquetas correctas de las demostraciones por etiquetas <em>aleatorias</em>, el rendimiento apenas cae, y el efecto se mantiene de forma consistente en doce modelos distintos, GPT-3 incluido. El sostén del aprendizaje en contexto no es el mapa exacto entrada–etiqueta, sino tres rasgos de las demostraciones: el espacio de etiquetas posible, la distribución de las entradas y el formato de la secuencia <span class="citation" data-cites="min2022rethinking">(<a href="#ref-min2022rethinking" role="doc-biblioref">Min et&nbsp;al. 2022</a>)</span>.</p>
+<p>El resultado conviene leerlo con cuidado para no exagerarlo: no afirma que las etiquetas correctas sobren en toda tarea, sino que su contribución es mucho menor de cuanto la intuición supone, y que otros factores —los tres rasgos— dominan. Encaja con la lectura bayesiana: si las demostraciones son evidencia sobre el concepto <span class="math inline">\(z\)</span>, son el formato y la distribución, no la corrección puntual, los que identifican el concepto. La correspondencia precisa de cada demostración pesa poco; su papel como muestra del tipo de tarea pesa mucho.</p>
+</section>
+<section id="una-moraleja-operativa." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="una-moraleja-operativa.">Una moraleja operativa.</h5>
+<p>Las tres lecturas convergen en un corolario que gobierna el resto del libro: el <em>contenido</em> exacto de las demostraciones —su corrección caso a caso— importa menos que su <em>estructura, su distribución y su selección</em>. Y esos tres factores son precisamente la clase de objeto que un procedimiento de búsqueda optimiza bien y una persona, mal. Una persona redacta una demostración «buena» según su criterio; un optimizador prueba cientos de subconjuntos, órdenes y formatos y se queda con el que mide mejor. La conclusión no es estilística sino estratégica: las demostraciones se <em>seleccionan y ordenan</em> con un criterio medido, no se redactan a ojo. El capítulo&nbsp;5 construye los algoritmos que lo hacen, y la sección siguiente muestra por qué la alternativa manual es además inestable.</p>
+</section>
+</section>
+<section id="mecanismos-y-límites-del-aprendizaje-en-contexto" class="level2">
+<h2 class="anchored" data-anchor-id="mecanismos-y-límites-del-aprendizaje-en-contexto">Mecanismos y límites del aprendizaje en contexto</h2>
+<p>Las tres lecturas anteriores presuponen un mecanismo que conviene nombrar: la <em>atención</em>, el componente del <em>transformer</em> que permite a cada posición mirar a todas las demás y combinarlas según su relevancia <span class="citation" data-cites="vaswani2017attention">(<a href="#ref-vaswani2017attention" role="doc-biblioref"><span class="nocase">Vaswani et&nbsp;al.</span> 2017</a>)</span>. La atención convierte el contexto en una memoria de la que el modelo recupera, en cada paso, la información pertinente; es esa recuperación asociativa la que hace posible el aprendizaje en contexto, porque permite que una demostración del <em>prompt</em> influya en la respuesta a una consulta posterior sin que medie ningún ajuste de pesos.</p>
+<p>Las cabezas de inducción de la sección&nbsp;1.2 son un patrón concreto de uso de la atención: cabezas que aprenden a recuperar «la última vez que vi esto, ¿qué siguió?». Bajo esta luz, el <em>prompt</em> no es una orden que el modelo obedece, sino un contenido que la atención indexa y consulta. Esto explica por qué la <em>posición</em> y la <em>forma</em> de las demostraciones importan tanto —alteran qué recupera la atención— y por qué optimizar el <em>prompt</em>, qué se pone y en qué orden, es optimizar el contenido de esa memoria asociativa: una palanca tan real como ajustar los pesos, pero mucho más barata. La figura&nbsp;1.6 esquematiza el circuito que lo hace posible.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap01/fig_06.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;1.6.</strong> Una cabeza de inducción completa un patrón: al reencontrar <code>A</code>, recupera aquello que siguió la vez anterior (<code>B</code>). El <em>prompt</em> no se obedece; su contenido se indexa y se consulta, y por eso su orden y su forma pesan.</figcaption>
+</figure>
+</div>
+<section id="el-icl-como-optimización-implícita." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-icl-como-optimización-implícita.">El ICL como optimización implícita.</h5>
+<p>Una cuarta lectura, más reciente, cierra el círculo con las anteriores. Bajo ciertas condiciones, la pasada hacia delante de un <em>transformer</em> puede <em>simular</em> un paso de descenso de gradiente sobre los ejemplos del contexto: la red, sin actualizar sus pesos, computa internamente algo equivalente a ajustar un modelo a las demostraciones <span class="citation" data-cites="vonoswald2023icl">(<a href="#ref-vonoswald2023icl" role="doc-biblioref"><span class="nocase">Oswald et&nbsp;al.</span> 2023</a>)</span>. El análisis con modelos lineales lo confirma: el aprendizaje en contexto implementa, en su interior, un algoritmo de aprendizaje reconocible <span class="citation" data-cites="akyurek2023icl">(<a href="#ref-akyurek2023icl" role="doc-biblioref"><span class="nocase">Akyürek et&nbsp;al.</span> 2023</a>)</span>.</p>
+<p>La consecuencia conceptual es notable. Si la inferencia ejecuta una optimización implícita, la frontera entre «entrenar» y «hacer <em>prompting</em>» se difumina: las demostraciones del contexto actúan como datos de entrenamiento de un optimizador que vive dentro de la red. Esto reconcilia las tres lecturas previas —la bayesiana describe qué se infiere, las cabezas de inducción con qué maquinaria, y esta con qué algoritmo— y refuerza la tesis del libro: si el contexto es el conjunto de entrenamiento de ese optimizador interno, elegirlo bien —seleccionar y ordenar las demostraciones— es, literalmente, curar los datos de un aprendizaje, y eso se hace por búsqueda medida, no a mano. La figura&nbsp;1.7 resume esta cuarta lectura.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap01/fig_07.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;1.7.</strong> La pasada hacia delante puede simular un paso de descenso de gradiente sobre las demostraciones del contexto <span class="citation" data-cites="vonoswald2023icl">(<a href="#ref-vonoswald2023icl" role="doc-biblioref"><span class="nocase">Oswald et&nbsp;al.</span> 2023</a>)</span>: el contexto actúa como el conjunto de entrenamiento de un optimizador que vive dentro de la red, sin tocar <span class="math inline">\(\theta\)</span>.</figcaption>
+</figure>
+</div>
+</section>
+<section id="qué-no-explican-estas-teorías." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="qué-no-explican-estas-teorías.">Qué no explican estas teorías.</h5>
+<p>Las tres lecturas anteriores son parciales y siguen en debate; conviene no sobrevenderlas, porque su propia incompletud encierra un argumento para el método del libro. La lectura bayesiana es una idealización: supone que el preentrenamiento aproxima una mezcla limpia sobre conceptos latentes, cuando un corpus real y un modelo real no se factorizan con esa nitidez. Explica por qué las demostraciones ayudan a <em>identificar</em> una tarea, pero dice poco sobre cómo el modelo <em>ejecuta</em> un razonamiento de varios pasos.</p>
+<p>La lectura mecanicista comparte el límite. Las cabezas de inducción dan cuenta de la copia de patrones y del aprendizaje en contexto más simple <span class="citation" data-cites="olsson2022induction">(<a href="#ref-olsson2022induction" role="doc-biblioref"><span class="nocase">Olsson et&nbsp;al.</span> 2022</a>)</span>, pero un razonamiento encadenado —del estilo de la cadena de pensamiento <span class="citation" data-cites="wei2022cot">(<a href="#ref-wei2022cot" role="doc-biblioref"><span class="nocase">Wei et&nbsp;al.</span> 2022a</a>)</span>— involucra circuitos que la mera copia no agota; las cabezas de inducción parecen necesarias, no obviamente suficientes para las tareas difíciles.</p>
+<p>La lectura empírica pide la misma cautela. El resultado de que las etiquetas aleatorias apenas dañan se enuncia, en el propio trabajo, para un régimen concreto de tareas de clasificación <span class="citation" data-cites="min2022rethinking">(<a href="#ref-min2022rethinking" role="doc-biblioref">Min et&nbsp;al. 2022</a>)</span>; su fuerza varía con la dificultad de la tarea y con el tamaño del espacio de etiquetas, de modo que «las etiquetas no importan» sería una lectura demasiado fuerte. La formulación prudente es la ya dada: en el régimen estudiado, el formato, la distribución y el espacio de etiquetas dominan sobre la corrección puntual.</p>
+<p>La moraleja es metodológica. Si la teoría disponible no predice con fiabilidad qué <em>prompt</em> funcionará en una tarea y un modelo concretos, la única vía honesta es <em>medir</em> y optimizar contra esa medición. La incompletud de la teoría no debilita la tesis del libro: la refuerza, porque es justo el motivo por el que la búsqueda empírica resulta una necesidad y no un capricho. La tabla&nbsp;1.3 resume qué explica y qué no cada lectura.</p>
+<table class="caption-top table">
+<caption>Cada lectura ilumina una cara y deja otras a oscuras. Su incompletud conjunta es el argumento del capítulo: sin una teoría predictiva, la vía honesta es medir y optimizar.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Lectura</th>
+<th style="text-align: left;">Explica</th>
+<th style="text-align: left;">No explica</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">bayesiana</td>
+<td style="text-align: left;">identificar la tarea</td>
+<td style="text-align: left;">el razonamiento multipaso</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">cabezas de inducción</td>
+<td style="text-align: left;">copiar patrones</td>
+<td style="text-align: left;">el razonamiento encadenado</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">empírica (etiquetas)</td>
+<td style="text-align: left;">formato <span class="math inline">\(&gt;\)</span> corrección</td>
+<td style="text-align: left;">las tareas difíciles</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">optimización implícita</td>
+<td style="text-align: left;">frontera entrenar/<em>prompt</em></td>
+<td style="text-align: left;">el caso real</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="la-fragilidad-del-ajuste-manual-con-evidencia" class="level2">
+<h2 class="anchored" data-anchor-id="la-fragilidad-del-ajuste-manual-con-evidencia">La fragilidad del ajuste manual, con evidencia</h2>
+<p>Si las demostraciones funcionan localizando una tarea, un cambio de superficie puede desplazar esa localización de forma desproporcionada. La literatura lo documenta con precisión, y dos resultados bastan para desarmar la confianza en el ajuste a mano.</p>
+<p>El primero es la sensibilidad al orden. Manteniendo idénticas las demostraciones y variando solo su orden, la exactitud se mueve desde cerca del estado del arte hasta cerca del azar; peor aún, las buenas ordenaciones no se distinguen de las malas sin una señal de validación independiente <span class="citation" data-cites="lu2022fantastically">(<a href="#ref-lu2022fantastically" role="doc-biblioref">Lu et&nbsp;al. 2022</a>)</span>. Los autores idean un remedio que no rompe el régimen de pocos ejemplos: con el propio modelo generan un conjunto de validación artificial y, midiendo la entropía de las predicciones sobre las distintas permutaciones, eligen las ordenaciones prometedoras sin usar ninguna etiqueta reservada; el método rinde un 13 % de mejora relativa para la familia GPT en once tareas de clasificación. La oscilación denota dos cosas: el orden importa mucho y, para acertarlo, hace falta medir. La figura&nbsp;1.8 muestra esa oscilación.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap01/fig_08.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;1.8.</strong> Las mismas demostraciones, en seis órdenes distintos: la exactitud oscila entre cerca del estado del arte y cerca del azar, y los buenos órdenes no se distinguen a ojo de los malos <span class="citation" data-cites="lu2022fantastically">(<a href="#ref-lu2022fantastically" role="doc-biblioref">Lu et&nbsp;al. 2022</a>)</span>. Acertar el orden exige medir.</figcaption>
+</figure>
+</div>
+<p>El segundo son los sesgos sistemáticos de calibración. Los modelos favorecen ciertas respuestas por razones ajenas a la tarea: la etiqueta situada cerca del final del <em>prompt</em> (cercanía), la asociada a <em>tokens</em> frecuentes en el preentrenamiento (frecuencia) y la mayoritaria entre las demostraciones. Esa descalibración es predecible y, de hecho, corregible: estimando el sesgo con una entrada neutra —un caso «sin contenido», como <code>N/A</code>— y ajustando la salida para que sea uniforme sobre ese caso, la calibración contextual mejora la exactitud hasta en 30 % absoluto y, sobre todo, reduce la varianza entre distintas elecciones de <em>prompt</em> <span class="citation" data-cites="zhao2021calibrate">(<a href="#ref-zhao2021calibrate" role="doc-biblioref">Zhao et&nbsp;al. 2021</a>)</span>. El practicante que afina a mano persigue, sin saberlo, ese sesgo del modelo en vez de la tarea. La tabla&nbsp;1.4 resume los tres sesgos y su causa.</p>
+<table class="caption-top table">
+<caption>Tres sesgos que descalibran la salida por razones ajenas a la tarea. La calibración contextual —estimar el sesgo con una entrada neutra (<code>N/A</code>)— los corrige <span class="citation" data-cites="zhao2021calibrate">(<a href="#ref-zhao2021calibrate" role="doc-biblioref">Zhao et&nbsp;al. 2021</a>)</span>.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Sesgo</th>
+<th style="text-align: left;">Causa</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">recencia</td>
+<td style="text-align: left;">la etiqueta situada cerca del final del <em>prompt</em></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">frecuencia</td>
+<td style="text-align: left;">etiquetas de <em>tokens</em> frecuentes en el preentreno</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">mayoría</td>
+<td style="text-align: left;">la clase dominante entre las demostraciones</td>
+</tr>
+</tbody>
+</table>
+<p>Estas evidencias reformulan, con respaldo, las tres patologías del <em>prompt</em> manual:</p>
+<ul>
+<li><p><strong>Fragilidad.</strong> El objetivo es implícito: un retoque que parece cosmético desplaza una diana que nadie mide. La sensibilidad al orden y los sesgos de calibración son su rostro empírico.</p></li>
+<li><p><strong>Dependencia del modelo.</strong> La cadena pulida codifica las rarezas de <em>un</em> modelo; al cambiar de proveedor o de versión, esos supuestos tácitos dejan de cumplirse y el rendimiento se desploma sin aviso.</p></li>
+<li><p><strong>No mantenibilidad.</strong> El motivo por el que el <em>prompt</em> dice algo vive en la cabeza de quien lo escribió, no en el artefacto, y se evapora con la persona.</p></li>
+</ul>
+<p>El veredicto es severo y conviene enunciarlo sin rodeos: afinar cadenas a mano optimiza contra artefactos de un modelo concreto, sin objetivo medido, y por eso no puede garantizarse que generalice ni que perdure. Ninguna de las tres patologías se cura escribiendo cadenas mejores; se curan cambiando el objeto que se manipula y, sobre todo, introduciendo medición. La sección siguiente nombra esa enfermedad con el vocabulario del aprendizaje automático.</p>
+<section id="el-prompt-manual-como-sobreajuste." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-prompt-manual-como-sobreajuste.">El <em>prompt</em> manual como sobreajuste.</h5>
+<p>Conviene traducir el diagnóstico anterior al lenguaje del aprendizaje automático, porque allí el remedio ya es conocido. Cuando alguien redacta un <em>prompt</em> y lo retoca observando unos pocos ejemplos hasta que «funciona», está ejecutando, a mano, un proceso de optimización: ajusta un objeto —la cadena— para minimizar un error observado sobre un puñado de casos. La diferencia con el aprendizaje automático no es de naturaleza, sino de higiene: el practicante optimiza sobre un conjunto diminuto, sin separar entrenamiento de prueba y sin cuantificar el error. Es el escenario de manual del <em>sobreajuste</em>.</p>
+<p>El paralelismo es exacto. El <em>prompt</em> es el parámetro; los ejemplos que el practicante mira al retocar son el conjunto de entrenamiento; la métrica que nunca calcula es la pérdida; el rendimiento en casos no vistos es el error de generalización. Optimizar a ojo sobre cinco ejemplos memorizados produce un <em>prompt</em> de varianza altísima: rinde en esos cinco y se derrumba fuera, igual que un modelo con demasiada capacidad ajustado a pocos datos. La sensibilidad al orden <span class="citation" data-cites="lu2022fantastically">(<a href="#ref-lu2022fantastically" role="doc-biblioref">Lu et&nbsp;al. 2022</a>)</span> denota precisamente esa varianza.</p>
+<p>De esta traducción se siguen, sin misterio, los remedios que el aprendizaje automático ya codificó. Hace falta un <em>conjunto de validación</em> independiente para estimar la generalización; una <em>métrica</em> explícita que convierta «funciona» en un número; y un procedimiento de <em>optimización</em> que explore el espacio de forma sistemática en vez de por corazonadas. Programar <em>prompts</em> no es más que aplicar a la construcción de <span class="math inline">\(\mathbf{c}\)</span> la disciplina que el campo exige para cualquier otro ajuste de parámetros. El resto del capítulo formaliza esa disciplina y muestra que el espacio a explorar es demasiado grande para la mano humana.</p>
+<p>El marco del aprendizaje automático ofrece, además, el vocabulario exacto para cuantificar el daño. El error esperado de un <em>prompt</em> se descompone, como el de cualquier estimador, en sesgo y varianza: el sesgo mide cuánto se aleja en promedio de la conducta deseada, y la varianza, cuánto oscila al cambiar de muestra, de orden o de modelo. El ajuste a mano sobre un puñado de ejemplos reduce el sesgo aparente en esos ejemplos a costa de una varianza enorme —la que delatan la sensibilidad al orden y los sesgos de calibración ya vistos—. La optimización contra un conjunto reservado ataca justo esa varianza: al seleccionar el <em>prompt</em> por su rendimiento en datos no usados para ajustarlo, descarta las configuraciones que solo brillaban por azar. Es el mismo principio que la validación cruzada en el aprendizaje automático clásico, aplicado al texto del <em>prompt</em> en lugar de a los pesos.</p>
+</section>
+</section>
+<section id="de-la-artesanía-al-programa" class="level2">
+<h2 class="anchored" data-anchor-id="de-la-artesanía-al-programa">De la artesanía al programa</h2>
+<p>La historia de la programación es una sucesión de capas que ocultan el detalle de la inferior. Se pasó del lenguaje máquina al ensamblador, y de este a los lenguajes de alto nivel con sus compiladores, de modo que el programador declara una intención y delega su traducción en un proceso automático y reproducible. La teoría de lenguajes nombra esa frontera: la <em>especificación</em> —el qué— se separa de la <em>implementación</em> —el cómo—, y un compilador busca una implementación que satisfaga la especificación. La programación declarativa lleva esa separación al extremo: se enuncia la relación que debe cumplirse, no el procedimiento que la calcula. Una consulta SQL declara qué filas se quieren, no cómo recorrer los índices; el motor decide el cómo y lo optimiza.</p>
+<p>Escribir <em>prompts</em> a mano se sitúa hoy en el nivel del ensamblador: se opera sobre la representación final, cadena a cadena, sin una capa que separe la intención de su realización. Quien lo hace mezcla, en un mismo texto, qué quiere —clasificar, extraer, razonar— con cómo lo pide —estas palabras, estos ejemplos, este formato—, y al mezclarlos pierde la posibilidad de optimizar el cómo sin tocar el qué. La propuesta del libro repite el movimiento histórico (figura&nbsp;1.9): se declara la intención en una <em>firma</em> tipada, se compone en <em>módulos</em>, y un <em>compilador</em> —en la jerga del campo, un <em>optimizador</em> o <em>teleprompter</em>— genera y ajusta el <em>prompt</em> final.</p>
+<p>La idea no nace con DSPy. Su precursor, el marco <em>Demonstrate–Search–Predict</em>, ya planteaba componer recuperación y generación como un programa antes que como una cadena <span class="citation" data-cites="khattab2022demonstrate">(<a href="#ref-khattab2022demonstrate" role="doc-biblioref">Khattab et&nbsp;al. 2022</a>)</span>; DSPy la consolida en un marco coherente de firmas, módulos y optimizadores <span class="citation" data-cites="khattab2024dspy">(<a href="#ref-khattab2024dspy" role="doc-biblioref">Khattab et&nbsp;al. 2024</a>)</span>. Tres definiciones fijan el vocabulario que el resto del libro usa sin descanso.</p>
+<div class="definicion">
+<p>Una <em>firma</em> (<em>signature</em>) declara la conducta de un módulo como una relación tipada entre campos de entrada y de salida —por ejemplo, <code>texto -&gt; etiqueta</code>—, sin fijar el texto del <em>prompt</em> que la realiza. La firma expresa el <em>qué</em>; el <em>cómo</em> queda delegado en el compilador.</p>
+</div>
+<div class="definicion">
+<p>Un <em>módulo</em> es una unidad componible que realiza una firma mediante una estrategia de inferencia —predicción directa, razonamiento intermedio, uso de herramientas—. Los módulos se encadenan en programas, y el programa entero —no cada <em>prompt</em> por separado— es la unidad que se optimiza.</p>
+</div>
+<div class="definicion">
+<p>Un <em>optimizador</em> (o <em>teleprompter</em>) es el compilador del sistema: dado un programa, una métrica y unos datos, busca las instrucciones y las demostraciones que maximizan la métrica y devuelve el mismo programa con esos <em>prompts</em> ya ajustados. No edita texto a mano; explora un espacio.</p>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap01/fig_09.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;1.9.</strong> La separación del qué y el cómo. El programador declara la intención arriba; el compilador genera el <em>prompt</em> final, que deja de editarse a mano. La frontera es la misma que separa especificación e implementación en un lenguaje de alto nivel.</figcaption>
+</figure>
+</div>
+<section id="el-autoajuste-como-minimización-del-riesgo." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-autoajuste-como-minimización-del-riesgo.">El autoajuste como minimización del riesgo.</h5>
+<p>La capa de compilación se formaliza como un problema de optimización, y la formalización aclara de golpe por qué la mano humana no basta. Sea <span class="math inline">\(M_\pi\)</span> un programa cuya conducta depende de un <em>prompt</em> parametrizado <span class="math inline">\(\pi=(\text{instrucciones}, \text{demostraciones})\)</span>, que vive en un espacio <span class="math inline">\(\Pi\)</span>. Sea <span class="math inline">\(\mu(\hat{\mathbf{y}},\mathbf{y})\)</span> una métrica que puntúa una predicción contra la referencia, y <span class="math inline">\(\mathcal{D}\)</span> un conjunto de ejemplos. El autoajuste busca el <em>prompt</em> que maximiza la métrica esperada sobre la distribución de la tarea, aproximada por su media empírica sobre los datos: <span class="math display">\[\begin{equation}
+  \pi^{\star} \;=\;
+  \mathop{\mathrm{arg\,máx}}_{\pi\in\Pi}\;
+  \frac{1}{\lvert\mathcal{D}\rvert}
+  \sum_{(\mathbf{x},\mathbf{y})\in\mathcal{D}}
+  \mu\!\bigl(M_\pi(\mathbf{x}),\,\mathbf{y}\bigr).
+\end{equation}\]</span> La ecuación&nbsp;(1.7) es la maximización del riesgo empírico —el reverso de la minimización de pérdida del aprendizaje automático— trasladada al espacio de los <em>prompts</em>.</p>
+<div class="definicion">
+<p>Un programa es <em>autoajustable</em> cuando un optimizador resuelve aproximadamente la ecuación&nbsp;(1.7): modifica <span class="math inline">\(\pi\)</span> —instrucciones y demostraciones— guiado por la métrica medida sobre datos, sin intervención manual en el texto generado.</p>
+</div>
+<p>La ecuación parece inocente y esconde toda la dificultad del campo, en tres frentes. Primero, <span class="math inline">\(\Pi\)</span> es discreto, no diferenciable y de dimensión enorme: no hay gradiente que seguir, así que las técnicas de optimización continua no aplican y hay que recurrir a búsqueda de caja negra. Segundo, cada evaluación del sumatorio cuesta llamadas reales al modelo, con su precio monetario y su latencia; la <em>eficiencia muestral</em> del optimizador —cuántas evaluaciones gasta para hallar un buen <span class="math inline">\(\pi\)</span>— es por tanto una restricción de diseño, no un detalle de implementación. Tercero, y más sutil, cuando <span class="math inline">\(M_\pi\)</span> encadena varios módulos, la métrica solo observa la salida final.</p>
+<p>Este tercer punto merece detenerse, porque es donde el problema deja de parecer trivial. Imagínese un programa de dos módulos: uno recupera contexto relevante y otro razona sobre él para responder. Si la respuesta final es incorrecta, ¿la culpa fue de una recuperación pobre o de un razonamiento defectuoso? La métrica, que solo ve la respuesta, no lo dice. Atribuir el mérito o la culpa a cada <em>prompt</em> intermedio es un problema de <em>asignación de crédito</em>, análogo al del aprendizaje por refuerzo, y los optimizadores de DSPy lo abordan arrastrando las trazas de ejecución de los intentos exitosos: cuando el programa completo acierta, se conservan como demostraciones las entradas y salidas <em>intermedias</em> que condujeron al acierto (figura&nbsp;1.10). Así, la señal de la salida final se propaga hacia atrás, a cada módulo, sin necesidad de una etiqueta intermedia. Los capítulos&nbsp;5 y&nbsp;6 desarrollan las familias de optimizadores que abordan estos tres obstáculos.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap01/fig_10.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;1.10.</strong> El optimizador resuelve aproximadamente la ecuación&nbsp;(1.7): ajusta <span class="math inline">\(\pi\)</span> contra datos y métrica y devuelve el mismo programa con <span class="math inline">\(\pi^\star\)</span>. La conducta declarada no cambia; cambia su realización. El bucle se reabre al cambiar de modelo, datos o métrica.</figcaption>
+</figure>
+</div>
+<p>Conviene separar dos cantidades que la ecuación&nbsp;(1.7) confunde por comodidad. El objetivo verdadero es el <em>riesgo poblacional</em>, la métrica esperada sobre la distribución real de la tarea, <span class="math display">\[\begin{equation}
+  R(\pi) = \mathbb{E}_{(\mathbf{x},\mathbf{y})\sim \mathcal{P}}
+           \bigl[\mu(M_\pi(\mathbf{x}),\mathbf{y})\bigr],
+\end{equation}\]</span> del que solo se observa su estimación empírica <span class="math inline">\(\hat{R}(\pi)\)</span> sobre la muestra <span class="math inline">\(\mathcal{D}\)</span>. El optimizador maximiza <span class="math inline">\(\hat{R}\)</span>, pero la cantidad que importa es <span class="math inline">\(R\)</span>; la diferencia <span class="math inline">\(R(\pi)-\hat{R}(\pi)\)</span> es la brecha de generalización, y maximizar <span class="math inline">\(\hat{R}\)</span> sobre el mismo conjunto con que luego se juzga el resultado la infla. De ahí la higiene obligatoria: optimizar sobre entrenamiento, elegir hiperparámetros sobre validación y reportar sobre una prueba intacta. Sin esa separación, un optimizador potente no mejora el sistema: lo sobreajusta con más eficiencia que la mano humana.</p>
+<p>La segunda complicación es la composición. Un programa realista es una cadena de módulos, <span class="math inline">\(M_\pi = M_{\pi_L}\circ\cdots\circ M_{\pi_1}\)</span>, y la métrica solo observa la salida del último. No hay etiqueta para las salidas intermedias, de modo que el optimizador debe inferir qué configuración de cada <span class="math inline">\(\pi_\ell\)</span> contribuyó al acierto final. La técnica que lo resuelve es el <em>bootstrapping</em> de trazas: se ejecuta el programa completo sobre el entrenamiento y, cuando la salida final supera el umbral de <span class="math inline">\(\mu\)</span>, se conservan las entradas y salidas de <em>cada</em> módulo en esa ejecución como demostraciones candidatas para él. La señal escasa de la salida se reparte así entre todos los módulos sin supervisión intermedia, en un eco de la asignación de crédito del aprendizaje por refuerzo. El capítulo&nbsp;5 formaliza esta idea; el capítulo&nbsp;6 la combina con la búsqueda de instrucciones.</p>
+</section>
+<section id="el-programa-como-grafo-de-cómputo." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-programa-como-grafo-de-cómputo.">El programa como grafo de cómputo.</h5>
+<p>La composición de módulos se formaliza como un <em>grafo de cómputo dirigido y acíclico</em>: cada nodo es un módulo <span class="math inline">\(M_{\pi_\ell}\)</span>, cada arista una dependencia de datos, y la salida final emana de recorrer el grafo (figura&nbsp;1.11). Esta vista no es un adorno: precisa por qué la asignación de crédito es difícil. La métrica observa solo el nodo terminal, y la señal debe propagarse hacia atrás por las aristas hasta cada <span class="math inline">\(\pi_\ell\)</span>, sin etiquetas en los nodos intermedios.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap01/fig_11.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;1.11.</strong> Un programa de dos módulos como grafo dirigido. La métrica solo ve la salida <span class="math inline">\(\hat{\mathbf{y}}\)</span>; el crédito (línea discontinua) se propaga hacia atrás a cada módulo por las trazas exitosas.</figcaption>
+</figure>
+</div>
+<p>La formulación como grafo conecta DSPy con una tradición conocida: la diferenciación automática recorre un grafo de cómputo propagando gradientes. Aquí no hay gradiente —el espacio es discreto—, pero la estructura es la misma, y el <em>bootstrapping</em> de trazas (capítulo&nbsp;5) hace las veces de retropropagación: conserva, de cada ejecución acertada, las entradas y salidas intermedias que la hicieron posible, y las reparte como demostraciones a cada nodo. Ver el programa como grafo aclara por qué optimizar el todo supera a optimizar cada módulo por separado: las aristas acoplan las decisiones.</p>
+</section>
+</section>
+<section id="el-espacio-de-búsqueda-de-los-prompts" class="level2">
+<h2 class="anchored" data-anchor-id="el-espacio-de-búsqueda-de-los-prompts">El espacio de búsqueda de los <em>prompts</em></h2>
+<p>El espacio de las demostraciones es combinatorio pero contable (ecuación&nbsp;(1.9)); el de las <em>instrucciones</em> es peor: es el lenguaje natural entero. No hay enumeración posible de las formas de redactar una orden, ni una métrica que diga cuán «cerca» están dos redacciones, de modo que la búsqueda no puede recorrerlo sistemáticamente. La salida que ha encontrado el campo es delegar la propuesta al propio modelo: pedirle que genere y refine instrucciones —<em>meta-prompting</em>—, con un LM como generador de candidatos en ese espacio inabarcable <span class="citation" data-cites="yang2023opro">(<a href="#ref-yang2023opro" role="doc-biblioref"><span class="nocase">Yang et&nbsp;al.</span> 2023</a>)</span>.</p>
+<p>Esto plantea una recursión elegante: un modelo escribe los <em>prompts</em> de otro —o de sí mismo—, y un optimizador selecciona los que miden mejor. La evolución reflexiva lleva la idea más lejos, mutando las instrucciones a partir de una crítica en lenguaje de sus fallos <span class="citation" data-cites="agrawal2025gepa">(<a href="#ref-agrawal2025gepa" role="doc-biblioref"><span class="nocase">Agrawal et&nbsp;al.</span> 2025</a>)</span>. La lección para este capítulo es que las dos mitades del <em>prompt</em> —demostraciones e instrucción— exigen búsquedas de naturaleza distinta: combinatoria una, generativa la otra, y ambas fuera del alcance de la mano humana.</p>
+<section id="el-espacio-de-búsqueda." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-espacio-de-búsqueda.">El espacio de búsqueda.</h5>
+<p>Conviene dimensionar por qué <span class="math inline">\(\Pi\)</span> es intratable a mano, con números. Las instrucciones son texto en lenguaje natural: un espacio abierto, sin estructura métrica, donde dos redacciones casi idénticas pueden rendir de forma muy distinta. Las demostraciones añaden una explosión combinatoria que sí se puede contar. Elegir <span class="math inline">\(k\)</span> ejemplos de un banco de <span class="math inline">\(N\)</span> admite <span class="math inline">\(\binom{N}{k}\)</span> subconjuntos, y la sección&nbsp;1.4 mostró que cada subconjunto se puede presentar en <span class="math inline">\(k!\)</span> órdenes con efectos no despreciables. El número de configuraciones de demostraciones a tantear crece, por tanto, como <span class="math display">\[\begin{equation}
+  \lvert\Pi_{\text{demo}}\rvert \;=\; \binom{N}{k}\,k!
+    \;=\; \frac{N!}{(N-k)!}.
+\end{equation}\]</span></p>
+<p>Conviene poner cifras. Con un banco modesto de <span class="math inline">\(N=200\)</span> ejemplos y <span class="math inline">\(k=8\)</span> demostraciones, la ecuación&nbsp;(1.9) da del orden de <span class="math inline">\(200\cdot199\cdots193\)</span>, esto es, más de <span class="math inline">\(10^{18}\)</span> configuraciones distintas —un trillón de millones—. Aunque una persona evaluara una configuración por segundo sin descanso, tardaría más que la edad del universo en recorrerlas. Y esto solo cuenta las demostraciones: el espacio de instrucciones se superpone por multiplicación, y el producto se evalúa con una función ruidosa y cara, pues cada punto exige ejecutar el programa entero sobre <span class="math inline">\(\mathcal{D}\)</span>. La figura&nbsp;1.12 dibuja ese crecimiento.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap01/fig_12.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;1.12.</strong> Configuraciones de demostraciones <span class="math inline">\(\lvert\Pi_{\text{demo}}\rvert=N!/(N-k)!\)</span> para <span class="math inline">\(N=200\)</span>, en escala logarítmica. Con <span class="math inline">\(k=8\)</span> ya supera <span class="math inline">\(10^{18}\)</span>: intratable a mano (ecuación&nbsp;(1.9)).</figcaption>
+</figure>
+</div>
+<p>El diagnóstico es nítido. La optimización de <em>prompts</em> es búsqueda de caja negra sobre un espacio discreto, gigantesco y costoso de evaluar. Frente a eso, la artesanía explora unas pocas decenas de puntos guiada por la intuición, y peor aún, sin medir; un optimizador explora miles guiado por la medición, con estrategias —búsqueda aleatoria con poda, sustitutos bayesianos, evolución reflexiva— diseñadas para gastar pocas evaluaciones. El argumento no es que la intuición humana no sirva de nada, sino que, ante una cardinalidad de <span class="math inline">\(10^{18}\)</span>, no escala, y ninguna cantidad de talento individual cambia ese orden de magnitud. La figura&nbsp;1.13 esquematiza ese bucle de proponer y medir, y la tabla&nbsp;1.5 contrasta las dos maneras de recorrer el espacio.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap01/fig_13.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;1.13.</strong> Sin gradiente, el optimizador solo puede proponer una configuración <span class="math inline">\(\pi\)</span>, medir su métrica —una evaluación cara y ruidosa— y proponer la siguiente. La eficiencia muestral —cuántas evaluaciones gasta— es la restricción que decide si el método es usable.</figcaption>
+</figure>
+</div>
+<table class="caption-top table">
+<caption>Dos formas de recorrer el mismo espacio de <span class="math inline">\(10^{18}\)</span> configuraciones. La artesanía no escala; el optimizador mide y poda.</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th style="text-align: left;">Artesanía</th>
+<th style="text-align: left;">Optimizador</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>puntos explorados</td>
+<td style="text-align: left;">decenas</td>
+<td style="text-align: left;">miles</td>
+</tr>
+<tr class="even">
+<td>guía</td>
+<td style="text-align: left;">la intuición</td>
+<td style="text-align: left;">la medición</td>
+</tr>
+<tr class="odd">
+<td>¿mide?</td>
+<td style="text-align: left;">no</td>
+<td style="text-align: left;">sí</td>
+</tr>
+<tr class="even">
+<td>estrategia</td>
+<td style="text-align: left;">retoque a ojo</td>
+<td style="text-align: left;">búsqueda con poda</td>
+</tr>
+</tbody>
+</table>
+<p>A la cardinalidad hay que añadirle el precio de cada evaluación, el factor que vuelve la búsqueda no solo grande sino cara. Evaluar una sola configuración <span class="math inline">\(\pi\)</span> exige ejecutar el programa sobre el conjunto: con <span class="math inline">\(\lvert\mathcal{D}\rvert=300\)</span> ejemplos y un programa de dos módulos, son <span class="math inline">\(600\)</span> llamadas al modelo por configuración. Un optimizador que tantee mil configuraciones gasta, pues, del orden de <span class="math inline">\(6\times10^{5}\)</span> llamadas; a céntimos por llamada, la factura asciende a decenas o centenas de euros por una sola corrida de optimización. De ahí que la métrica relevante de un optimizador no sea solo la calidad que alcanza, sino la calidad <em>por evaluación gastada</em>: la eficiencia muestral deja de ser una virtud teórica y se vuelve la restricción que decide si un método es usable. Las familias de la sección siguiente se distinguen, sobre todo, por cómo administran ese presupuesto.</p>
+</section>
+<section id="el-paisaje-de-la-optimización." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-paisaje-de-la-optimización.">El paisaje de la optimización.</h5>
+<p>La ecuación&nbsp;(1.7) define un objetivo, pero no dice cómo es la superficie que se optimiza, y esa forma condiciona qué métodos sirven. El paisaje del espacio de <em>prompts</em> tiene tres rasgos hostiles. Es <strong>discreto</strong>: no hay vecindad continua por la que descender, así que no cabe el gradiente. Es <strong>multimodal</strong>: existen muchas formulaciones buenas separadas por valles de formulaciones malas, de modo que una búsqueda voraz se atasca en óptimos locales. Y es <strong>ruidoso</strong>: la evaluación de un punto es estocástica (capítulo&nbsp;2), de modo que dos medidas del mismo <em>prompt</em> difieren, y distinguir una mejora real de una fluctuación exige repetir.</p>
+<p>De estos tres rasgos se sigue la familia de métodos adecuada. Frente a un paisaje discreto, multimodal y ruidoso, la optimización continua no aplica; sirven en cambio la búsqueda con exploración —aleatoria, evolutiva— y los modelos sustitutos que estiman la superficie con pocas muestras. El equilibrio entre <em>explorar</em> formulaciones nuevas y <em>explotar</em> las buenas ya conocidas es la tensión central de los optimizadores de los capítulos&nbsp;5 y&nbsp;6, y la razón de que ninguno domine: cada uno resuelve ese equilibrio de una manera.</p>
+</section>
+<section id="la-optimización-de-caja-negra." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="la-optimización-de-caja-negra.">La optimización de caja negra.</h5>
+<p>La ecuación&nbsp;(1.7) y el paisaje hostil de la sección&nbsp;1.6 sitúan la optimización de <em>prompts</em> en una familia bien estudiada: la <em>optimización de caja negra</em>, donde la función objetivo se evalúa pero no se deriva. Sin gradiente, el optimizador solo puede proponer un punto, medir su valor —con ruido— y decidir el siguiente. El dilema que enfrenta es el de <em>exploración</em> frente a <em>explotación</em>: gastar evaluaciones en regiones nuevas que podrían ser mejores, o refinar la mejor conocida.</p>
+<p>Este encuadre conecta con métodos clásicos. La búsqueda aleatoria explora sin memoria; los bandidos de varios brazos asignan el presupuesto a las opciones más prometedoras conforme las prueban; la optimización bayesiana construye un modelo sustituto de la superficie para decidir dónde mirar con pocas muestras, que es la estrategia de MIPROv2 <span class="citation" data-cites="opsahlong2024mipro akiba2019optuna">(<a href="#ref-opsahlong2024mipro" role="doc-biblioref"><span class="nocase">Opsahl-Ong et&nbsp;al.</span> 2024</a>; <a href="#ref-akiba2019optuna" role="doc-biblioref"><span class="nocase">Akiba et&nbsp;al.</span> 2019</a>)</span>. Ver la compilación de un <em>prompt</em> como optimización de caja negra no es una metáfora: es la categoría formal que dicta qué algoritmos sirven, y por qué la eficiencia muestral —rendimiento por evaluación— es su figura de mérito.</p>
+</section>
+</section>
+<section id="los-optimizadores-y-su-economía" class="level2">
+<h2 class="anchored" data-anchor-id="los-optimizadores-y-su-economía">Los optimizadores y su economía</h2>
+<p>El espacio de la sección anterior no se recorre a ciegas: existen familias de optimizadores, cada una con una estrategia distinta para gastar pocas evaluaciones. Se anticipan aquí en su forma conceptual; los capítulos&nbsp;5 y&nbsp;6 las desarrollan con su coste y sus parámetros.</p>
+<p>El <em>bootstrapping</em> de demostraciones parte del propio programa: se ejecuta sobre ejemplos de entrenamiento, se conservan las trazas que la métrica aprueba y esas trazas se inyectan como demostraciones, de modo que el sistema aprende de sus propios aciertos <span class="citation" data-cites="khattab2024dspy">(<a href="#ref-khattab2024dspy" role="doc-biblioref">Khattab et&nbsp;al. 2024</a>)</span>. La búsqueda de instrucciones, en cambio, optimiza el texto de la orden: un modelo propone variantes y se queda con la que mide mejor, en un ascenso por coordenadas heredado de la idea de usar un LM como optimizador <span class="citation" data-cites="yang2023opro">(<a href="#ref-yang2023opro" role="doc-biblioref"><span class="nocase">Yang et&nbsp;al.</span> 2023</a>)</span>.</p>
+<p>La optimización conjunta da un paso más. En lugar de tratar instrucciones y demostraciones por separado, las aborda a la vez con un <em>surrogate</em> bayesiano que decide, sobre minilotes, qué configuración probar a continuación, fundando las propuestas en el contexto de la tarea <span class="citation" data-cites="opsahlong2024mipro akiba2019optuna">(<a href="#ref-opsahlong2024mipro" role="doc-biblioref"><span class="nocase">Opsahl-Ong et&nbsp;al.</span> 2024</a>; <a href="#ref-akiba2019optuna" role="doc-biblioref"><span class="nocase">Akiba et&nbsp;al.</span> 2019</a>)</span>. La evolución reflexiva sustituye el muestreo por una población que muta y se selecciona sobre un frente de Pareto, guiada por una crítica en lenguaje natural de los fallos, con notable eficiencia muestral <span class="citation" data-cites="agrawal2025gepa">(<a href="#ref-agrawal2025gepa" role="doc-biblioref"><span class="nocase">Agrawal et&nbsp;al.</span> 2025</a>)</span>. La tabla&nbsp;1.6 ordena las cuatro familias por su objeto y su estrategia.</p>
+<table class="caption-top table">
+<caption>Las cuatro familias que los capítulos&nbsp;5 y&nbsp;6 desarrollan, según su objeto y su estrategia. Ninguna domina en todo escenario.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Familia</th>
+<th style="text-align: left;">Optimiza</th>
+<th style="text-align: left;">Estrategia</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><em>Bootstrapping</em></td>
+<td style="text-align: left;">demostraciones</td>
+<td style="text-align: left;">trazas que aprueba la métrica</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Búsqueda de instr.</td>
+<td style="text-align: left;">la orden</td>
+<td style="text-align: left;">un LM propone y se mide</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Optim.&nbsp;conjunta</td>
+<td style="text-align: left;">ambas</td>
+<td style="text-align: left;"><em>surrogate</em> bayesiano</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Evolución reflexiva</td>
+<td style="text-align: left;">instrucciones</td>
+<td style="text-align: left;">población y frente de Pareto</td>
+</tr>
+</tbody>
+</table>
+<p>Ninguna de estas familias domina a las demás en todo escenario; la elección depende del presupuesto, de la métrica y de la estructura del programa —es un caso del principio de que no hay almuerzo gratis—. Su rasgo común es la forma: todas resuelven aproximadamente la ecuación&nbsp;(1.7), y solo difieren en cómo exploran <span class="math inline">\(\Pi\)</span> con un número acotado de evaluaciones. Este capítulo justifica por qué hace falta esta maquinaria; los capítulos&nbsp;5 y&nbsp;6 la construyen.</p>
+<section id="la-economía-de-la-optimización." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="la-economía-de-la-optimización.">La economía de la optimización.</h5>
+<p>Programar <em>prompts</em> tiene una estructura de costes que conviene explicitar, porque decide si la inversión renta. El coste de <strong>compilación</strong> —ejecutar el optimizador— es único y se paga por adelantado: depende del número de candidatos evaluados y del tamaño del conjunto de validación, y puede ascender a decenas de euros (capítulo&nbsp;2). El coste de <strong>inferencia</strong> —cada llamada en producción— es recurrente y se multiplica por el volumen. Y el coste de <strong>mantenimiento</strong> reaparece cada vez que el entorno cambia y hay que reoptimizar. La tabla&nbsp;1.7 distingue los tres.</p>
+<table class="caption-top table">
+<caption>Los tres costes de programar <em>prompts</em>. Solo el primero es único; los otros dos recurren, y de su relación depende si la optimización renta.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Coste</th>
+<th style="text-align: left;">Cuándo</th>
+<th style="text-align: left;">Escala con</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Compilación</td>
+<td style="text-align: left;">una vez, por adelantado</td>
+<td style="text-align: left;">candidatos y validación</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Inferencia</td>
+<td style="text-align: left;">cada llamada</td>
+<td style="text-align: left;">volumen de producción</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mantenimiento</td>
+<td style="text-align: left;">cada cambio del entorno</td>
+<td style="text-align: left;">frecuencia de cambio</td>
+</tr>
+</tbody>
+</table>
+<p>La decisión se reduce a una amortización. La compilación se justifica cuando su coste único se reparte entre suficientes inferencias: una tarea que se ejecutará un millón de veces amortiza con holgura una optimización cara; una de un solo uso, no. Por eso la frontera del capítulo —cuándo conviene DSPy— es, en el fondo, económica: programar <em>prompts</em> renta cuando la tarea se repite y su calidad se mide, y la optimización deja de ser un lujo para volverse una inversión con retorno calculable. La figura&nbsp;1.14 dibuja ese umbral.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap01/fig_14.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;1.14.</strong> Esquema cualitativo. La cadena artesanal no paga compilación, pero su coste por uso —errores, retoques, mantenimiento— crece más deprisa; el programa compilado amortiza su coste único a partir del umbral. Sin escala numérica por ser ilustrativo.</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="escala-emergencia-y-la-lección-amarga" class="level2">
+<h2 class="anchored" data-anchor-id="escala-emergencia-y-la-lección-amarga">Escala, emergencia y la lección amarga</h2>
+<p>Hay, por fin, un argumento de tendencia que subsume a los anteriores. <span class="citation" data-cites="sutton2019bitter">Sutton (<a href="#ref-sutton2019bitter" role="doc-biblioref">2019</a>)</span> resume seis décadas de investigación en una tesis incómoda: los métodos generales que aprovechan el cómputo —la búsqueda y el aprendizaje— terminan superando a los que codifican conocimiento humano a mano, y la ventaja se ensancha conforme el cómputo se abarata. La historia de la visión por computador, del ajedrez y del propio procesamiento del lenguaje repite el patrón: las soluciones artesanales rinden primero y son superadas después por métodos que escalan con los recursos.</p>
+<p>La regularidad tiene hoy respaldo cuantitativo. Las <em>leyes de escala</em> muestran que la pérdida de un modelo de lenguaje decrece de forma predecible, como una ley de potencias, con el tamaño del modelo, el volumen de datos y el cómputo de entrenamiento; la regularidad se sostiene a lo largo de más de siete órdenes de magnitud y resulta casi insensible a detalles de arquitectura, como la proporción entre anchura y profundidad <span class="citation" data-cites="kaplan2020scaling">(<a href="#ref-kaplan2020scaling" role="doc-biblioref"><span class="nocase">Kaplan et&nbsp;al.</span> 2020</a>)</span>. Cómo repartir un presupuesto de cómputo dado lo precisa el análisis de entrenamiento óptimo: el número de parámetros y el de <em>tokens</em> de entrenamiento deben crecer a la par —al doblar el tamaño del modelo conviene doblar los datos—, y un modelo de 70 mil millones de parámetros entrenado así supera a otros de 280 e incluso 530 mil millones entrenados con menos datos <span class="citation" data-cites="hoffmann2022chinchilla">(<a href="#ref-hoffmann2022chinchilla" role="doc-biblioref"><span class="nocase">Hoffmann et&nbsp;al.</span> 2022</a>)</span>. La conclusión de ese trabajo es que los modelos grandes de la época estaban «significativamente subentrenados»: la capacidad no es un don fijo, es una función creciente y previsible de los recursos bien repartidos.</p>
+<p>El <em>prompt</em> artesanal denota el lado equivocado de esa curva (figura&nbsp;1.15). Es conocimiento humano congelado en texto: rinde pronto y satura, porque su calidad está acotada por el tiempo y la perspicacia de una persona. Un optimizador que convierte datos y cómputo en mejores instrucciones y demostraciones es, en cambio, el método general que cabalga la escala: mejora mientras haya ejemplos y presupuesto, y se beneficia de cada modelo más capaz sin reescribir nada. Programar <em>prompts</em> es, en este sentido preciso, apostar por el lado correcto de la lección amarga. La intuición del autor conserva un papel —fija la métrica, aporta el punto de partida, diseña la firma—, pero deja de ser el techo del sistema.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap01/fig_15.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;1.15.</strong> Esquema cualitativo del argumento, en la línea de <span class="citation" data-cites="sutton2019bitter">Sutton (<a href="#ref-sutton2019bitter" role="doc-biblioref">2019</a>)</span> y <span class="citation" data-cites="kaplan2020scaling"><span class="nocase">Kaplan et&nbsp;al.</span> (<a href="#ref-kaplan2020scaling" role="doc-biblioref">2020</a>)</span>. El ajuste manual rinde antes y se estanca; el método que convierte cómputo y datos en mejores <em>prompts</em> sigue creciendo y termina superándolo. Sin escala numérica por ser ilustrativo.</figcaption>
+</figure>
+</div>
+<p>Conviene dar la forma precisa de esas leyes, porque su funcional importa tanto como su existencia. En el régimen sin saturación, la pérdida sigue una ley de potencias en cada recurso por separado, <span class="math display">\[\begin{equation}
+  L(N) \approx \Bigl(\tfrac{N_c}{N}\Bigr)^{\alpha_N}, \qquad
+  L(D) \approx \Bigl(\tfrac{D_c}{D}\Bigr)^{\alpha_D},
+\end{equation}\]</span> con exponentes pequeños —del orden de <span class="math inline">\(\alpha_N\approx 0{,}076\)</span> y <span class="math inline">\(\alpha_D\approx 0{,}095\)</span> en el trabajo original <span class="citation" data-cites="kaplan2020scaling">(<a href="#ref-kaplan2020scaling" role="doc-biblioref"><span class="nocase">Kaplan et&nbsp;al.</span> 2020</a>)</span>—. Que el exponente sea pequeño es la observación clave: duplicar el modelo no duplica la calidad, pero el avance no se detiene, y como el cómputo se abarata de forma sostenida, la mejora acumulada es enorme. El análisis posterior corrige cómo repartir un presupuesto fijo: parámetros y datos deben crecer a la par —en torno a veinte <em>tokens</em> de entrenamiento por parámetro—, y un modelo de <span class="math inline">\(70\)</span> mil millones de parámetros entrenado con <span class="math inline">\(1{,}4\)</span> billones de <em>tokens</em> —cuatro veces los datos de su rival— supera a otro de <span class="math inline">\(280\)</span> mil millones peor entrenado <span class="citation" data-cites="hoffmann2022chinchilla">(<a href="#ref-hoffmann2022chinchilla" role="doc-biblioref"><span class="nocase">Hoffmann et&nbsp;al.</span> 2022</a>)</span>. La moraleja para el <em>prompt</em> no cambia, se afila: el rendimiento es una función creciente y <em>predecible</em> de los recursos bien gastados, y atarse a una cadena artesanal es renunciar a esa curva. La tabla&nbsp;1.8 recoge las cifras del contraste.</p>
+<table class="caption-top table">
+<caption>El reparto de un presupuesto de cómputo, según 1. Un modelo pequeño bien alimentado supera a otros mucho mayores pero subentrenados: la capacidad no es un don fijo, se gana repartiendo bien.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Modelo</th>
+<th style="text-align: right;">Parám.&nbsp;(mil M)</th>
+<th style="text-align: right;"><em>Tokens</em> (mil M)</th>
+<th style="text-align: left;">Resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Gopher</td>
+<td style="text-align: right;">280</td>
+<td style="text-align: right;">300</td>
+<td style="text-align: left;">subentrenado</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MT-NLG</td>
+<td style="text-align: right;">530</td>
+<td style="text-align: right;">270</td>
+<td style="text-align: left;">subentrenado</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Chinchilla</td>
+<td style="text-align: right;">70</td>
+<td style="text-align: right;">1400</td>
+<td style="text-align: left;">supera a ambos</td>
+</tr>
+</tbody>
+</table>
+<section id="capacidades-emergentes." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="capacidades-emergentes.">Capacidades emergentes.</h5>
+<p>Las leyes de escala describen una mejora suave, pero se ha observado también un fenómeno más abrupto: ciertas capacidades parecen <em>emerger</em> de golpe a partir de un tamaño de modelo, ausentes en los pequeños y presentes en los grandes <span class="citation" data-cites="wei2022emergent">(<a href="#ref-wei2022emergent" role="doc-biblioref"><span class="nocase">Wei et&nbsp;al.</span> 2022b</a>)</span>. Si fuera así, el comportamiento de un sistema basado en <em>prompts</em> sería impredecible: una tarea irresoluble con un modelo podría volverse trivial con el siguiente, sin aviso.</p>
+<p>La afirmación, sin embargo, está en disputa, y la disputa enseña una lección de método. Un análisis influyente sostiene que muchas «emergencias» son un <em>artefacto de la métrica</em>: al medir con una función de todo o nada —acierto exacto—, una mejora gradual y continua del modelo se ve como un salto brusco; medida con una métrica suave, la misma capacidad crece de forma continua <span class="citation" data-cites="schaeffer2023mirage">(<a href="#ref-schaeffer2023mirage" role="doc-biblioref">Schaeffer et&nbsp;al. 2023</a>)</span>. La moraleja conecta con el capítulo&nbsp;4: la métrica no solo puntúa, también moldea aquello que creemos ver. Una elección descuidada de la medida puede inventar un fenómeno —una emergencia— donde solo hay una curva suave, y por eso medir con rigor es inseparable de programar con rigor. La figura&nbsp;1.16 contrapone ambas medidas.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap01/fig_16.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;1.16.</strong> La misma mejora subyacente, medida de dos maneras <span class="citation" data-cites="schaeffer2023mirage">(<a href="#ref-schaeffer2023mirage" role="doc-biblioref">Schaeffer et&nbsp;al. 2023</a>)</span>. Con una métrica continua, la capacidad crece de forma gradual; con una de acierto exacto, la misma curva aparenta un salto brusco. La medida moldea el fenómeno que creemos ver.</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="evaluación-reproducibilidad-y-medición" class="level2">
+<h2 class="anchored" data-anchor-id="evaluación-reproducibilidad-y-medición">Evaluación, reproducibilidad y medición</h2>
+<p>La literatura de <em>prompting</em> arrastra una crisis de reproducibilidad que este libro toma como advertencia. Resultados que parecían sólidos se desvanecen al cambiar el orden de las demostraciones <span class="citation" data-cites="lu2022fantastically">(<a href="#ref-lu2022fantastically" role="doc-biblioref">Lu et&nbsp;al. 2022</a>)</span>, al no calibrar el sesgo del modelo <span class="citation" data-cites="zhao2021calibrate">(<a href="#ref-zhao2021calibrate" role="doc-biblioref">Zhao et&nbsp;al. 2021</a>)</span> o, más sutil, al elegir una métrica que convierte una mejora gradual en un salto aparente <span class="citation" data-cites="schaeffer2023mirage">(<a href="#ref-schaeffer2023mirage" role="doc-biblioref">Schaeffer et&nbsp;al. 2023</a>)</span>. Tres fuentes de fragilidad —el orden, la calibración, la métrica— bastan para que una cifra publicada no se sostenga en otra ejecución. La tabla&nbsp;1.9 las recoge con su efecto.</p>
+<table class="caption-top table">
+<caption>Tres fragilidades que bastan para que una cifra no se repita: el orden <span class="citation" data-cites="lu2022fantastically">(<a href="#ref-lu2022fantastically" role="doc-biblioref">Lu et&nbsp;al. 2022</a>)</span>, la calibración <span class="citation" data-cites="zhao2021calibrate">(<a href="#ref-zhao2021calibrate" role="doc-biblioref">Zhao et&nbsp;al. 2021</a>)</span> y la métrica <span class="citation" data-cites="schaeffer2023mirage">(<a href="#ref-schaeffer2023mirage" role="doc-biblioref">Schaeffer et&nbsp;al. 2023</a>)</span>. De ahí la disciplina de medición del capítulo&nbsp;4.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Fuente</th>
+<th style="text-align: left;">Efecto sobre la cifra publicada</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Orden de las demostraciones</td>
+<td style="text-align: left;">de azar a estado del arte</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Calibración del modelo</td>
+<td style="text-align: left;">sesgo de recencia y de mayoría</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Elección de la métrica</td>
+<td style="text-align: left;">un salto donde hay una curva</td>
+</tr>
+</tbody>
+</table>
+<p>La consecuencia metodológica recorre todo el libro. Una afirmación empírica sobre un <em>prompt</em> solo vale si especifica el modelo y su versión, la semilla, el número de corridas y la métrica exacta, y si se reporta como media con desviación (capítulo&nbsp;4). No es burocracia: es la diferencia entre una disciplina y una colección de anécdotas. Programar <em>prompts</em> hereda de la ciencia experimental la obligación de que un resultado sea, ante todo, repetible.</p>
+<section id="medir-antes-de-optimizar." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="medir-antes-de-optimizar.">Medir antes de optimizar.</h5>
+<p>La ecuación&nbsp;(1.7) presupone una métrica <span class="math inline">\(\mu\)</span> y unos datos <span class="math inline">\(\mathcal{D}\)</span>. Sin ellos no hay nada que maximizar, y por eso la medición no es una fase posterior sino el cimiento: un programa que no se mide no se puede compilar, igual que no se puede minimizar una pérdida que no se calcula. Esta exigencia trae dos cautelas que el capítulo&nbsp;4 desarrolla.</p>
+<p>La primera es la ley de Goodhart: en cuanto una métrica se vuelve objetivo, deja de ser un buen indicador, porque el optimizador explotará sus grietas con la misma diligencia con que busca aciertos. Una métrica de coincidencia exacta premiará respuestas correctas pero mal formateadas con un cero, y el optimizador aprenderá a formatear antes que a acertar; una métrica laxa premiará respuestas vacuas. Elegir <span class="math inline">\(\mu\)</span> con cuidado —y vigilar el sobreajuste contra un conjunto reservado, como exige la sección&nbsp;1.4— forma parte del diseño, no es un trámite. La figura&nbsp;1.17 ilustra ese ciclo.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap01/fig_17.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;1.17.</strong> En cuanto una métrica se vuelve objetivo, el optimizador la explota con la misma diligencia con que busca aciertos, y deja de medir aquello que medía. Elegir <span class="math inline">\(\mu\)</span> con cuidado es parte del diseño, no un trámite.</figcaption>
+</figure>
+</div>
+<p>La segunda es la estocasticidad. Una métrica calculada sobre llamadas a un modelo es una variable aleatoria, no un número fijo: la misma evaluación, repetida, fluctúa con la temperatura y con cambios del modelo por la parte del proveedor. De ahí una norma que el libro mantiene sin excepción: toda cifra de calidad se reporta con su dispersión —media y desviación sobre varias corridas—, nunca como un único decimal que finja una precisión inexistente. Estas cautelas no debilitan la tesis; la vuelven honesta, y separan la ingeniería seria del entusiasmo anecdótico. La figura&nbsp;1.18 contrasta cinco corridas sueltas con su resumen.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap01/fig_18.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;1.18.</strong> Una métrica sobre llamadas a un modelo fluctúa al repetirla. Cinco corridas de la misma evaluación (izquierda) y su resumen honesto —media con desviación (derecha)—. Reportar un único decimal finge una precisión que no existe.</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="un-caso-de-extremo-a-extremo" class="level2">
+<h2 class="anchored" data-anchor-id="un-caso-de-extremo-a-extremo">Un caso de extremo a extremo</h2>
+<p>Conviene cerrar la parte teórica con la silueta de un caso completo, sin entrar aún en cifras —que saldrán, medidas, de los capítulos empíricos—. Sea una clasificación de mensajes: el objetivo es asignar a cada texto una etiqueta. El método sigue, paso a paso, la disciplina que el capítulo ha justificado. Primero se declara la intención en una firma y se elige un módulo; aquí, uno con razonamiento intermedio. Después se parten los datos en entrenamiento, validación y prueba, y se define la métrica <span class="math inline">\(\mu\)</span> que hará de objetivo. Con eso se mide un <em>baseline</em> sin optimizar —el programa ejecutado tal cual— y, a continuación, se compila:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statistics</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> dspy</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>clasificar <span class="op">=</span> dspy.ChainOfThought(<span class="st">"texto -&gt; etiqueta"</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>evaluar <span class="op">=</span> dspy.Evaluate(devset<span class="op">=</span>desarrollo, metric<span class="op">=</span>exactitud)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>base <span class="op">=</span> evaluar(clasificar)            <span class="co"># baseline sin optimizar</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> dspy.BootstrapFewShot(metric<span class="op">=</span>exactitud)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>compilado <span class="op">=</span> opt.<span class="bu">compile</span>(clasificar, trainset<span class="op">=</span>entrenamiento)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>medidas <span class="op">=</span> [evaluar(compilado) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>)]  <span class="co"># se repite por estocasticidad</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>media, desv <span class="op">=</span> statistics.mean(medidas), statistics.stdev(medidas)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>El optimizador <code>BootstrapFewShot</code> genera demostraciones ejecutando el programa sobre el entrenamiento, conserva las trazas que elevan <span class="math inline">\(\mu\)</span> y las fija en el <em>prompt</em>; el resultado es el mismo programa, ahora <span class="math inline">\(M_{\pi^\star}\)</span>, sin que se haya editado una sola cadena a mano <span class="citation" data-cites="khattab2024dspy">(<a href="#ref-khattab2024dspy" role="doc-biblioref">Khattab et&nbsp;al. 2024</a>)</span>. Es el bucle de la figura&nbsp;1.10 hecho código; la figura&nbsp;1.19 ordena los pasos.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap01/fig_19.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;1.19.</strong> Los pasos del caso, en orden. La declaración y la partición preceden a toda medición; el <em>baseline</em> fija el punto de comparación antes de compilar; la mejora se mide sobre datos reservados, nunca sobre los de entrenamiento.</figcaption>
+</figure>
+</div>
+<p>Dos detalles delatan la disciplina frente a la artesanía. La mejora se <em>mide</em> en un conjunto reservado y se reporta como media con desviación sobre varias corridas, nunca como un número único —la estocasticidad de la sección&nbsp;1.9 lo exige—. Y la conducta declarada no cambió: cambió su realización, que ahora puede reoptimizarse al cambiar de modelo sin reescribir el programa. Los capítulos&nbsp;3 a&nbsp;6 ponen números reales a este esqueleto.</p>
+</section>
+<section id="programar-ajustar-o-recuperar" class="level2">
+<h2 class="anchored" data-anchor-id="programar-ajustar-o-recuperar">Programar, ajustar o recuperar</h2>
+<p>Programar <em>prompts</em> no es la única forma de adaptar un modelo a una tarea, y situarla en el espectro de alternativas aclara cuándo conviene. En un extremo está el <em>prompting</em> puro: se condiciona el modelo sin tocar sus pesos, con coste de adaptación casi nulo y efecto inmediato, pero acotado por cuanto el modelo ya sabe (definición&nbsp;1.1). En el otro está el <em>ajuste fino</em>, que mueve los pesos sobre datos de la tarea: más potente para enseñar conductas nuevas, pero caro, hambriento de datos etiquetados y atado a un modelo concreto. Entre ambos median los métodos de ajuste eficiente, como la adaptación de bajo rango, que ajusta una fracción mínima de parámetros <span class="citation" data-cites="hu2021lora">(<a href="#ref-hu2021lora" role="doc-biblioref"><span class="nocase">Hu et&nbsp;al.</span> 2022</a>)</span>, y el ajuste por instrucciones con retroalimentación humana, que alinea el modelo base para que obedezca órdenes <span class="citation" data-cites="ouyang2022instructgpt">(<a href="#ref-ouyang2022instructgpt" role="doc-biblioref"><span class="nocase">Ouyang et&nbsp;al.</span> 2022</a>)</span>.</p>
+<p>El criterio de elección es de recursos y de naturaleza del problema. Si la tarea cae dentro del territorio que el modelo ya domina y solo hay que evocarlo, el <em>prompting</em> optimizado gana por coste y portabilidad. Si exige una capacidad ausente del modelo —un dominio que no vio, un formato que no maneja—, el ajuste fino se justifica pese a su coste. A menudo la mejor arquitectura combina las dos: un modelo ajustado en el dominio, gobernado por <em>prompts</em> compilados. Este libro se ocupa de la capa de <em>prompts</em>, la más barata y portátil, y la que más rendimiento da por unidad de esfuerzo en el caso común. La tabla&nbsp;1.10 y la figura&nbsp;1.20 ordenan ese espectro.</p>
+<table class="caption-top table">
+<caption>El espectro de adaptación de un modelo, del más barato y portátil al más potente y costoso. Programar <em>prompts</em> ocupa el extremo barato; el ajuste fino, el potente.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Método</th>
+<th style="text-align: center;">Coste</th>
+<th style="text-align: center;">Datos</th>
+<th style="text-align: center;">Portabilidad</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><em>Prompting</em> (cero/pocos ejemplos)</td>
+<td style="text-align: center;">muy bajo</td>
+<td style="text-align: center;">ninguno/pocos</td>
+<td style="text-align: center;">alta</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><em>Prompting</em> compilado (DSPy)</td>
+<td style="text-align: center;">bajo</td>
+<td style="text-align: center;">decenas–cientos</td>
+<td style="text-align: center;">alta</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Ajuste de bajo rango (LoRA)</td>
+<td style="text-align: center;">medio</td>
+<td style="text-align: center;">cientos–miles</td>
+<td style="text-align: center;">media</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Ajuste fino completo</td>
+<td style="text-align: center;">alto</td>
+<td style="text-align: center;">miles o más</td>
+<td style="text-align: center;">baja</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Alineación con <em>feedback</em> (RLHF)</td>
+<td style="text-align: center;">muy alto</td>
+<td style="text-align: center;">miles o más</td>
+<td style="text-align: center;">baja</td>
+</tr>
+</tbody>
+</table>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap01/fig_20.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;1.20.</strong> Las mismas cinco opciones de la tabla&nbsp;1.10, ordenadas en un eje. Programar <em>prompts</em> ocupa el extremo barato y portátil; el ajuste fino y la alineación, el potente y costoso. Este libro trabaja el extremo izquierdo.</figcaption>
+</figure>
+</div>
+<section id="la-recuperación-como-tercera-vía." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="la-recuperación-como-tercera-vía.">La recuperación como tercera vía.</h5>
+<p>El espectro de la sección&nbsp;1.11 —del <em>prompting</em> al ajuste fino— tiene un tercer eje que conviene nombrar: la <em>recuperación</em>. En lugar de meter el conocimiento en los pesos (ajuste) o de evocarlo del que el modelo ya tiene (<em>prompting</em>), la generación aumentada por recuperación lo <em>trae</em> de una base externa en tiempo de inferencia y lo inserta en el contexto <span class="citation" data-cites="lewis2020rag">(<a href="#ref-lewis2020rag" role="doc-biblioref"><span class="nocase">Lewis et&nbsp;al.</span> 2020</a>)</span>. Es adaptación sin tocar el modelo y sin depender de su memoria: el conocimiento vive fuera, actualizable y citable.</p>
+<p>Las tres vías no compiten, se combinan. Un sistema maduro ajusta el modelo a un estilo, recupera los hechos que cambian a diario y programa los <em>prompts</em> que orquestan ambas cosas. Para este libro, la recuperación importa por dos razones: es un módulo más que DSPy compone y optimiza (capítulo&nbsp;7), y desplaza la carga del conocimiento del peso al contexto, donde la optimización de <em>prompts</em> —qué se recupera y cómo se presenta— vuelve a ser la palanca. La figura&nbsp;1.21 compone las tres vías.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap01/fig_21.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;1.21.</strong> Las tres formas de adaptar no compiten: se suman. Un sistema maduro ajusta el modelo a un estilo, recupera los hechos que cambian a diario y programa los <em>prompts</em> que orquestan ambas cosas.</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="intuición-humana-y-deuda-técnica" class="level2">
+<h2 class="anchored" data-anchor-id="intuición-humana-y-deuda-técnica">Intuición humana y deuda técnica</h2>
+<p>La lección amarga (sección&nbsp;1.8) podría leerse como un descarte del juicio humano, y sería un error. La tesis afirma que el conocimiento artesanal no debe ser el <em>techo</em> del sistema, no que sea inútil. La intuición humana conserva tres papeles que ningún optimizador asume. Diseña la <em>métrica</em>, que codifica qué significa «bueno» y que el optimizador después explota al pie de la letra (capítulo&nbsp;4). Aporta el <em>punto de partida</em> —una firma sensata, unas demostraciones semilla— desde el que la búsqueda arranca. Y fija las <em>restricciones</em> —de seguridad, de coste, de formato— dentro de las que la optimización opera. La figura&nbsp;1.22 sitúa los tres papeles.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap01/fig_22.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;1.22.</strong> Tres papeles que ningún optimizador asume. El juicio humano fija el <strong>objetivo</strong> —la métrica—, el <strong>punto de partida</strong> y las <strong>restricciones</strong> —el marco—; dentro de él opera la búsqueda. La tesis no descarta la intuición: la coloca donde rinde.</figcaption>
+</figure>
+</div>
+<p>Hay, además, un régimen donde la intuición pesa más: el de pocos datos. Cuando no hay un conjunto de validación suficiente para guiar una búsqueda, el criterio experto es el mejor sustituto disponible, y conviene reconocerlo sin complejos. La tesis no es «la máquina sobre el humano», sino «la búsqueda medida sobre la corazonada, cuando hay con qué medir»; fuera de esa condición, el juicio humano recupera su sitio.</p>
+<section id="el-prompt-manual-como-deuda-técnica." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-prompt-manual-como-deuda-técnica.">El <em>prompt</em> manual como deuda técnica.</h5>
+<p>La ingeniería de software tiene un nombre para los atajos que se pagan con intereses: <em>deuda técnica</em>. Un <em>prompt</em> escrito a mano es deuda técnica en estado puro. Funciona el primer día, pero cada cambio posterior —un modelo nuevo, una categoría más, un formato distinto— exige reabrirlo, retocarlo y revalidarlo a ojo, y ese coste reaparece sin amortizar. Como nadie midió su calidad, tampoco hay forma de saber si un retoque la mejoró o la empeoró: la deuda se acumula en la oscuridad.</p>
+<p>El programa compilado salda esa deuda por construcción. Su calidad está medida, de modo que una regresión se detecta; su conducta está declarada, de modo que un cambio de modelo se absorbe recompilando; su estado está versionado, de modo que cualquier versión es reproducible. Programar <em>prompts</em> no es solo una mejora de calidad inicial: es una decisión de <em>mantenibilidad</em>, la misma que lleva a preferir código estructurado sobre un guion improvisado. La diferencia, invisible en la demostración, es la que decide el coste a lo largo de la vida del sistema. La figura&nbsp;1.23 compara ambas trayectorias de coste.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap01/fig_23.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;1.23.</strong> Cada cambio del entorno reabre el <em>prompt</em> manual —hay que retocarlo y revalidarlo a ojo—, y su coste se acumula sin amortizar. El programa compilado absorbe el cambio recompilando y se mantiene casi plano. Esquema cualitativo.</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="cuándo-conviene-dspy" class="level2">
+<h2 class="anchored" data-anchor-id="cuándo-conviene-dspy">Cuándo conviene DSPy</h2>
+<p>Toda la argumentación anterior podría leerse como una defensa incondicional de programar <em>prompts</em>, y sería un error. Hacerlo tiene un coste: exige datos, una métrica y un presupuesto de cómputo para optimizar. Reconocer de antemano cuándo ese coste se justifica evita esfuerzo estéril y da credibilidad al método. Conviene cuando concurren varias de estas condiciones:</p>
+<ul>
+<li><p>el sistema encadena varios pasos y el error se propaga entre módulos, de modo que la asignación de crédito automática paga su precio;</p></li>
+<li><p>la tarea se repite y merece la pena invertir en mantenerla y reoptimizar cuando cambie el modelo;</p></li>
+<li><p>se necesita medir la calidad y defenderla ante una regresión, con una métrica que se pueda auditar;</p></li>
+<li><p>se prevé cambiar de modelo por coste o por política de datos, y se quiere portar la conducta sin reescribir cadenas.</p></li>
+</ul>
+<p>No compensa cuando la tarea es un único uso desechable, cuando una sola llamada trivial basta y no se repetirá, o cuando no existen ni datos ni métrica con que guiar la optimización —sin señal que maximizar, un optimizador no tiene nada que hacer y solo añade ceremonia—. En esos casos, una cadena escrita a mano es la herramienta proporcionada, y el libro lo reconoce sin reparos. El criterio honesto distingue al ingeniero del entusiasta: no se programa por programar, se programa cuando hay un objetivo medible, recurrencia y un espacio que merezca explorarse. La figura&nbsp;1.24 condensa el criterio en dos preguntas.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap01/fig_24.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;1.24.</strong> El criterio, en dos preguntas. Sin recurrencia que amortice o sin señal que maximizar, una cadena manual es la herramienta proporcionada; con ambas —y más aún si el sistema es multipaso o cambiará de modelo—, programar con DSPy renta.</figcaption>
+</figure>
+</div>
+<p>El resto del texto se ocupa de ese territorio: el de los sistemas que merecen programarse, donde la teoría de este capítulo deja de ser argumento y se vuelve método. El capítulo siguiente da el primer paso práctico —la anatomía de un <em>prompt</em> y el primer programa— y, a partir de ahí, cada parte del libro construye una pieza del compilador que aquí se ha justificado.</p>
+<section id="un-caso-comparado." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="un-caso-comparado.">Un caso comparado.</h5>
+<p>Conviene aterrizar la tesis en un contraste concreto. Tómese una tarea menor: clasificar un mensaje como benigno o sospechoso. La vía artesanal redacta una cadena —«Eres un analista de seguridad; clasifica el siguiente mensaje como benigno o sospechoso: …»— y la retoca observando unos pocos casos hasta que parece funcionar. La vía declarativa escribe una firma y delega el resto al compilador:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> dspy</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>firma <span class="op">=</span> <span class="st">"mensaje -&gt; etiqueta: Literal['benigno','sospechoso']"</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>clasificar <span class="op">=</span> dspy.ChainOfThought(firma)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>compilado <span class="op">=</span> dspy.MIPROv2(metric<span class="op">=</span>f1).<span class="bu">compile</span>(clasificar, trainset<span class="op">=</span>entreno)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>El contraste no está en las líneas de código, sino en sus propiedades, que la tabla&nbsp;1.11 resume. La cadena manual no se mide —su «funciona» es una impresión—, codifica las rarezas de un modelo, y su mantenimiento depende de la memoria de quien la escribió. El programa compilado se mide sobre datos reservados, se reoptimiza al cambiar de modelo y guarda su estado como artefacto versionado.</p>
+<table class="caption-top table">
+<caption>Las propiedades de un <em>prompt</em> manual frente a un programa compilado, sobre la misma tarea.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Propiedad</th>
+<th style="text-align: center;"><em>Prompt</em> manual</th>
+<th style="text-align: center;">Programa compilado</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Objetivo medido</td>
+<td style="text-align: center;">no</td>
+<td style="text-align: center;">sí (métrica)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Defensa ante regresión</td>
+<td style="text-align: center;">ninguna</td>
+<td style="text-align: center;">conjunto reservado</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Portabilidad de modelo</td>
+<td style="text-align: center;">se reescribe</td>
+<td style="text-align: center;">se recompila</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Demostraciones</td>
+<td style="text-align: center;">a ojo</td>
+<td style="text-align: center;">buscadas y medidas</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Reproducibilidad</td>
+<td style="text-align: center;">frágil</td>
+<td style="text-align: center;">estado versionado</td>
+</tr>
+</tbody>
+</table>
+<p>La lección del caso es, en pequeño, la del libro entero: ambas vías producen, el primer día, un clasificador que «funciona»; solo la segunda produce uno que se puede mejorar, defender y mantener. Esa diferencia —invisible en una demostración, decisiva en producción— es la razón de programar <em>prompts</em>.</p>
+</section>
+</section>
+<section id="ecosistema-y-riesgos" class="level2">
+<h2 class="anchored" data-anchor-id="ecosistema-y-riesgos">Ecosistema y riesgos</h2>
+<p>Programar <em>prompts</em> con DSPy no ocurre en el vacío: convive con otras vías de construir sistemas con LLM, y situarlo entre ellas aclara su propuesta. La vía <strong>cruda</strong> llama a la API del proveedor y arma los mensajes a mano: máximo control, mínima estructura, y todo el peso del formato y el análisis sobre el programador (capítulo&nbsp;3). Las vías de <strong>plantillas</strong> —las bibliotecas de orquestación más extendidas— encadenan llamadas con <em>prompts</em> escritos a mano e interpolados; ordenan el flujo, pero dejan el <em>prompt</em> como una cadena que se edita.</p>
+<p>La vía <strong>declarativa y compilada</strong> de DSPy se distingue en un punto: el <em>prompt</em> no se escribe, se deriva de una firma y se optimiza contra una métrica <span class="citation" data-cites="khattab2024dspy">(<a href="#ref-khattab2024dspy" role="doc-biblioref">Khattab et&nbsp;al. 2024</a>)</span>. No compite en encadenar llamadas —eso lo hace cualquier marco—, sino en que sus llamadas son <em>optimizables</em>. Esa es la frontera: las plantillas automatizan el flujo; DSPy automatiza, además, el contenido del <em>prompt</em>. Para un prototipo de un solo uso, una plantilla basta; para un sistema que se mide y se mantiene, la diferencia es decisiva. La tabla&nbsp;1.12 sitúa las tres vías por esa frontera.</p>
+<table class="caption-top table">
+<caption>Dónde se sitúa DSPy. Las tres encadenan llamadas; solo la compilada deriva el <em>prompt</em> de una firma y lo optimiza contra una métrica <span class="citation" data-cites="khattab2024dspy">(<a href="#ref-khattab2024dspy" role="doc-biblioref">Khattab et&nbsp;al. 2024</a>)</span>.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Vía</th>
+<th style="text-align: left;">El <em>prompt</em></th>
+<th style="text-align: left;">¿Optimizable?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Cruda (API)</td>
+<td style="text-align: left;">a mano, en el código</td>
+<td style="text-align: left;">no</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Plantillas</td>
+<td style="text-align: left;">a mano, interpolado</td>
+<td style="text-align: left;">no</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">DSPy (compilada)</td>
+<td style="text-align: left;">derivado de una firma</td>
+<td style="text-align: left;">sí</td>
+</tr>
+</tbody>
+</table>
+<section id="riesgos-y-límites." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="riesgos-y-límites.">Riesgos y límites.</h5>
+<p>La honestidad exige cerrar con las grietas del método. La primera es la <strong>dependencia de la métrica</strong>: un <em>prompt</em> compilado es tan bueno como la métrica que lo guió, y una métrica pobre produce un sistema que optimiza el indicador equivocado —la ley de Goodhart del capítulo&nbsp;4—. La segunda es la <strong>fragilidad ante el cambio de modelo</strong>: una optimización ajustada a las rarezas de un modelo puede degradarse con otro, y obliga a reoptimizar en vez de fiar la portabilidad a la suerte. La tercera es el <strong>techo del modelo base</strong>: ningún <em>prompt</em> dota de una capacidad ausente (sección&nbsp;1.1), de modo que hay tareas que no se resuelven programando, sino cambiando de modelo o ajustándolo. La tabla&nbsp;1.13 resume los tres riesgos con su mitigación.</p>
+<table class="caption-top table">
+<caption>Los tres límites de programar <em>prompts</em> y cómo se acotan. Reconocerlos no debilita la tesis: la delimita a su territorio.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Riesgo</th>
+<th style="text-align: left;">Mitigación</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Dependencia de la métrica</td>
+<td style="text-align: left;">auditar <span class="math inline">\(\mu\)</span>; vigilar Goodhart</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Fragilidad ante otro modelo</td>
+<td style="text-align: left;">reoptimizar, no portar a ciegas</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Techo del modelo base</td>
+<td style="text-align: left;">cambiar de modelo o ajustarlo</td>
+</tr>
+</tbody>
+</table>
+<p>Reconocer estos límites no debilita la tesis: la delimita. Programar <em>prompts</em> es la herramienta adecuada para un territorio amplio —tareas repetidas, medibles, dentro del alcance del modelo—, y fuera de él conviene otra. El resto del libro trabaja dentro de ese territorio, con la cautela de medir siempre y de no prometer lo imposible.</p>
+</section>
+</section>
+<section id="lecturas-recomendadas" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="lecturas-recomendadas">Lecturas recomendadas</h2>
+<ul>
+<li><p><span class="citation" data-cites="khattab2024dspy">Khattab et&nbsp;al. (<a href="#ref-khattab2024dspy" role="doc-biblioref">2024</a>)</span>: el artículo donde se introduce el marco; leer las secciones que formalizan firmas, módulos y compilación.</p></li>
+<li><p><span class="citation" data-cites="brown2020gpt3"><span class="nocase">Brown et&nbsp;al.</span> (<a href="#ref-brown2020gpt3" role="doc-biblioref">2020</a>)</span>: la presentación del aprendizaje en contexto a gran escala, origen empírico del capítulo.</p></li>
+<li><p><span class="citation" data-cites="xie2022icl">Xie et&nbsp;al. (<a href="#ref-xie2022icl" role="doc-biblioref">2022</a>)</span> y <span class="citation" data-cites="min2022rethinking">Min et&nbsp;al. (<a href="#ref-min2022rethinking" role="doc-biblioref">2022</a>)</span>: dos caras del ICL —la teórica y la empírica— que sostienen la moraleja sobre demostraciones.</p></li>
+<li><p><span class="citation" data-cites="lu2022fantastically">Lu et&nbsp;al. (<a href="#ref-lu2022fantastically" role="doc-biblioref">2022</a>)</span> y <span class="citation" data-cites="zhao2021calibrate">Zhao et&nbsp;al. (<a href="#ref-zhao2021calibrate" role="doc-biblioref">2021</a>)</span>: la evidencia de fragilidad y de sesgo que desarma el ajuste a mano.</p></li>
+<li><p><span class="citation" data-cites="sutton2019bitter">Sutton (<a href="#ref-sutton2019bitter" role="doc-biblioref">2019</a>)</span>: el ensayo que da el argumento de fondo, hoy cuantificado por <span class="citation" data-cites="kaplan2020scaling"><span class="nocase">Kaplan et&nbsp;al.</span> (<a href="#ref-kaplan2020scaling" role="doc-biblioref">2020</a>)</span> y</p>
+<ol class="example" type="1">
+<li></li>
+</ol></li>
+</ul>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">Referencias</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-agrawal2025gepa" class="csl-entry" role="listitem">
+<span class="nocase">Agrawal, Lakshya A. et&nbsp;al.</span> 2025. <span>«<span>GEPA</span>: Reflective Prompt Evolution Can Outperform Reinforcement Learning»</span>. <a href="https://arxiv.org/abs/2507.19457">https://arxiv.org/abs/2507.19457</a>.
+</div>
+<div id="ref-akiba2019optuna" class="csl-entry" role="listitem">
+<span class="nocase">Akiba, Takuya et&nbsp;al.</span> 2019. <span>«<span>Optuna</span>: A Next-generation Hyperparameter Optimization Framework»</span>. <a href="https://arxiv.org/abs/1907.10902">https://arxiv.org/abs/1907.10902</a>.
+</div>
+<div id="ref-akyurek2023icl" class="csl-entry" role="listitem">
+<span class="nocase">Akyürek, Ekin et&nbsp;al.</span> 2023. <span>«What Learning Algorithm Is In-Context Learning? Investigations with Linear Models»</span>. <em>International Conference on Learning Representations (ICLR)</em>. <a href="https://arxiv.org/abs/2211.15661">https://arxiv.org/abs/2211.15661</a>.
+</div>
+<div id="ref-brown2020gpt3" class="csl-entry" role="listitem">
+<span class="nocase">Brown, Tom B. et&nbsp;al.</span> 2020. <span>«Language Models are Few-Shot Learners»</span>. <em>Advances in Neural Information Processing Systems (NeurIPS)</em>. <a href="https://arxiv.org/abs/2005.14165">https://arxiv.org/abs/2005.14165</a>.
+</div>
+<div id="ref-hoffmann2022chinchilla" class="csl-entry" role="listitem">
+<span class="nocase">Hoffmann, Jordan et&nbsp;al.</span> 2022. <span>«Training Compute-Optimal Large Language Models»</span>. <em>Advances in Neural Information Processing Systems (NeurIPS)</em>. <a href="https://arxiv.org/abs/2203.15556">https://arxiv.org/abs/2203.15556</a>.
+</div>
+<div id="ref-hu2021lora" class="csl-entry" role="listitem">
+<span class="nocase">Hu, Edward J. et&nbsp;al.</span> 2022. <span>«<span>LoRA</span>: Low-Rank Adaptation of Large Language Models»</span>. <em>International Conference on Learning Representations (ICLR)</em>. <a href="https://arxiv.org/abs/2106.09685">https://arxiv.org/abs/2106.09685</a>.
+</div>
+<div id="ref-kaplan2020scaling" class="csl-entry" role="listitem">
+<span class="nocase">Kaplan, Jared et&nbsp;al.</span> 2020. <span>«Scaling Laws for Neural Language Models»</span>. <a href="https://arxiv.org/abs/2001.08361">https://arxiv.org/abs/2001.08361</a>.
+</div>
+<div id="ref-khattab2022demonstrate" class="csl-entry" role="listitem">
+Khattab, Omar, Keshav Santhanam, Xiang Lisa Li, et&nbsp;al. 2022. <span>«Demonstrate-Search-Predict: Composing Retrieval and Language Models for Knowledge-Intensive <span>NLP</span>»</span>. <em>arXiv preprint arXiv:2212.14024</em>.
+</div>
+<div id="ref-khattab2024dspy" class="csl-entry" role="listitem">
+Khattab, Omar, Arnav Singhvi, Paridhi Maheshwari, et&nbsp;al. 2024. <span>«<span>DSPy</span>: Compiling Declarative Language Model Calls into Self-Improving Pipelines»</span>. <em>The Twelfth International Conference on Learning Representations (ICLR)</em>.
+</div>
+<div id="ref-lewis2020rag" class="csl-entry" role="listitem">
+<span class="nocase">Lewis, Patrick et&nbsp;al.</span> 2020. <span>«Retrieval-Augmented Generation for Knowledge-Intensive <span>NLP</span> Tasks»</span>. <a href="https://arxiv.org/abs/2005.11401">https://arxiv.org/abs/2005.11401</a>.
+</div>
+<div id="ref-liu2023promptsurvey" class="csl-entry" role="listitem">
+Liu, Pengfei, Weizhe Yuan, Jinlan Fu, Zhengbao Jiang, Hiroaki Hayashi, y Graham Neubig. 2023. <span>«Pre-train, Prompt, and Predict: A Systematic Survey of Prompting Methods in Natural Language Processing»</span>. <em>ACM Computing Surveys</em>. <a href="https://arxiv.org/abs/2107.13586">https://arxiv.org/abs/2107.13586</a>.
+</div>
+<div id="ref-lu2022fantastically" class="csl-entry" role="listitem">
+Lu, Yao, Max Bartolo, Alastair Moore, Sebastian Riedel, y Pontus Stenetorp. 2022. <span>«Fantastically Ordered Prompts and Where to Find Them: Overcoming Few-Shot Prompt Order Sensitivity»</span>. <em>Proceedings of ACL</em>. <a href="https://arxiv.org/abs/2104.08786">https://arxiv.org/abs/2104.08786</a>.
+</div>
+<div id="ref-min2022rethinking" class="csl-entry" role="listitem">
+Min, Sewon, Xinxi Lyu, Ari Holtzman, et&nbsp;al. 2022. <span>«Rethinking the Role of Demonstrations: What Makes In-Context Learning Work?»</span> <em>Proceedings of EMNLP</em>. <a href="https://arxiv.org/abs/2202.12837">https://arxiv.org/abs/2202.12837</a>.
+</div>
+<div id="ref-olsson2022induction" class="csl-entry" role="listitem">
+<span class="nocase">Olsson, Catherine et&nbsp;al.</span> 2022. <span>«In-context Learning and Induction Heads»</span>. <a href="https://arxiv.org/abs/2209.11895">https://arxiv.org/abs/2209.11895</a>.
+</div>
+<div id="ref-opsahlong2024mipro" class="csl-entry" role="listitem">
+<span class="nocase">Opsahl-Ong, Krista et&nbsp;al.</span> 2024. <span>«Optimizing Instructions and Demonstrations for Multi-Stage Language Model Programs»</span>. <a href="https://arxiv.org/abs/2406.11695">https://arxiv.org/abs/2406.11695</a>.
+</div>
+<div id="ref-vonoswald2023icl" class="csl-entry" role="listitem">
+<span class="nocase">Oswald, Johannes von et&nbsp;al.</span> 2023. <span>«Transformers Learn In-Context by Gradient Descent»</span>. <em>International Conference on Machine Learning (ICML)</em>. <a href="https://arxiv.org/abs/2212.07677">https://arxiv.org/abs/2212.07677</a>.
+</div>
+<div id="ref-ouyang2022instructgpt" class="csl-entry" role="listitem">
+<span class="nocase">Ouyang, Long et&nbsp;al.</span> 2022. <span>«Training Language Models to Follow Instructions with Human Feedback»</span>. <em>Advances in Neural Information Processing Systems (NeurIPS)</em>. <a href="https://arxiv.org/abs/2203.02155">https://arxiv.org/abs/2203.02155</a>.
+</div>
+<div id="ref-reynolds2021prompt" class="csl-entry" role="listitem">
+Reynolds, Laria, y Kyle McDonell. 2021. <span>«Prompt Programming for Large Language Models: Beyond the Few-Shot Paradigm»</span>. <em>Extended Abstracts of the CHI Conference on Human Factors in Computing Systems</em>. <a href="https://arxiv.org/abs/2102.07350">https://arxiv.org/abs/2102.07350</a>.
+</div>
+<div id="ref-schaeffer2023mirage" class="csl-entry" role="listitem">
+Schaeffer, Rylan, Brando Miranda, y Sanmi Koyejo. 2023. <span>«Are Emergent Abilities of Large Language Models a Mirage?»</span> <em>Advances in Neural Information Processing Systems (NeurIPS)</em>. <a href="https://arxiv.org/abs/2304.15004">https://arxiv.org/abs/2304.15004</a>.
+</div>
+<div id="ref-sutton2019bitter" class="csl-entry" role="listitem">
+Sutton, Richard S. 2019. <span>«The Bitter Lesson»</span>. <a href="http://www.incompleteideas.net/IncIdeas/BitterLesson.html">http://www.incompleteideas.net/IncIdeas/BitterLesson.html</a>.
+</div>
+<div id="ref-vaswani2017attention" class="csl-entry" role="listitem">
+<span class="nocase">Vaswani, Ashish et&nbsp;al.</span> 2017. <span>«Attention Is All You Need»</span>. <em>Advances in Neural Information Processing Systems (NeurIPS)</em>. <a href="https://arxiv.org/abs/1706.03762">https://arxiv.org/abs/1706.03762</a>.
+</div>
+<div id="ref-wei2022cot" class="csl-entry" role="listitem">
+<span class="nocase">Wei, Jason et&nbsp;al.</span> 2022a. <span>«Chain-of-Thought Prompting Elicits Reasoning in Large Language Models»</span>. <a href="https://arxiv.org/abs/2201.11903">https://arxiv.org/abs/2201.11903</a>.
+</div>
+<div id="ref-wei2022emergent" class="csl-entry" role="listitem">
+<span class="nocase">Wei, Jason et&nbsp;al.</span> 2022b. <span>«Emergent Abilities of Large Language Models»</span>. <em>Transactions on Machine Learning Research (TMLR)</em>. <a href="https://arxiv.org/abs/2206.07682">https://arxiv.org/abs/2206.07682</a>.
+</div>
+<div id="ref-xie2022icl" class="csl-entry" role="listitem">
+Xie, Sang Michael, Aditi Raghunathan, Percy Liang, y Tengyu Ma. 2022. <span>«An Explanation of In-context Learning as Implicit Bayesian Inference»</span>. <em>International Conference on Learning Representations (ICLR)</em>. <a href="https://arxiv.org/abs/2111.02080">https://arxiv.org/abs/2111.02080</a>.
+</div>
+<div id="ref-yang2023opro" class="csl-entry" role="listitem">
+<span class="nocase">Yang, Chengrun et&nbsp;al.</span> 2023. <span>«Large Language Models as Optimizers»</span>. <a href="https://arxiv.org/abs/2309.03409">https://arxiv.org/abs/2309.03409</a>.
+</div>
+<div id="ref-zhao2021calibrate" class="csl-entry" role="listitem">
+Zhao, Tony Z., Eric Wallace, Shi Feng, Dan Klein, y Sameer Singh. 2021. <span>«Calibrate Before Use: Improving Few-Shot Performance of Language Models»</span>. <em>International Conference on Machine Learning (ICML)</em>. <a href="https://arxiv.org/abs/2102.09690">https://arxiv.org/abs/2102.09690</a>.
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copiado");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copiado");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./index.html" class="pagination-link" aria-label="Inicio">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Inicio</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./cap02.html" class="pagination-link" aria-label="Capítulo 2. Anatomía de un prompt y primer programa DSPy">
+        <span class="nav-page-text">Capítulo 2. Anatomía de un prompt y primer programa DSPy</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>© 2026 Manuel Muñoz Plá · Edición web bajo licencia <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.es">CC BY-NC-ND 4.0</a> (uso académico con atribución; sin uso comercial ni obras derivadas) · El código va aparte bajo licencia MIT</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

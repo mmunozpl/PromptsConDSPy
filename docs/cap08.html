@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Capítulo 8. DSPy en análisis de binarios: embeddings de código y razonamiento con LLM – Programación de prompts con DSPy</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./cap09.html" rel="next">
+<link href="./cap07.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-f7bd9765ec068e3aae6dba6073a1e2a9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No se han encontrado resultados",
+    "search-matching-documents-text": "documentos encontrados",
+    "search-copy-link-title": "Copiar el enlace en la búsqueda",
+    "search-hide-matches-text": "Ocultar resultados adicionales",
+    "search-more-match-text": "resultado adicional en este documento",
+    "search-more-matches-text": "resultados adicionales en este documento",
+    "search-clear-button-title": "Borrar",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancelar",
+    "search-submit-button-title": "Enviar",
+    "search-label": "Buscar"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./cap08.html">Capítulo 8. DSPy en análisis de binarios: embeddings de código y razonamiento con LLM</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Buscar" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Programación de prompts con DSPy</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Alternar modo lector">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Buscar"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Inicio</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap01.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 1. Por qué programar prompts</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap02.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 2. Anatomía de un prompt y primer programa DSPy</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap03.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 3. Clasificación de intenciones en un SOC</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap04.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 4. Evaluación rigurosa de programas DSPy</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap05.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 5. Optimización de demostraciones</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap06.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 6. Optimización de instrucciones</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap07.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 7. Flujos complejos: RAG, agentes y herramientas en seguridad</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap08.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Capítulo 8. DSPy en análisis de binarios: embeddings de código y razonamiento con LLM</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap09.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 9. DSPy para privacidad: detección, minimización y no fuga de datos</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap10.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 10. Cierre: práctica profesional con DSPy</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">En esta página</h2>
+   
+  <ul>
+  <li><a href="#orquestación-historia-y-el-problema-de-la-representación" id="toc-orquestación-historia-y-el-problema-de-la-representación" class="nav-link active" data-scroll-target="#orquestación-historia-y-el-problema-de-la-representación">Orquestación, historia y el problema de la representación</a></li>
+  <li><a href="#bcsa-embeddings-de-código-y-similitud-de-funciones" id="toc-bcsa-embeddings-de-código-y-similitud-de-funciones" class="nav-link" data-scroll-target="#bcsa-embeddings-de-código-y-similitud-de-funciones">BCSA: <em>embeddings</em> de código y similitud de funciones</a></li>
+  <li><a href="#llm-razonando-sobre-binarios" id="toc-llm-razonando-sobre-binarios" class="nav-link" data-scroll-target="#llm-razonando-sobre-binarios">LLM razonando sobre binarios</a></li>
+  <li><a href="#el-pipeline-dspy-y-su-optimización" id="toc-el-pipeline-dspy-y-su-optimización" class="nav-link" data-scroll-target="#el-pipeline-dspy-y-su-optimización">El <em>pipeline</em> DSPy y su optimización</a></li>
+  <li><a href="#la-vía-de-grafos-cfg-gnn-y-transformers" id="toc-la-vía-de-grafos-cfg-gnn-y-transformers" class="nav-link" data-scroll-target="#la-vía-de-grafos-cfg-gnn-y-transformers">La vía de grafos: CFG, GNN y <em>transformers</em></a></li>
+  <li><a href="#modelos-en-el-edge-empaquetado-y-análisis-dinámico" id="toc-modelos-en-el-edge-empaquetado-y-análisis-dinámico" class="nav-link" data-scroll-target="#modelos-en-el-edge-empaquetado-y-análisis-dinámico">Modelos en el <em>edge</em>, empaquetado y análisis dinámico</a></li>
+  <li><a href="#datos-un-análisis-trazado-y-una-guía-de-decisión" id="toc-datos-un-análisis-trazado-y-una-guía-de-decisión" class="nav-link" data-scroll-target="#datos-un-análisis-trazado-y-una-guía-de-decisión">Datos, un análisis trazado y una guía de decisión</a></li>
+  <li><a href="#tareas-vulnerabilidades-ingeniería-inversa-y-antivirus" id="toc-tareas-vulnerabilidades-ingeniería-inversa-y-antivirus" class="nav-link" data-scroll-target="#tareas-vulnerabilidades-ingeniería-inversa-y-antivirus">Tareas: vulnerabilidades, ingeniería inversa y antivirus</a></li>
+  <li><a href="#destilación-multimodalidad-y-el-analista-en-el-bucle" id="toc-destilación-multimodalidad-y-el-analista-en-el-bucle" class="nav-link" data-scroll-target="#destilación-multimodalidad-y-el-analista-en-el-bucle">Destilación, multimodalidad y el analista en el bucle</a></li>
+  <li><a href="#codificador-coste-falsos-positivos-y-priorización" id="toc-codificador-coste-falsos-positivos-y-priorización" class="nav-link" data-scroll-target="#codificador-coste-falsos-positivos-y-priorización">Codificador, coste, falsos positivos y priorización</a></li>
+  <li><a href="#familias-de-malware-y-detección-de-lo-desconocido" id="toc-familias-de-malware-y-detección-de-lo-desconocido" class="nav-link" data-scroll-target="#familias-de-malware-y-detección-de-lo-desconocido">Familias de <em>malware</em> y detección de lo desconocido</a></li>
+  <li><a href="#flujo-frente-a-monolito-conjuntos-y-1-day-a-escala" id="toc-flujo-frente-a-monolito-conjuntos-y-1-day-a-escala" class="nav-link" data-scroll-target="#flujo-frente-a-monolito-conjuntos-y-1-day-a-escala">Flujo frente a monolito, conjuntos y 1-day a escala</a></li>
+  <li><a href="#evaluación-límites-actuales-y-direcciones" id="toc-evaluación-límites-actuales-y-direcciones" class="nav-link" data-scroll-target="#evaluación-límites-actuales-y-direcciones">Evaluación, límites actuales y direcciones</a></li>
+  <li><a href="#lecturas-recomendadas" id="toc-lecturas-recomendadas" class="nav-link" data-scroll-target="#lecturas-recomendadas">Lecturas recomendadas</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Capítulo 8. DSPy en análisis de binarios: embeddings de código y razonamiento con LLM</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Este es el capítulo diferencial del libro. Lleva DSPy a un dominio donde el dato de entrada es, por definición, adverso —un binario que puede ser <em>malware</em>— y donde el estado del campo se ha desplazado en los últimos años. El análisis de <em>malware</em> abandonó la conversión de binarios en imágenes en favor de <em>embeddings</em> de código que capturan semántica de ejecución, y de modelos de lenguaje que razonan sobre el binario. DSPy encaja aquí sin fricción, porque su oficio es justo orquestar llamadas a LLM y trabajo con <em>embeddings</em>, no entrenar redes.</p>
+<p>El capítulo fija primero la frontera entre orquestación y entrenamiento; repasa como nota histórica la representación visual y su defecto; presenta la línea central —similitud de código binario y razonamiento con LLM—; construye un <em>pipeline</em> DSPy que reutiliza el RAG de arXiv del capítulo&nbsp;7; y conserva la vía de grafos como complemento, junto con los modelos pequeños en el <em>edge</em>. Las cifras salen del código y aparecen como marcadores.</p>
+<section id="orquestación-historia-y-el-problema-de-la-representación" class="level2">
+<h2 class="anchored" data-anchor-id="orquestación-historia-y-el-problema-de-la-representación">Orquestación, historia y el problema de la representación</h2>
+<p>Conviene una honestidad de partida: DSPy no entrena redes neuronales. No ajusta los pesos de un codificador de código ni de una red de grafos; orquesta llamadas a modelos —de lenguaje y de <em>embeddings</em>— y optimiza los <em>prompts</em> que las gobiernan. La frontera importa porque este capítulo usa componentes que sí se entrenan —un codificador que produce <em>embeddings</em> de funciones, una red de grafos sobre el flujo de control—, y conviene no confundir la aportación de DSPy —la orquestación y el razonamiento— con lo tomado prestado —las representaciones—.</p>
+<p>Esa división del trabajo es, además, la adecuada. El codificador aprende a representar el binario una vez, de forma costosa; DSPy compone esas representaciones con razonamiento de LLM y ajusta los <em>prompts</em> sin tocar los pesos. Donde aparezcan GATv2, un codificador de código o cualquier <em>encoder</em> externo, el texto lo señalará con claridad, para que el lector sepa qué se entrena y qué se orquesta.</p>
+<section id="de-la-imagen-de-malware-a-los-embeddings." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="de-la-imagen-de-malware-a-los-embeddings.">De la imagen de <em>malware</em> a los <em>embeddings</em>.</h5>
+<p>Durante años, una técnica popular convirtió el binario en una imagen —cada <em>byte</em>, un píxel— y aplicaba una red convolucional como si clasificara fotos <span class="citation" data-cites="nataraj2011malwareimages">(<a href="#ref-nataraj2011malwareimages" role="doc-biblioref">Nataraj et&nbsp;al. 2011</a>)</span>. La idea era seductora por reutilizar la visión por computador, pero adolece de un defecto de fondo: viola el principio de localidad. En una imagen natural, los píxeles vecinos están relacionados; en un binario linealizado a píxeles, dos <em>bytes</em> contiguos pueden pertenecer a instrucciones sin relación, y la proximidad espacial que la convolución explota es un artefacto, no una señal <span class="citation" data-cites="securityeyesai2025">(<a href="#ref-securityeyesai2025" role="doc-biblioref">Brosolo et&nbsp;al. 2025</a>)</span>.</p>
+<p>Por eso el campo se desplazó hacia representaciones que respetan la estructura del programa: los <em>opcodes</em>, el flujo de control, la representación intermedia. La visión queda como nota histórica —ilustrativa de un callejón—, y la línea central del capítulo la sustituyen los <em>embeddings</em> de código y el razonamiento con LLM, que sí capturan semántica de ejecución.</p>
+</section>
+<section id="el-problema-central-cómo-representar-un-binario." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-problema-central-cómo-representar-un-binario.">El problema central: cómo representar un binario.</h5>
+<p>El reto de fondo del análisis de binarios no es el algoritmo, sino la <em>representación</em>: cómo convertir una secuencia de <em>bytes</em> en algo analizable. La elección de representación determina qué se puede aprender, porque fija qué estructura del programa queda visible y cuál se pierde. El callejón de la imagen (sección&nbsp;8.1) fue, en el fondo, una mala representación: linealizó el binario a píxeles y borró su estructura.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap08/fig_01.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;8.1.</strong> De los <em>bytes</em> crudos al <em>embedding</em> de función: cada nivel recupera estructura que el anterior oculta. El análisis moderno parte de niveles altos, que respetan la semántica del programa, no de los <em>bytes</em> linealizados.</figcaption>
+</figure>
+</div>
+<p>La figura&nbsp;8.1 ordena las representaciones por la estructura que recuperan. Los <em>bytes</em> crudos no tienen ninguna —la localidad es falsa—; el desensamblado recupera las instrucciones; la representación intermedia las abstrae de la arquitectura; el grafo de flujo de control expone la estructura de ejecución; y el <em>embedding</em> de función condensa la semántica en un vector. Subir por la escalera cuesta análisis —desensamblar, levantar, construir el grafo—, pero cada peldaño hace visible una estructura que el modelo puede aprovechar.</p>
+<p>La lección, otra vez la de Sutton (capítulo&nbsp;1) <span class="citation" data-cites="sutton2019bitter">(<a href="#ref-sutton2019bitter" role="doc-biblioref">Sutton 2019</a>)</span>, es sutil aquí. No se trata de codificar a mano rasgos del binario —eso es ingeniería de características frágil—, sino de elegir una representación que <em>preserve</em> la estructura para que el aprendizaje la explote. La representación correcta no resuelve la tarea, pero una incorrecta la hace imposible, y ese es el punto de partida del capítulo.</p>
+</section>
+<section id="desensamblado-el-primer-obstáculo." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="desensamblado-el-primer-obstáculo.">Desensamblado: el primer obstáculo.</h5>
+<p>Antes de cualquier representación rica hay que desensamblar, y desensamblar no es trivial. En arquitecturas de instrucción de longitud variable —como x86—, dónde empieza una instrucción depende de dónde empezó la anterior, y un <em>byte</em> puede interpretarse como código o como dato según el camino que lo alcance. El desensamblado es, en el caso general, un problema sin solución perfecta, y los desensambladores combinan barrido lineal y recursivo con heurísticas.</p>
+<p>El <em>malware</em> agrava el problema a propósito. Técnicas de ofuscación —instrucciones solapadas, saltos calculados, código que se desempaqueta en tiempo de ejecución— buscan justamente confundir al desensamblador, de modo que el análisis estático vea algo distinto de su ejecución real. Un binario empaquetado no revela su código real hasta que corre, y su desensamblado estático es, en el mejor caso, incompleto (sección&nbsp;8.6).</p>
+<p>La consecuencia para un sistema con DSPy es que la calidad del análisis está acotada por la del desensamblado que lo alimenta. DSPy orquesta el razonamiento sobre el desensamblado, pero no lo produce: ese trabajo lo hacen herramientas especializadas —<code>objdump</code>, Ghidra, radare2—, que el flujo invoca como herramientas (capítulo&nbsp;7). Reconocer este límite evita atribuir al razonamiento fallos que nacen, en realidad, de un desensamblado pobre.</p>
+</section>
+<section id="representaciones-intermedias-y-la-neutralidad-de-arquitectura." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="representaciones-intermedias-y-la-neutralidad-de-arquitectura.">Representaciones intermedias y la neutralidad de arquitectura.</h5>
+<p>El desensamblado es específico de cada arquitectura: el ensamblador de x86 no se parece al de ARM, aunque ambos binarios provengan del mismo código fuente. Para analizar a través de arquitecturas —un mismo <em>malware</em> compilado para varias plataformas—, conviene <em>levantar</em> el desensamblado a una representación intermedia neutra, que abstrae los detalles del juego de instrucciones y conserva la semántica de la operación.</p>
+<p>Esta abstracción es la que permite la similitud entre arquitecturas (sección&nbsp;8.2): dos funciones compiladas para x86 y ARM, ilegibles como ensamblador comparado, quedan próximas en la representación intermedia porque hacen lo mismo. Los analizadores modernos levantan a una representación intermedia —la de LLVM, o las de los marcos de análisis binario— antes de construir el grafo o el <em>embedding</em>, justamente para ganar esa neutralidad.</p>
+<p>Para DSPy, la representación intermedia es una entrada más rica que el ensamblador crudo: un módulo de razonamiento alimentado con la representación intermedia de una función razona sobre su semántica sin atarse a una arquitectura, y un <em>embedding</em> derivado de ella generaliza a través de plataformas. El levantamiento, como el desensamblado, ocurre fuera de DSPy (sección&nbsp;8.1); el flujo consume su salida.</p>
+</section>
+</section>
+<section id="bcsa-embeddings-de-código-y-similitud-de-funciones" class="level2">
+<h2 class="anchored" data-anchor-id="bcsa-embeddings-de-código-y-similitud-de-funciones">BCSA: <em>embeddings</em> de código y similitud de funciones</h2>
+<p>El análisis de similitud de código binario (BCSA) responde a una pregunta operativa: ¿se parece esta función a otra ya conocida —una vulnerabilidad, una familia de <em>malware</em>—? La respuesta moderna proyecta cada función a un <em>embedding</em> que captura su semántica, de modo que funciones equivalentes, aunque compiladas distinto, quedan próximas en el espacio vectorial. El precursor derivaba el <em>embedding</em> del grafo de flujo de control <span class="citation" data-cites="xu2017gemini">(<a href="#ref-xu2017gemini" role="doc-biblioref"><span class="nocase">Xu et&nbsp;al.</span> 2017</a>)</span>; los métodos recientes aprenden representaciones de funciones sin ajuste fino por tarea <span class="citation" data-cites="gu2022uniasm">(<a href="#ref-gu2022uniasm" role="doc-biblioref"><span class="nocase">Gu et&nbsp;al.</span> 2022</a>)</span> y escalan a repositorios enormes con <em>embeddings</em> conscientes de la función <span class="citation" data-cites="liu2025keenhash">(<a href="#ref-liu2025keenhash" role="doc-biblioref"><span class="nocase">Liu et&nbsp;al.</span> 2025</a>)</span>.</p>
+<p>La conexión con DSPy es directa: estos <em>embeddings</em> alimentan una recuperación por similitud —la misma maquinaria del capítulo&nbsp;3—, sobre la que un LLM razona. El codificador de código se entrena aparte; DSPy lo trata como un <em>embedder</em> más y compone su salida con el razonamiento.</p>
+<section id="de-la-instrucción-a-la-función-embeddings-de-código." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="de-la-instrucción-a-la-función-embeddings-de-código.">De la instrucción a la función: <em>embeddings</em> de código.</h5>
+<p>Antes de representar una función entera conviene representar sus piezas. La línea que llevó a los <em>embeddings</em> de código adaptó las ideas del procesamiento de lenguaje al ensamblador: una instrucción es como una palabra, una secuencia de instrucciones como una frase, y se aprenden <em>embeddings</em> de instrucción por el contexto en que aparecen, al estilo de los modelos de palabras. El salto posterior trató el ensamblador como un lenguaje propio y aprendió representaciones de funciones sin ajuste fino por tarea <span class="citation" data-cites="gu2022uniasm">(<a href="#ref-gu2022uniasm" role="doc-biblioref"><span class="nocase">Gu et&nbsp;al.</span> 2022</a>)</span>.</p>
+<p>El reto que distingue al ensamblador del lenguaje natural es la <em>normalización</em>. Los registros concretos, las direcciones absolutas y los desplazamientos varían entre compilaciones de la misma función, y tratarlos como <em>tokens</em> literales infla el vocabulario y oculta la equivalencia. Por eso se normalizan —un registro genérico en lugar de <code>rax</code>, un marcador en lugar de una dirección—, de modo que dos compilaciones de la misma lógica se parezcan en su representación. Esta normalización es ingeniería de representación, no de características: prepara el terreno para que el aprendizaje capte la semántica.</p>
+<p>El resultado es un vocabulario manejable de instrucciones normalizadas sobre el que se construyen representaciones de bloques y funciones. Para DSPy, el detalle del codificador es una caja negra entrenada aparte (sección&nbsp;8.1); lo importante es que produce vectores en los que la proximidad refleja equivalencia semántica, listos para la recuperación que el flujo orquesta.</p>
+</section>
+<section id="el-bi-codificador-de-funciones." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-bi-codificador-de-funciones.">El bi-codificador de funciones.</h5>
+<p>El método que popularizó el BCSA moderno deriva el <em>embedding</em> de una función de su grafo de flujo de control, y lo entrena de forma <em>siamesa</em>: dos funciones que provienen del mismo código fuente deben quedar próximas; dos distintas, lejanas <span class="citation" data-cites="xu2017gemini">(<a href="#ref-xu2017gemini" role="doc-biblioref"><span class="nocase">Xu et&nbsp;al.</span> 2017</a>)</span>. Es el mismo principio del bi-codificador de recuperación (capítulo&nbsp;7) y de los <em>embeddings</em> de frase <span class="citation" data-cites="reimers2019sbert">(<a href="#ref-reimers2019sbert" role="doc-biblioref">Reimers y Gurevych 2019</a>)</span>, ahora sobre funciones binarias en lugar de texto.</p>
+<p>El entrenamiento minimiza una pérdida contrastiva que acerca los pares equivalentes y aleja los no equivalentes. En su forma simple, para un par de funciones con <em>embeddings</em> <span class="math inline">\(u\)</span> y <span class="math inline">\(v\)</span> y una etiqueta <span class="math inline">\(y\in\{+1,-1\}\)</span> de equivalencia, se busca maximizar <span class="math inline">\(y\cdot\cos(u,v)\)</span>, de modo que el coseno sea alto para pares equivalentes y bajo para el resto: <span class="math display">\[\begin{equation}
+  \mathcal{L} = \sum_{(u,v,y)} \bigl(\cos(u, v) - \mathbb{1}[y=+1]\bigr)^2,
+\end{equation}\]</span> con variantes —<em>triplet</em>, márgenes— que refinan la idea. Lo esencial es que la geometría del espacio se aprende para que la distancia signifique disimilitud semántica.</p>
+<p>Una vez entrenado, el codificador se usa como cualquier <em>embedder</em>: cada función del repositorio se proyecta una vez a su vector, se indexa, y una función sospechosa se compara contra el índice por vecinos próximos (capítulo&nbsp;5). DSPy orquesta esa recuperación y razona sobre los vecinos; el codificador, entrenado fuera, es el <em>embedder</em> que la alimenta.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap08/fig_02.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;8.2.</strong> El BCSA moderno entrena un codificador de forma siamesa: dos funciones del mismo código fuente deben quedar próximas —coseno alto—; dos distintas, lejanas (ecuación&nbsp;(8.1)). Es el bi-codificador de recuperación, ahora sobre funciones binarias.</figcaption>
+</figure>
+</div>
+<p>La figura&nbsp;8.2 esquematiza ese entrenamiento siamés.</p>
+</section>
+<section id="el-reto-invariancia-entre-arquitecturas-y-compiladores." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-reto-invariancia-entre-arquitecturas-y-compiladores.">El reto: invariancia entre arquitecturas y compiladores.</h5>
+<p>La dificultad del BCSA está en <em>qué</em> debe ignorar. La misma función fuente, compilada para x86 y para ARM, o con optimización ligera y agresiva, produce binarios muy distintos byte a byte: registros diferentes, instrucciones reordenadas, bucles desenrollados, funciones en línea. Un buen <em>embedding</em> debe ser <em>invariante</em> a estos accidentes de compilación y sensible solo a la semántica: aproximar las dos compilaciones de la misma lógica y separar lógicas distintas.</p>
+<p>Esa invariancia es la propiedad que se entrena (sección&nbsp;8.2) y la que la representación intermedia favorece (sección&nbsp;8.1). Es, además, la que da valor operativo al BCSA en seguridad: permite reconocer una función vulnerable conocida dentro de un binario nuevo aunque se haya recompilado para otra plataforma o con otras opciones, que es el caso real de la búsqueda de vulnerabilidades a escala.</p>
+<p>El grado de invariancia alcanzado es, también, lo medido al evaluar un codificador (sección&nbsp;8.2): se prueba si recupera como similares las compilaciones cruzadas de la misma función. Un codificador que solo casa compilaciones idénticas es inútil en la práctica; uno que generaliza a través de arquitecturas y optimizaciones es el que vale, y esa generalización no se supone, se comprueba. La figura&nbsp;8.3 lo ilustra.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap08/fig_03.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;8.3.</strong> Un buen <em>embedding</em> es invariante a los accidentes de compilación —registros, reordenamientos, bucles desenrollados— y sensible solo a la semántica. La misma función compilada para x86 y ARM queda próxima; una lógica distinta, lejos. Se mide entre compilaciones cruzadas.</figcaption>
+</figure>
+</div>
+</section>
+<section id="escalar-la-similitud-a-repositorios-enormes." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="escalar-la-similitud-a-repositorios-enormes.">Escalar la similitud a repositorios enormes.</h5>
+<p>La búsqueda de vulnerabilidades a escala enfrenta repositorios de cientos de millones de funciones, y comparar una función contra todas es inviable sin una representación que lo permita. Los métodos recientes producen <em>embeddings</em> conscientes de la función y los condensan en códigos compactos —<em>hashing</em>— que hacen la búsqueda por similitud asumible sobre repositorios enormes <span class="citation" data-cites="liu2025keenhash">(<a href="#ref-liu2025keenhash" role="doc-biblioref"><span class="nocase">Liu et&nbsp;al.</span> 2025</a>)</span>. La idea es la del índice aproximado del capítulo&nbsp;5, llevada a la escala del código binario.</p>
+<p>El canje es el conocido entre exactitud y coste. Un <em>hash</em> compacto acelera la búsqueda y reduce el almacenamiento, a cambio de una similitud aproximada que puede perder coincidencias finas; un <em>embedding</em> denso completo es más preciso pero más caro de indexar y consultar. La elección depende del tamaño del repositorio y de la precisión exigida, y se decide midiendo (sección&nbsp;8.2).</p>
+<p>Para DSPy, la escala importa porque condiciona la recuperación que orquesta: sobre un repositorio enorme, el recuperador usa el índice aproximado, y el razonamiento del LLM opera sobre el puñado de vecinos que devuelve. La arquitectura recuperar-amplio-y-barato, razonar-estrecho-y-caro (capítulo&nbsp;7) reaparece intacta, ahora sobre funciones binarias.</p>
+</section>
+<section id="cómo-se-mide-la-similitud-de-código." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="cómo-se-mide-la-similitud-de-código.">Cómo se mide la similitud de código.</h5>
+<p>El BCSA se evalúa como una tarea de recuperación (capítulo&nbsp;7): dada una función consulta, ¿aparecen sus equivalentes entre los <span class="math inline">\(k\)</span> vecinos recuperados? Las métricas son las de la recuperación —exhaustividad en los primeros <span class="math inline">\(k\)</span>, rango recíproco medio— aplicadas al banco de funciones conocidas. Un protocolo habitual mide la recuperación entre compilaciones cruzadas: indexar funciones compiladas de un modo y consultar con las mismas compiladas de otro (sección&nbsp;8.2).</p>
+<p>La cautela propia del dominio es el <em>desequilibrio</em> y la <em>escasez de etiquetas</em>. Las funciones equivalentes a una dada son poquísimas frente al repositorio entero, de modo que una métrica que no penalice los falsos positivos engaña (capítulo&nbsp;4); y construir un conjunto de prueba con equivalencias conocidas exige compilar a propósito o etiquetar a mano, ambos costosos. Los conjuntos públicos de BCSA, con sus equivalencias por construcción, son el patrón de evaluación, y sobre ellos se reportan las cifras del capítulo.</p>
+<p>Medir el codificador por separado del razonamiento, como en todo flujo (capítulo&nbsp;7), aísla si un fallo del triaje viene de una recuperación pobre o de un razonamiento torcido. La recuperación BCSA se mide sobre conjuntos públicos de similitud de código binario con un codificador de código; construir ese banco —binarios compilados, desensamblado y pares de similitud— es un montaje aparte del servidor de texto de este libro.</p>
+</section>
+</section>
+<section id="llm-razonando-sobre-binarios" class="level2">
+<h2 class="anchored" data-anchor-id="llm-razonando-sobre-binarios">LLM razonando sobre binarios</h2>
+<p>La segunda mitad de la línea central es el razonamiento. Un LLM, alimentado con el desensamblado de una función o con su representación intermedia, puede describir qué hace, señalar un patrón de vulnerabilidad o triar la gravedad de un hallazgo; la línea la abren trabajos que aplican modelos de lenguaje a la detección de vulnerabilidades sobre binarios despojados de símbolos <span class="citation" data-cites="hussain2025vulbinllm">(<a href="#ref-hussain2025vulbinllm" role="doc-biblioref">Hussain et&nbsp;al. 2025</a>)</span>. No sustituye al análisis formal, pero acelera el triaje: convierte un volcado ilegible en una hipótesis en lenguaje natural que el analista verifica.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AnalizarFuncion(dspy.Signature):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""analiza una funcion desensamblada y senala riesgos."""</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    desensamblado: <span class="bu">str</span> <span class="op">=</span> dspy.InputField(desc<span class="op">=</span><span class="st">"ensamblador de la funcion"</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    proposito: <span class="bu">str</span> <span class="op">=</span> dspy.OutputField(desc<span class="op">=</span><span class="st">"que hace la funcion"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    riesgo: Literal[<span class="st">"bajo"</span>, <span class="st">"medio"</span>, <span class="st">"alto"</span>] <span class="op">=</span> dspy.OutputField()</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>La firma tipada impone disciplina sobre una salida que, sin ella, sería prosa libre: obliga al modelo a comprometerse con un propósito y un nivel de riesgo verificables. La calidad de ese juicio se mide con el aparato del capítulo&nbsp;4 contra un conjunto etiquetado por expertos, y se obtiene sobre un conjunto BCSA etiquetado por expertos, que exige la cadena de desensamblado y embeddings de código propia del dominio.</p>
+<section id="qué-entrada-dar-al-modelo-ensamblador-o-decompilado." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="qué-entrada-dar-al-modelo-ensamblador-o-decompilado.">Qué entrada dar al modelo: ensamblador o decompilado.</h5>
+<p>Una decisión de diseño condiciona el razonamiento del modelo: qué forma del código se le entrega. El <em>ensamblador</em> desnudo es fiel pero ilegible —registros, saltos, direcciones—, y un modelo entrenado mayormente en lenguaje natural y código de alto nivel lo razona con dificultad. El <em>decompilado</em> —una reconstrucción en pseudo-C que produce un decompilador como Ghidra— es más cercano al lenguaje que el modelo conoce, y suele rendir mejor en el razonamiento, aunque introduce los errores del propio decompilador.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AnalizarDecompilado(dspy.Signature):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""analiza pseudo-C decompilado y senala riesgos."""</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    decompilado: <span class="bu">str</span> <span class="op">=</span> dspy.InputField(desc<span class="op">=</span><span class="st">"salida del decompilador"</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    proposito: <span class="bu">str</span> <span class="op">=</span> dspy.OutputField()</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    riesgo: Literal[<span class="st">"bajo"</span>, <span class="st">"medio"</span>, <span class="st">"alto"</span>] <span class="op">=</span> dspy.OutputField()</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>El canje es entre fidelidad y legibilidad. El ensamblador no miente —es exactamente el código ejecutado— pero exige más del modelo; el decompilado es más comprensible pero añade una capa de posible error entre el binario real y el texto que el modelo lee. Una estrategia robusta da al modelo ambos —el decompilado para razonar, el ensamblador para verificar un detalle— y deja que el flujo decida cuál consultar, que es el terreno del análisis aumentado por herramientas. La tabla&nbsp;8.1 opone las dos entradas.</p>
+<table class="caption-top table">
+<caption>Qué forma del código dar al modelo. El ensamblador no miente pero exige más; el decompilado es más legible pero añade una capa de posible error entre el binario real y el texto.</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th style="text-align: left;">Ensamblador</th>
+<th style="text-align: left;">Decompilado (pseudo-C)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fidelidad</td>
+<td style="text-align: left;">exacta</td>
+<td style="text-align: left;">introduce errores</td>
+</tr>
+<tr class="even">
+<td>Legibilidad</td>
+<td style="text-align: left;">baja para el modelo</td>
+<td style="text-align: left;">cercana a su lenguaje</td>
+</tr>
+<tr class="odd">
+<td>Razonamiento</td>
+<td style="text-align: left;">difícil</td>
+<td style="text-align: left;">suele rendir mejor</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="análisis-aumentado-por-herramientas." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="análisis-aumentado-por-herramientas.">Análisis aumentado por herramientas.</h5>
+<p>El razonamiento sobre un binario rara vez se resuelve de una vez: el analista desensambla, mira las llamadas a la API, busca cadenas sospechosas, consulta una referencia. Un agente <code>ReAct</code> (capítulo&nbsp;7) reproduce ese trabajo dándole al modelo herramientas de análisis —un desensamblador, un extractor de cadenas, una consulta al índice BCSA, una búsqueda en la literatura— que invoca según va descubriendo.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> desensamblar(direccion: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Devuelve el ensamblador de la funcion en una direccion."""</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    ...</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cadenas(seccion: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="bu">list</span>[<span class="bu">str</span>]:</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Extrae las cadenas legibles de una seccion del binario."""</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    ...</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>analista <span class="op">=</span> dspy.ReAct(</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"binario -&gt; informe, riesgo: float"</span>,</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    tools<span class="op">=</span>[desensamblar, cadenas, buscar_similares, recuperar_lit])</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Este encuadre encaja con el dominio: el análisis de un binario es, por naturaleza, una investigación iterativa, y el bucle pensar-actuar-observar (capítulo&nbsp;7) lo modela bien. Las herramientas son de solo lectura —desensamblar, extraer, consultar—, lo cual evita el riesgo de las acciones de efecto (sección&nbsp;8.6); el agente investiga y propone, pero no modifica nada.</p>
+<p>La optimización del agente —compilar sus <em>prompts</em> y la elección de herramientas contra casos etiquetados (capítulo&nbsp;6)— le enseña qué herramienta conviene en cada situación, igual que a cualquier agente del capítulo anterior. El análisis de binarios se vuelve, así, un flujo de DSPy como los demás, con la particularidad de que su entrada es hostil por definición.</p>
+</section>
+<section id="el-razonamiento-del-llm-es-una-hipótesis." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-razonamiento-del-llm-es-una-hipótesis.">El razonamiento del LLM es una hipótesis.</h5>
+<p>Conviene insistir, por su importancia en seguridad, en la naturaleza del juicio de un LLM sobre un binario: es una <em>hipótesis</em>, no una prueba. El modelo puede afirmar con aplomo que una función valida una entrada cuando en realidad copia un <em>buffer</em> sin comprobar su tamaño, o pasar por alto una vulnerabilidad sutil escondida en un cálculo de índice. Su salida orienta al analista, no lo sustituye, y tratarla como veredicto es un error de consecuencias graves en este dominio.</p>
+<p>El riesgo es mayor que en otros usos del libro porque el coste de un error es asimétrico y alto. Un falso negativo —declarar benigno un <em>malware</em>— deja pasar una amenaza; un falso positivo —marcar benigno como malicioso— ahoga al analista en ruido. Por eso el razonamiento se integra con verificación: la recuperación por similitud (sección&nbsp;8.2) ancla la hipótesis en funciones conocidas, y las herramientas (sección&nbsp;8.3) permiten comprobar un detalle concreto antes de concluir. La figura&nbsp;8.4 fija el principio.</p>
+<p>La defensa metodológica es la del libro entero: medir. Un juez calibrado y un conjunto etiquetado por expertos (capítulo&nbsp;4) cuantifican cuánto se puede confiar en el razonamiento, y la honestidad de reportar esa fiabilidad —con sus falsos positivos y negativos— es la frontera entre una herramienta de apoyo responsable y una promesa temeraria. El razonamiento del LLM es valioso precisamente como hipótesis rápida que un humano verifica, no como oráculo.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap08/fig_04.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;8.4.</strong> El juicio de un LLM sobre un binario es una hipótesis, no una prueba: puede afirmar con aplomo que una función valida una entrada cuando copia un <em>buffer</em> sin comprobar su tamaño. Con un coste de error asimétrico y alto, orienta al analista; no lo sustituye.</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="el-pipeline-dspy-y-su-optimización" class="level2">
+<h2 class="anchored" data-anchor-id="el-pipeline-dspy-y-su-optimización">El <em>pipeline</em> DSPy y su optimización</h2>
+<p>Las dos mitades se componen en un flujo. Ante una función sospechosa, se recupera por <em>embedding</em> las funciones conocidas más similares —vulnerabilidades documentadas, muestras de familias—, y un módulo de razonamiento decide a la luz de esos vecinos. Es el patrón RAG del capítulo&nbsp;7, trasladado del texto al código binario.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> TriajeBinario(dspy.Module):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, recuperador):</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.recuperar <span class="op">=</span> recuperador          <span class="co"># indice de embeddings de codigo</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.analizar <span class="op">=</span> dspy.ChainOfThought(AnalizarFuncion)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, desensamblado):</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        similares <span class="op">=</span> <span class="va">self</span>.recuperar(desensamblado).passages</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.analizar(desensamblado<span class="op">=</span>desensamblado, contexto<span class="op">=</span>similares)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>El <em>pipeline</em> hereda todas las virtudes de los capítulos previos: firma tipada, módulos componibles y, sobre todo, optimización de extremo a extremo. La recuperación y el razonamiento se ajustan a la vez contra una sola métrica, sin etiquetar las salidas intermedias. La figura&nbsp;8.5 compone las dos mitades.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap08/fig_05.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;8.5.</strong> Las dos mitades se componen: ante una función sospechosa, se recuperan por <em>embedding</em> las funciones conocidas más similares y un módulo de razonamiento decide a la luz de esos vecinos. Es el patrón RAG, trasladado del texto al código binario y optimizado de extremo a extremo.</figcaption>
+</figure>
+</div>
+<section id="el-rag-de-arxiv-reutilizado." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-rag-de-arxiv-reutilizado.">El RAG de arXiv, reutilizado.</h5>
+<p>El corpus de arXiv del capítulo&nbsp;7 encuentra aquí un segundo uso. Dada una técnica de ofuscación detectada o una familia de <em>malware</em> identificada, el sistema recupera del índice los trabajos que la describen y razona sobre ellos: qué se sabe de esa técnica, qué defensas se han propuesto, qué la distingue. El análisis del binario y la literatura sobre él se unen en un mismo flujo.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AnalisisInformado(dspy.Module):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, rag_arxiv, triaje):</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.literatura <span class="op">=</span> rag_arxiv           <span class="co"># del capitulo 7</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.triaje <span class="op">=</span> triaje</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, desensamblado):</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>        t <span class="op">=</span> <span class="va">self</span>.triaje(desensamblado<span class="op">=</span>desensamblado)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>        refs <span class="op">=</span> <span class="va">self</span>.literatura(t.proposito).passages</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> dspy.Prediction(riesgo<span class="op">=</span>t.riesgo, contexto<span class="op">=</span>refs)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>La reutilización ilustra la composición que DSPy hace natural: un módulo del capítulo&nbsp;7 se enchufa en un flujo nuevo sin reescribirlo, porque su contrato —una consulta, unos pasajes— no cambia.</p>
+</section>
+<section id="optimización-con-miprov2gepa-y-feedback-textual." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="optimización-con-miprov2gepa-y-feedback-textual.">Optimización con MIPROv2/GEPA y <em>feedback</em> textual.</h5>
+<p>El flujo se compila con los optimizadores del capítulo&nbsp;6. MIPROv2 ajusta conjuntamente instrucciones y demostraciones <span class="citation" data-cites="opsahlong2024mipro">(<a href="#ref-opsahlong2024mipro" role="doc-biblioref"><span class="nocase">Opsahl-Ong et&nbsp;al.</span> 2024</a>)</span>; GEPA aprovecha el <em>feedback</em> textual —«falló porque confundió una comprobación de límites con una validación de entrada»— para mutar el <em>prompt</em> de forma informada <span class="citation" data-cites="agrawal2025gepa">(<a href="#ref-agrawal2025gepa" role="doc-biblioref"><span class="nocase">Agrawal et&nbsp;al.</span> 2025</a>)</span>. En un dominio donde los aciertos escasean y cada evaluación es cara, la eficiencia muestral de estos métodos es la diferencia entre una optimización viable y una inasumible.</p>
+<p>El procedimiento de optimización sigue la disciplina de los capítulos previos. Se parte de un <em>baseline</em> —el flujo sin optimizar— y se compara contra él cada candidato, sobre la misma validación (capítulo&nbsp;6); se arrancan demostraciones de las trazas acertadas (capítulo&nbsp;5) antes de refinar las instrucciones; y se reserva una prueba etiquetada por expertos para la medición final, libre de contaminación (sección&nbsp;8.12). El orden habitual —demostraciones primero, instrucciones después, o la búsqueda conjunta de MIPROv2— es el del capítulo&nbsp;6, sin cambios por tratarse de binarios.</p>
+<p>La mejora del <em>pipeline</em> optimizado sobre el <em>baseline</em> —que reutiliza el método de optimización de los capítulos&nbsp;5 y&nbsp;6— se mide sobre conjuntos públicos de BCSA y se reporta con su desviación. El código del capítulo, en <code>codigo/cap08/</code>, produce esas cifras. La lectura honesta de esa mejora —cuánto sube la calidad, a qué coste de compilación— es la que decide si la optimización compensa, igual que en todo el libro: el método no se adopta por moderno, sino porque la medición demuestra que rinde.</p>
+</section>
+</section>
+<section id="la-vía-de-grafos-cfg-gnn-y-transformers" class="level2">
+<h2 class="anchored" data-anchor-id="la-vía-de-grafos-cfg-gnn-y-transformers">La vía de grafos: CFG, GNN y <em>transformers</em></h2>
+<p>La línea central no agota el dominio. Un binario tiene estructura de grafo —el grafo de llamadas a API (ACG), el de flujo de control (CFG)—, y una red de atención sobre grafos la explota directamente. La elección moderna es GATv2, que corrige la atención estática de la GAT original con una atención dinámica más expresiva <span class="citation" data-cites="brody2022gatv2 velickovic2018gat">(<a href="#ref-brody2022gatv2" role="doc-biblioref">Brody et&nbsp;al. 2022</a>; <a href="#ref-velickovic2018gat" role="doc-biblioref"><span class="nocase">Veličković et&nbsp;al.</span> 2018</a>)</span>; para capturar estructura global, los <em>graph transformers</em> —GPS, Graphormer— añaden atención de largo alcance sobre el grafo <span class="citation" data-cites="rampasek2022gps ying2021graphormer">(<a href="#ref-rampasek2022gps" role="doc-biblioref"><span class="nocase">Rampášek et&nbsp;al.</span> 2022</a>; <a href="#ref-ying2021graphormer" role="doc-biblioref"><span class="nocase">Ying et&nbsp;al.</span> 2021</a>)</span>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># la red de grafos se entrena APARTE (PyTorch Geometric); DSPy no la entrena</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch_geometric.nn <span class="im">import</span> GATv2Conv</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># su salida (un embedding del grafo) alimenta la recuperacion que DSPy orquesta</span></span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Aquí la frontera de la sección&nbsp;8.1 se hace explícita: la red de grafos se entrena con PyTorch Geometric, fuera de DSPy, y su <em>embedding</em> se incorpora al flujo como una representación más. DSPy orquesta; la red de grafos representa.</p>
+<section id="los-grafos-de-un-binario-cfg-y-grafo-de-llamadas." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="los-grafos-de-un-binario-cfg-y-grafo-de-llamadas.">Los grafos de un binario: CFG y grafo de llamadas.</h5>
+<p>Conviene precisar qué grafos describen un binario, porque cada uno captura una estructura distinta. El <em>grafo de flujo de control</em> (CFG) representa una función: sus nodos son bloques básicos —secuencias de instrucciones sin saltos internos— y sus aristas, los saltos posibles entre ellos. Codifica cómo se ramifica y se itera la ejecución, y es la base del <em>embedding</em> de función derivado del flujo (sección&nbsp;8.2) <span class="citation" data-cites="xu2017gemini">(<a href="#ref-xu2017gemini" role="doc-biblioref"><span class="nocase">Xu et&nbsp;al.</span> 2017</a>)</span>. La figura&nbsp;8.6 muestra un CFG con su bucle.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap08/fig_06.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;8.6.</strong> Los nodos del CFG son bloques básicos y las aristas, los saltos posibles. Codifica la ramificación y la iteración de la ejecución. Una red de grafos lo explota sin linealizar: la proximidad en el grafo significa una relación real de control.</figcaption>
+</figure>
+</div>
+<p>El <em>grafo de llamadas</em> (ACG) opera a otra escala: sus nodos son funciones y sus aristas, las llamadas entre ellas, a menudo enriquecidas con las llamadas a la API del sistema. Captura la arquitectura del programa y sus interacciones con el exterior —qué servicios del sistema usa—, una señal valiosa para el <em>malware</em>, cuya conducta se denota en las llamadas que hace: cifrar ficheros, abrir conexiones, manipular el registro.</p>
+<p>Ambos grafos son representaciones estructuradas que una red de grafos explota directamente, sin linealizar (sección&nbsp;8.1). La diferencia con la imagen es radical: el grafo <em>es</em> la estructura del programa, no un artefacto de una proyección arbitraria, y la proximidad en el grafo significa una relación real de control o de llamada. Esa fidelidad estructural hace de los grafos una vía seria, no una analogía forzada. La tabla&nbsp;8.2 opone ambos grafos.</p>
+<table class="caption-top table">
+<caption>Cada grafo captura una estructura distinta a una escala distinta. Una red de grafos los explota directamente, sin linealizar, y la proximidad significa una relación real.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Grafo</th>
+<th style="text-align: left;">Nodos / aristas</th>
+<th style="text-align: left;">Captura</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">CFG (flujo de control)</td>
+<td style="text-align: left;">bloques / saltos</td>
+<td style="text-align: left;">ramificación e iteración</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ACG (llamadas)</td>
+<td style="text-align: left;">funciones / llamadas</td>
+<td style="text-align: left;">arquitectura y uso de la API</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="redes-de-atención-sobre-grafos-gat-y-gatv2." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="redes-de-atención-sobre-grafos-gat-y-gatv2.">Redes de atención sobre grafos: GAT y GATv2.</h5>
+<p>Una red de atención sobre grafos aprende la representación de un nodo agregando las de sus vecinos, ponderadas por una atención que decide cuánto pesa cada uno. Para un nodo <span class="math inline">\(i\)</span> con vecindario <span class="math inline">\(\mathcal{N}(i)\)</span>, la representación se actualiza como <span class="math display">\[\begin{equation}
+  h_i' = \sigma\!\Bigl(\sum_{j\in\mathcal{N}(i)} \alpha_{ij}\, W h_j\Bigr),
+\end{equation}\]</span> donde <span class="math inline">\(W\)</span> es una transformación lineal aprendida y <span class="math inline">\(\alpha_{ij}\)</span> es el peso de atención del vecino <span class="math inline">\(j\)</span>, normalizado sobre el vecindario. Aplicada a un CFG, cada bloque básico se representa atendiendo a los bloques con los que conecta, de modo que el <em>embedding</em> de la función emerge de la estructura de control.</p>
+<p>La diferencia entre GAT y GATv2 está en cómo se calcula esa atención. La GAT original computa un peso que resulta <em>estático</em>: el orden de importancia de los vecinos es el mismo sea cual sea el nodo que consulta, una limitación de su expresividad <span class="citation" data-cites="velickovic2018gat">(<a href="#ref-velickovic2018gat" role="doc-biblioref"><span class="nocase">Veličković et&nbsp;al.</span> 2018</a>)</span>. GATv2 corrige el orden de las operaciones —aplica la no linealidad antes de la proyección de atención—, logrando una atención <em>dinámica</em> en la que distintos nodos pueden atender a distintos vecinos como más importantes <span class="citation" data-cites="brody2022gatv2">(<a href="#ref-brody2022gatv2" role="doc-biblioref">Brody et&nbsp;al. 2022</a>)</span>. Para grafos de programa, donde la relevancia de un vecino depende del contexto, esa expresividad extra importa.</p>
+<p>La salida de la red —un <em>embedding</em> del grafo— se entrena aparte (sección&nbsp;8.1) y se incorpora al flujo de DSPy como una representación más, que alimenta la recuperación o el razonamiento. La red de grafos aporta la sensibilidad a la estructura; DSPy, la orquestación y el juicio.</p>
+</section>
+<section id="graph-transformers-estructura-global." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="graph-transformers-estructura-global."><em>Graph transformers</em>: estructura global.</h5>
+<p>Las redes de atención sobre grafos agregan información local —el vecindario inmediato—, y apilar capas extiende ese alcance poco a poco, con el riesgo de diluir la señal en grafos grandes. Los <em>graph transformers</em> añaden atención de <em>largo alcance</em>: cada nodo puede atender, en principio, a cualquier otro, capturando dependencias globales que una agregación local tardaría muchas capas en propagar. Es la idea del <em>transformer</em> (capítulo&nbsp;1) trasladada al grafo.</p>
+<p>Dos representantes marcan la línea. GPS combina la agregación local de una red de grafos con la atención global de un <em>transformer</em>, equilibrando ambas escalas <span class="citation" data-cites="rampasek2022gps">(<a href="#ref-rampasek2022gps" role="doc-biblioref"><span class="nocase">Rampášek et&nbsp;al.</span> 2022</a>)</span>; Graphormer codifica la estructura del grafo —distancias, grados— como sesgos en la atención, de modo que el <em>transformer</em> respete la topología <span class="citation" data-cites="ying2021graphormer">(<a href="#ref-ying2021graphormer" role="doc-biblioref"><span class="nocase">Ying et&nbsp;al.</span> 2021</a>)</span>. En un grafo de llamadas grande, donde una función lejana puede ser decisiva —una rutina de cifrado invocada indirectamente—, esa visión global tiene valor.</p>
+<p>El canje es el coste: la atención global escala mal con el tamaño del grafo, y un binario grande produce grafos enormes. La elección entre una red de grafos local y un <em>graph transformer</em> global es, como todo en el libro, empírica: se mide cuál recupera o clasifica mejor sobre el dominio concreto, sopesando la mejora contra el coste de cómputo. Ambos, entrenados fuera, son <em>embedders</em> para el flujo que DSPy orquesta.</p>
+</section>
+<section id="grafo-secuencia-o-embedding-cuál-usar." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="grafo-secuencia-o-embedding-cuál-usar.">Grafo, secuencia o <em>embedding</em>: cuál usar.</h5>
+<p>Las representaciones del capítulo no son excluyentes, y conviene saber cuándo pesa cada una. La <em>secuencia</em> de instrucciones —el ensamblador o su normalización (sección&nbsp;8.2)— captura el orden local y es natural para un modelo de lenguaje. El <em>grafo</em> —CFG o de llamadas— captura la estructura de control y de interacción, invisible en la secuencia lineal. Y el <em>embedding</em> de función condensa una u otra en un vector para la recuperación a escala.</p>
+<p>La regla orientativa sigue la estructura de la pregunta. Para razonar sobre el propósito de una función, la secuencia o el decompilado alimentan al LLM (sección&nbsp;8.3); para reconocer una función equivalente a escala, el <em>embedding</em> y la recuperación (sección&nbsp;8.2); para capturar la conducta estructural —qué llama a qué, cómo se ramifica—, el grafo y su red (sección&nbsp;8.5). A menudo, las tres se combinan: un flujo recupera por <em>embedding</em>, razona con el LLM sobre el decompilado y enriquece con señales del grafo de llamadas.</p>
+<p>Esa combinación es justo el terreno de DSPy: orquestar varias representaciones —cada una entrenada o calculada aparte— bajo un razonamiento que las integra y una métrica que las optimiza de extremo a extremo. La elección no es «grafo <em>o</em> secuencia», sino cómo componerlas para la tarea, y esa composición se declara, se mide y se mejora con el método del libro.</p>
+</section>
+</section>
+<section id="modelos-en-el-edge-empaquetado-y-análisis-dinámico" class="level2">
+<h2 class="anchored" data-anchor-id="modelos-en-el-edge-empaquetado-y-análisis-dinámico">Modelos en el <em>edge</em>, empaquetado y análisis dinámico</h2>
+<p>No toda detección puede permitirse un LLM grande por API. En el <em>edge</em> —un <em>endpoint</em>, un dispositivo con recursos limitados— interesan modelos de lenguaje pequeños (SLM) que corran localmente, con latencia baja y sin enviar datos fuera. La abstracción <code>LM</code> del capítulo&nbsp;2 hace trivial el cambio: el mismo programa se sirve con un modelo grande por API durante el desarrollo y con un SLM local en producción.</p>
+<p>El compromiso es de calidad: un SLM acierta menos que un modelo grande, y la optimización de <em>prompts</em> —en particular, la destilación maestro–aprendiz del capítulo&nbsp;5— se vuelve aquí decisiva para exprimir el modelo pequeño. Medir cuánta calidad se cede a cambio de la autonomía del <em>edge</em> exige el codificador de código en dos tamaños sobre el mismo banco BCSA, fuera del alcance del banco de texto local.</p>
+<section id="empaquetado-y-ofuscación-el-binario-que-se-esconde." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="empaquetado-y-ofuscación-el-binario-que-se-esconde.">Empaquetado y ofuscación: el binario que se esconde.</h5>
+<p>El <em>malware</em> no se deja analizar de buen grado. El <em>empaquetado</em> comprime o cifra el código real y lo envuelve en un cargador que lo desempaqueta en memoria al ejecutarse; el análisis estático del binario empaquetado ve solo el cargador, no la carga útil (sección&nbsp;8.1). La <em>ofuscación</em> va más allá: inserta código muerto, sustituye instrucciones por secuencias equivalentes, aplana el flujo de control o cifra las cadenas, todo para que el binario haga lo mismo pero parezca distinto y resista el análisis.</p>
+<p>Estas técnicas atacan justamente las representaciones del capítulo. La ofuscación que reescribe instrucciones degrada los <em>embeddings</em> de código (sección&nbsp;8.2); la que aplana el flujo de control distorsiona el CFG y su grafo (sección&nbsp;8.5); el empaquetado oculta todo hasta la ejecución. Un sistema que solo mira el binario estático puede ser ciego ante un <em>malware</em> bien empaquetado, por sofisticada que sea su representación.</p>
+<p>La respuesta del campo es combinar el análisis estático con el dinámico (sección&nbsp;8.6) y entrenar las representaciones para que sean robustas a la ofuscación, exponiéndolas a variantes ofuscadas durante el entrenamiento —la misma idea que robustecía un <em>prompt</em> ante la inyección mostrándole ataques (capítulo&nbsp;6)—. La figura&nbsp;8.7 muestra el binario que se esconde. Para un flujo de DSPy, el empaquetado es un límite de la entrada: conviene detectarlo —un binario con entropía altísima y pocas cadenas legibles denota empaquetado— y encaminar esos casos al análisis dinámico antes de razonar sobre un código que no es el real.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap08/fig_07.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;8.7.</strong> El empaquetado envuelve el código real en un cargador que lo desempaqueta en memoria al ejecutarse; el análisis estático ve solo el cargador. La defensa: detectar el empaquetado —entropía altísima, pocas cadenas legibles— y encaminar esos casos al análisis dinámico.</figcaption>
+</figure>
+</div>
+</section>
+<section id="análisis-estático-y-dinámico." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="análisis-estático-y-dinámico.">Análisis estático y dinámico.</h5>
+<p>El análisis del capítulo ha sido, hasta aquí, <em>estático</em>: examina el binario sin ejecutarlo. Su ventaja es la seguridad —no se corre código potencialmente malicioso— y la cobertura —ve todo el código, no solo el camino ejecutado—; su límite es el empaquetado y la ofuscación, que ocultan el código real (sección&nbsp;8.6). El análisis <em>dinámico</em> ejecuta el binario en un entorno aislado —una <em>sandbox</em>— y observa su conducta: qué ficheros toca, qué conexiones abre, qué llamadas al sistema hace.</p>
+<p>Los dos enfoques son complementarios, no rivales. El dinámico ve la conducta real —incluido el código desempaquetado en memoria— pero solo del camino que la ejecución recorre, y un <em>malware</em> consciente de estar en una <em>sandbox</em> puede ocultarse. El estático ve todo el código pero no su conducta. Combinarlos —desempaquetar dinámicamente y luego analizar estáticamente la carga revelada, o contrastar la conducta observada con la estructura del código— cubre las carencias de cada uno. La tabla&nbsp;8.3 los contrasta.</p>
+<table class="caption-top table">
+<caption>Complementarios, no rivales. El estático ve todo el código pero no su conducta; el dinámico ve la conducta real —incluido lo desempaquetado— pero solo del camino ejecutado.</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th style="text-align: left;">Estático</th>
+<th style="text-align: left;">Dinámico</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Qué ve</td>
+<td style="text-align: left;">todo el código</td>
+<td style="text-align: left;">la conducta del camino ejecutado</td>
+</tr>
+<tr class="even">
+<td>Ventaja</td>
+<td style="text-align: left;">seguro, cobertura total</td>
+<td style="text-align: left;">ve el código desempaquetado</td>
+</tr>
+<tr class="odd">
+<td>Límite</td>
+<td style="text-align: left;">ofuscación y empaquetado</td>
+<td style="text-align: left;">un solo camino; evasión</td>
+</tr>
+</tbody>
+</table>
+<p>Para DSPy, ambos producen señales que el razonamiento integra. La traza de ejecución de una <em>sandbox</em> —llamadas al sistema, conexiones— es una entrada más para un módulo de razonamiento, igual que el desensamblado estático, y un agente (sección&nbsp;8.3) puede orquestar ambos: ejecutar en <em>sandbox</em>, observar, desensamblar la carga útil y razonar sobre el conjunto. El valor de DSPy es, otra vez, componer fuentes heterogéneas bajo un razonamiento medible, no producir ninguna de ellas.</p>
+</section>
+<section id="binarios-adversariales-y-evasión." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="binarios-adversariales-y-evasión.">Binarios adversariales y evasión.</h5>
+<p>El dominio de este capítulo es adverso por definición: quien escribe el <em>malware</em> quiere que el analizador falle. Más allá de la ofuscación genérica (sección&nbsp;8.6), existen ataques <em>dirigidos</em> contra el analizador automático: perturbaciones del binario que preservan su función pero inducen al clasificador a etiquetarlo benigno —inyectar secciones inocuas, imitar los rasgos del <em>software</em> legítimo, envenenar el contexto que el LLM lee—. Es la inyección de <em>prompts</em> (capítulo&nbsp;7) llevada al binario.</p>
+<p>La defensa parte de asumir la adversidad, no de ignorarla. Entrenar las representaciones y optimizar los <em>prompts</em> con ejemplos adversariales —binarios manipulados con su etiqueta real— endurece el sistema, igual que en los capítulos anteriores: cuanto no se mide frente al ataque queda sin defensa. Y el contenido que el LLM razona —cadenas extraídas, decompilado— debe tratarse como dato no confiable (capítulo&nbsp;7): un binario puede contener cadenas diseñadas para que el modelo, al leerlas, concluya cuanto el atacante quiere.</p>
+<p>La honestidad obliga a reconocer que la carrera es abierta. Ninguna defensa cierra el problema, porque el adversario se adapta a la defensa conocida, y un sistema de detección es tan bueno como reciente sea su entrenamiento frente a las técnicas en uso (sección&nbsp;8.13). DSPy no resuelve esta carrera, pero su disciplina —medir frente a ataques, versionar, reentrenar ante la deriva (capítulo&nbsp;10)— es justo la postura metodológica que un sistema en un entorno adverso necesita.</p>
+</section>
+</section>
+<section id="datos-un-análisis-trazado-y-una-guía-de-decisión" class="level2">
+<h2 class="anchored" data-anchor-id="datos-un-análisis-trazado-y-una-guía-de-decisión">Datos, un análisis trazado y una guía de decisión</h2>
+<p>Todo el aparato del capítulo descansa en datos etiquetados, y en este dominio son escasos y caros. Etiquetar una función como vulnerable, o un binario como perteneciente a una familia de <em>malware</em>, exige un analista experto, y los conjuntos de calidad son un recurso valioso. A esto se suma el <em>desequilibrio</em> estructural: el <em>software</em> benigno supera con creces al malicioso, y una vulnerabilidad concreta es rarísima frente al código sano.</p>
+<p>Estas dos realidades condicionan la evaluación. El desequilibrio obliga a métricas que no se dejen engañar por la clase mayoritaria —<span class="math inline">\(F_1\)</span> por clase, el coeficiente de Matthews (capítulo&nbsp;4)—, porque un detector que dice siempre «benigno» acierta el noventa y nueve por ciento y no sirve de nada. La escasez de etiquetas hace valiosa la generación de demostraciones por arranque (capítulo&nbsp;5) y el uso de un <em>teacher</em> fuerte que etiquete trazas para un <em>student</em> barato, paliando la falta de anotación manual.</p>
+<p>Los conjuntos públicos de BCSA —con equivalencias conocidas por construcción (sección&nbsp;8.2)— y los repositorios de <em>malware</em> etiquetado son el patrón de evaluación, y conviene usarlos con la disciplina de partición del capítulo&nbsp;5: deduplicar, separar familias entre entrenamiento y prueba, y vigilar que una variante trivial no contamine la medición. En seguridad, una evaluación inflada por contaminación no es solo un error académico: es una falsa sensación de protección.</p>
+<section id="un-análisis-trazado-de-la-función-al-veredicto." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="un-análisis-trazado-de-la-función-al-veredicto.">Un análisis trazado: de la función al veredicto.</h5>
+<p>Conviene ver el flujo completo sobre un caso. Ante una función sospechosa desensamblada, el <em>pipeline</em> recupera por <em>embedding</em> las funciones conocidas más similares (sección&nbsp;8.2), razona sobre ellas y emite un veredicto con su nivel de riesgo, anclado en los vecinos recuperados.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. recuperar funciones conocidas similares (indice BCSA)</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>similares <span class="op">=</span> recuperador(func_sospechosa).passages</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    -&gt; ["CVE-2021-... strcpy sin comprobacion de limites", ...]</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. razonar sobre la funcion a la luz de sus vecinos</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>pred <span class="op">=</span> triaje(desensamblado<span class="op">=</span>func_sospechosa, contexto<span class="op">=</span>similares)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">#    pred.proposito -&gt; "copia un buffer de longitud controlada por la entrada"</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">#    pred.riesgo    -&gt; "alto"   (similar a un desbordamiento conocido)</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. enriquecer con literatura sobre la tecnica detectada</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>refs <span class="op">=</span> rag_arxiv(pred.proposito).passages</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>La traza ilustra la composición del capítulo: la recuperación BCSA ancla el juicio en código conocido, el razonamiento del LLM formula la hipótesis, y el RAG de arXiv (sección&nbsp;8.4) la sitúa en la literatura. Ningún paso por sí solo basta —la recuperación no explica, el razonamiento alucina, la literatura no ve el binario—, pero su composición produce un informe que el analista verifica.</p>
+<p>El valor está, una vez más, en la verificabilidad. El veredicto cita las funciones similares que lo sustentan y los trabajos que lo contextualizan, de modo que el analista puede comprobar la hipótesis en lugar de aceptarla a ciegas (sección&nbsp;8.3). La cifra de calidad de este flujo sobre un conjunto etiquetado exige el banco BCSA con desensamblado y embeddings de código, aparte del código de texto del capítulo.</p>
+</section>
+<section id="una-guía-de-la-representación-a-la-arquitectura." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="una-guía-de-la-representación-a-la-arquitectura.">Una guía de la representación a la arquitectura.</h5>
+<p>Las piezas del capítulo se combinan según la pregunta. La tabla&nbsp;8.4 orienta qué representación y qué componente convienen a cada tarea de análisis, recordando que DSPy orquesta todas ellas pero no entrena ninguna (sección&nbsp;8.1).</p>
+<table class="caption-top table">
+<caption>Representación y componente de partida según la tarea de análisis de binarios. DSPy orquesta; los codificadores se entrenan aparte.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Tarea</th>
+<th style="text-align: left;">Representación / componente</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">hallar funciones equivalentes a escala</td>
+<td style="text-align: left;"><em>embedding</em> BCSA + recuperación</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">describir qué hace una función</td>
+<td style="text-align: left;">decompilado + razonamiento LLM</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">capturar conducta estructural</td>
+<td style="text-align: left;">CFG / grafo de llamadas + GNN</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><em>malware</em> empaquetado</td>
+<td style="text-align: left;">análisis dinámico (<em>sandbox</em>)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">investigación abierta e iterativa</td>
+<td style="text-align: left;">agente <code>ReAct</code> + herramientas</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">detección en el <em>edge</em></td>
+<td style="text-align: left;">SLM local + destilación</td>
+</tr>
+</tbody>
+</table>
+<p>La lectura refuerza la tesis del capítulo: no hay una representación única, sino una adecuada a cada pregunta, y el valor de DSPy es componerlas —recuperación, razonamiento, grafo, literatura— bajo una métrica que optimiza el conjunto. La elección concreta, como siempre, se confirma midiendo sobre la tarea, no por la sofisticación del componente.</p>
+</section>
+</section>
+<section id="tareas-vulnerabilidades-ingeniería-inversa-y-antivirus" class="level2">
+<h2 class="anchored" data-anchor-id="tareas-vulnerabilidades-ingeniería-inversa-y-antivirus">Tareas: vulnerabilidades, ingeniería inversa y antivirus</h2>
+<p>Conviene distinguir dos tareas que el capítulo ha tratado juntas, porque sus exigencias difieren. La <em>detección de vulnerabilidades</em> busca, dentro de <em>software</em> en general —a menudo benigno—, funciones con fallos explotables: un desbordamiento de <em>buffer</em>, una validación ausente. La <em>clasificación de </em>malware** decide si un binario es malicioso y a qué familia pertenece. La primera mira código sano en busca de errores; la segunda, código diseñado para dañar y para esconderse.</p>
+<p>Las consecuencias para el sistema son distintas. La detección de vulnerabilidades se apoya con fuerza en la similitud (sección&nbsp;8.2): una función vulnerable se reconoce por su parecido con vulnerabilidades conocidas, y el BCSA a escala (sección&nbsp;8.2) es su herramienta natural. La clasificación de <em>malware</em> lidia con la ofuscación y la evasión activas (sección&nbsp;8.6), porque el código quiere pasar desapercibido, y combina más el análisis dinámico (sección&nbsp;8.6) con el estático.</p>
+<p>Ambas, sin embargo, comparten el andamiaje de DSPy: recuperar por similitud, razonar con un LLM, medir contra datos etiquetados. La diferencia está en qué representación pesa y qué amenaza domina, no en el método. Reconocer la distinción evita el error de evaluar una con el conjunto de la otra, y de esperar que una técnica afinada para reconocer vulnerabilidades en código benigno funcione igual sobre <em>malware</em> que se defiende del análisis. La tabla&nbsp;8.5 resume ambas exigencias.</p>
+<table class="caption-top table">
+<caption>Dos tareas con exigencias distintas. La primera mira código sano en busca de errores; la segunda, código diseñado para dañar y esconderse. Comparten el andamiaje de DSPy.</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th style="text-align: left;">Vulnerabilidades</th>
+<th style="text-align: left;"><em>Malware</em></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Mira</td>
+<td style="text-align: left;">código sano con fallos</td>
+<td style="text-align: left;">código que quiere dañar</td>
+</tr>
+<tr class="even">
+<td>Se apoya en</td>
+<td style="text-align: left;">la similitud (BCSA)</td>
+<td style="text-align: left;">lo dinámico + lo estático</td>
+</tr>
+<tr class="odd">
+<td>Amenaza</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">ofuscación y evasión</td>
+</tr>
+</tbody>
+</table>
+<section id="asistencia-a-la-ingeniería-inversa." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="asistencia-a-la-ingeniería-inversa.">Asistencia a la ingeniería inversa.</h5>
+<p>Más allá de clasificar, los modelos asisten la <em>ingeniería inversa</em>: el trabajo lento de entender qué hace un binario sin su código fuente. Un LLM puede proponer nombres con sentido para funciones y variables que el decompilador dejó anónimas, resumir el propósito de un módulo, o sugerir qué estructura de datos manipula una rutina. No reemplaza al ingeniero inverso, pero le ahorra el trabajo mecánico de descifrar lo evidente, dejándole el difícil.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>renombrar <span class="op">=</span> dspy.ChainOfThought(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"decompilado -&gt; nombre_funcion, descripcion, variables_renombradas"</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># convierte sub_401a2f(int a, int b) en validar_longitud(buffer, limite)</span></span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>El valor está en la escala y la velocidad. Un binario tiene miles de funciones anónimas, y anotarlas a mano es inviable; un flujo que propone anotaciones para todas, que el ingeniero revisa y corrige, acelera el análisis en un orden de magnitud. La salida tipada y verificable (capítulo&nbsp;2) mantiene la disciplina: cada anotación es una hipótesis sobre una función concreta, auditable contra el código.</p>
+<p>Esta asistencia hereda la cautela del razonamiento sobre binarios (sección&nbsp;8.3): un nombre propuesto puede errar, y un resumen puede pasar por alto el matiz que importa. Por eso la anotación se ofrece como sugerencia editable, no como verdad establecida, y el ingeniero mantiene el control. DSPy aporta aquí la composición —decompilar, recuperar funciones similares ya anotadas, proponer nombres— y la optimización de esas propuestas contra anotaciones de referencia.</p>
+</section>
+<section id="frente-al-antivirus-tradicional." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="frente-al-antivirus-tradicional.">Frente al antivirus tradicional.</h5>
+<p>Conviene situar este enfoque frente a la detección clásica por firmas. Un antivirus tradicional casa el binario contra una base de <em>firmas</em> —patrones exactos de <em>malware</em> conocido—: es rápido, preciso sobre lo conocido y con pocos falsos positivos, pero ciego ante lo nuevo, porque una variante que cambia unos <em>bytes</em> ya no casa la firma. Es el mismo defecto que la artesanía de <em>prompts</em> frente a la optimización (capítulo&nbsp;1): una regla rígida no generaliza.</p>
+<p>El enfoque del capítulo —<em>embeddings</em> de semántica y razonamiento— generaliza donde la firma falla: reconoce una variante por su parecido semántico aunque sus <em>bytes</em> difieran (sección&nbsp;8.2), y razona sobre código no visto antes. El precio es el coste —calcular <em>embeddings</em> y llamar a un LLM es más caro que casar una firma— y los falsos positivos, que un sistema semántico genera más que una firma exacta.</p>
+<p>La conclusión sensata no es sustituir, sino <em>componer</em>. Las firmas resuelven barato y sin error el grueso de lo conocido; el análisis semántico se reserva para los casos que las firmas no atrapan —variantes nuevas, <em>malware</em> ofuscado, código sospechoso sin firma—. Es la arquitectura de criba barata y análisis caro de los capítulos anteriores (capítulo&nbsp;7), aplicada a la defensa: la firma es el primer filtro, el razonamiento la segunda línea. La figura&nbsp;8.8 dibuja esa composición.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap08/fig_08.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;8.8.</strong> No sustituir, componer. Las firmas resuelven barato y sin error el grueso de lo conocido; el análisis semántico se reserva para cuanto no atrapan —variantes nuevas, <em>malware</em> ofuscado—. La firma es el primer filtro; el razonamiento, la segunda línea.</figcaption>
+</figure>
+</div>
+</section>
+<section id="explicabilidad-y-procedencia-del-veredicto." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="explicabilidad-y-procedencia-del-veredicto.">Explicabilidad y procedencia del veredicto.</h5>
+<p>En seguridad, un veredicto sin explicación vale poco: un analista que recibe «malicioso, riesgo alto» sin más no puede actuar ni verificar. La <em>explicabilidad</em> —que el sistema justifique su juicio— y la <em>procedencia</em> —que cite en qué se apoya— son exigencias del dominio, no adornos. El razonamiento de un LLM (sección&nbsp;8.3) las facilita: su cadena de pensamiento es, ella misma, una explicación, y la recuperación por similitud ancla el veredicto en funciones conocidas concretas.</p>
+<p>La firma tipada del capítulo&nbsp;2 se aprovecha para exigir esa justificación como salida estructurada: junto al riesgo, las funciones similares que lo sustentan, los indicadores detectados y las referencias de literatura (sección&nbsp;8.4). Un veredicto así es verificable —el analista comprueba cada apoyo—, a diferencia de la salida opaca de un clasificador que solo emite una etiqueta. La procedencia convierte una afirmación en una hipótesis auditable.</p>
+<p>Esta transparencia tiene, además, un valor operativo y legal. Una decisión automática que afecta a un sistema —bloquear un binario, alertar de un incidente— debe poder justificarse ante quien la cuestione (capítulo&nbsp;7), y un veredicto que cita su evidencia cumple ese requisito. La optimización, eso sí, debe premiar explicaciones <em>fieles</em>, no plausibles: una justificación convincente pero falsa es peor que ninguna (capítulo&nbsp;6), y la métrica ha de medir la fidelidad de la explicación, no solo su elocuencia.</p>
+</section>
+<section id="análisis-a-escala-e-integración." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="análisis-a-escala-e-integración.">Análisis a escala e integración.</h5>
+<p>El análisis de un binario suelto es un caso de laboratorio; la realidad es analizar muchos —un repositorio de <em>software</em>, el flujo de binarios que entra en una organización, los artefactos de una canalización de integración continua—. A esa escala, el flujo del capítulo se ejecuta por lotes y en paralelo (capítulo&nbsp;7), con la criba barata por delante (sección&nbsp;8.8) para reservar el análisis caro a lo que de verdad lo merece.</p>
+<p>La integración en una canalización de desarrollo abre un uso preventivo: analizar cada dependencia y cada artefacto antes de desplegarlo, marcando las funciones que se parecen a vulnerabilidades conocidas (sección&nbsp;8.2) para revisión. Es la detección de vulnerabilidades (sección&nbsp;8.8) movida al momento de la construcción, donde corregir es barato, en lugar de tras el despliegue, donde es caro.</p>
+<p>La sostenibilidad a escala exige las palancas de coste de los capítulos previos: la caché para no reanalizar lo idéntico, el índice aproximado para la similitud (sección&nbsp;8.2), y los modelos pequeños donde basten (sección&nbsp;8.6). Un sistema que analiza millones de funciones no puede permitirse un LLM grande por cada una; la arquitectura sensata reserva el razonamiento caro para el puñado que la criba barata marca como sospechoso, y ese diseño es, de nuevo, una decisión de ingeniería guiada por la medición.</p>
+</section>
+<section id="una-lista-de-comprobación." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="una-lista-de-comprobación.">Una lista de comprobación.</h5>
+<p>Como en los capítulos anteriores, conviene condensar el método de construir un sistema de análisis de binarios con DSPy en una secuencia de comprobaciones.</p>
+<ul>
+<li><p>Distinguir qué se entrena (codificadores, redes de grafos) de qué se orquesta (el flujo de DSPy) (sección&nbsp;8.1).</p></li>
+<li><p>Elegir la representación que preserve la estructura pertinente a la tarea (secciones&nbsp;8.1 y&nbsp;8.5).</p></li>
+<li><p>Detectar el empaquetado y encaminar esos casos al análisis dinámico (secciones&nbsp;8.6 y&nbsp;8.6).</p></li>
+<li><p>Medir la recuperación BCSA por separado del razonamiento (sección&nbsp;8.2).</p></li>
+<li><p>Usar métricas robustas al desequilibrio; cuidar la contaminación entre particiones (sección&nbsp;8.7).</p></li>
+<li><p>Tratar el binario y su contenido como entrada hostil; evaluar frente a ejemplos adversariales (sección&nbsp;8.6).</p></li>
+<li><p>Exigir veredictos explicables y con procedencia, no etiquetas opacas (sección&nbsp;8.8).</p></li>
+<li><p>Integrar la criba barata por firmas con el análisis semántico caro (sección&nbsp;8.8).</p></li>
+</ul>
+<p>Recorrida la lista, el análisis de binarios con DSPy deja de ser una colección de componentes sueltos y se vuelve un sistema medible, explicable y mantenible. El cierre del capítulo —y de la parte técnica del libro— afronta con honestidad los límites actuales de estos sistemas.</p>
+</section>
+</section>
+<section id="destilación-multimodalidad-y-el-analista-en-el-bucle" class="level2">
+<h2 class="anchored" data-anchor-id="destilación-multimodalidad-y-el-analista-en-el-bucle">Destilación, multimodalidad y el analista en el bucle</h2>
+<p>El despliegue en el <em>edge</em> (sección&nbsp;8.6) exige exprimir un modelo pequeño hasta acercarlo a uno grande, y dos técnicas lo permiten. La <em>destilación</em> traslada el conocimiento de un modelo fuerte a uno débil: el fuerte —el <em>teacher</em>— genera trazas de análisis acertadas, y con ellas se afina el pequeño —el <em>student</em>—, justo el <code>BootstrapFinetune</code> del capítulo&nbsp;5. En un dominio con etiquetas escasas (sección&nbsp;8.7), que el <em>teacher</em> genere los datos de entrenamiento es doblemente valioso.</p>
+<p>La <em>cuantización</em> reduce la precisión numérica de los pesos —de coma flotante a enteros de pocos <em>bits</em>— para que el modelo quepa y corra en un dispositivo modesto, a cambio de una pérdida de calidad que conviene medir. Combinada con métodos de ajuste de bajo rango (capítulo&nbsp;5) <span class="citation" data-cites="hu2021lora">(<a href="#ref-hu2021lora" role="doc-biblioref"><span class="nocase">Hu et&nbsp;al.</span> 2022</a>)</span>, permite especializar y comprimir un modelo para el análisis en el <em>endpoint</em> sin la infraestructura de un modelo grande.</p>
+<p>El papel de DSPy en esto es indirecto pero real. No cuantiza ni destila por sí mismo —eso ocurre fuera (sección&nbsp;8.1)—, pero su optimización de <em>prompts</em> exprime el modelo pequeño antes de plantearse tocar sus pesos (capítulo&nbsp;6), y a menudo un SLM con un <em>prompt</em> bien compilado basta donde se temía necesitar uno grande. La secuencia sensata es optimizar el <em>prompt</em> primero, destilar después si hace falta, y cuantizar al final para el despliegue, midiendo en cada paso cuánta calidad se cede.</p>
+<section id="multimodalidad-combinar-representaciones." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="multimodalidad-combinar-representaciones.">Multimodalidad: combinar representaciones.</h5>
+<p>Ninguna representación agota el binario (sección&nbsp;8.5), y los sistemas más capaces las <em>combinan</em>: el <em>embedding</em> BCSA para recuperar similares, el decompilado para que el LLM razone, el grafo de llamadas para la conducta estructural, la literatura para el contexto. DSPy es el pegamento que las une bajo un razonamiento y una métrica, orquestando fuentes que se entrenan o calculan por separado.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap08/fig_09.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;8.9.</strong> DSPy compone fuentes heterogéneas —recuperación por <em>embedding</em>, decompilado, literatura— bajo un razonamiento que las integra y produce un veredicto con su procedencia. Cada fuente se entrena o calcula aparte; DSPy orquesta y optimiza el conjunto.</figcaption>
+</figure>
+</div>
+<p>La figura&nbsp;8.9 resume esa composición. Su virtud es que cada fuente compensa las carencias de las otras: la recuperación ancla, el decompilado explica, el grafo capta la conducta, la literatura contextualiza (sección&nbsp;8.7). Su reto es la fusión —cómo combinar señales heterogéneas en el contexto del razonador sin saturarlo (capítulo&nbsp;7)—, que se resuelve, como todo, midiendo qué combinación rinde mejor sobre la tarea.</p>
+<p>Esta multimodalidad anticipa la dirección del libro hacia los sistemas que integran texto, código y otras señales bajo una misma orquestación. El análisis de binarios es, en este sentido, un banco de pruebas exigente: combina la representación más hostil —un binario adverso— con la necesidad de integrar varias vistas de él, y DSPy ofrece el método para hacerlo con disciplina.</p>
+</section>
+<section id="optimización-con-feedback-en-el-dominio-binario." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="optimización-con-feedback-en-el-dominio-binario.">Optimización con <em>feedback</em> en el dominio binario.</h5>
+<p>La optimización del <em>pipeline</em> (sección&nbsp;8.4) gana especial valor aquí por la escasez de datos y la dureza del dominio. GEPA, con su <em>feedback</em> textual (capítulo&nbsp;6), aprovecha que un fallo de análisis se puede <em>explicar</em>: «confundió una comprobación de límites con una validación de entrada», «pasó por alto que el índice proviene de la entrada del usuario». Esa crítica concreta orienta la mutación del <em>prompt</em> mucho mejor que una nota numérica <span class="citation" data-cites="agrawal2025gepa">(<a href="#ref-agrawal2025gepa" role="doc-biblioref"><span class="nocase">Agrawal et&nbsp;al.</span> 2025</a>)</span>.</p>
+<p>El <em>feedback</em> de calidad, en este dominio, lo aporta a menudo el analista experto: al corregir un veredicto erróneo, explica <em>por qué</em> se equivocó, y esa explicación alimenta la siguiente compilación. Se cierra así un bucle entre el humano y el sistema (sección&nbsp;8.9) en el que cada fallo corregido mejora el <em>prompt</em>, convirtiendo la revisión —trabajo que de todas formas se hace— en señal de optimización.</p>
+<p>La figura&nbsp;8.9 resume esa fusión de fuentes.</p>
+<p>La eficiencia muestral importa porque cada evaluación es cara: ejecutar el <em>pipeline</em> sobre un binario implica desensamblar, recuperar y razonar, y los conjuntos etiquetados son pequeños. Los optimizadores que extraen más de cada ejemplo —MIPROv2 por su búsqueda dirigida <span class="citation" data-cites="opsahlong2024mipro">(<a href="#ref-opsahlong2024mipro" role="doc-biblioref"><span class="nocase">Opsahl-Ong et&nbsp;al.</span> 2024</a>)</span>, GEPA por su crítica densa— son, por tanto, los adecuados, y su frugalidad es lo que hace viable optimizar en un dominio donde no abundan ni los datos ni el presupuesto.</p>
+</section>
+<section id="el-analista-en-el-bucle." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-analista-en-el-bucle.">El analista en el bucle.</h5>
+<p>El sistema de este capítulo no sustituye al analista de seguridad: lo <em>amplifica</em>. El razonamiento del LLM es una hipótesis a verificar (sección&nbsp;8.3), y el veredicto, una propuesta con su procedencia (sección&nbsp;8.8); la decisión final, en los casos que importan, la toma una persona. Diseñar el sistema en torno a esa colaboración —máquina que tría y propone, humano que verifica y decide— es más honesto y más útil que prometer una automatización total que el dominio no permite.</p>
+<p>El bucle tiene dos sentidos. De la máquina al humano: el sistema filtra el volumen inabarcable de binarios y funciones, y eleva al analista solo lo sospechoso, con un informe que acelera su juicio. Del humano a la máquina: las correcciones del analista —veredictos enmendados, explicaciones de los fallos— son datos que mejoran el sistema en la siguiente compilación (sección&nbsp;8.9). La revisión humana deja de ser un coste y se vuelve, además, la fuente de la mejora.</p>
+<p>Este encuadre fija las expectativas correctas. La pregunta no es si el sistema iguala al experto —no lo hace—, sino si multiplica su alcance: cuántos más binarios puede triar un analista asistido, con qué fiabilidad, y cuánto antes detecta lo importante. Medido así (capítulo&nbsp;4), el valor del sistema es real y cuantificable, sin caer en la promesa exagerada que el dominio, por su adversidad, castiga sin piedad.</p>
+</section>
+<section id="conjuntos-públicos-y-reproducibilidad." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="conjuntos-públicos-y-reproducibilidad.">Conjuntos públicos y reproducibilidad.</h5>
+<p>La credibilidad de cualquier resultado en este dominio descansa en conjuntos públicos y en la reproducibilidad. Los conjuntos de BCSA con equivalencias conocidas (sección&nbsp;8.2) y los repositorios de <em>malware</em> etiquetado permiten comparar métodos sobre el mismo terreno, y reportar contra ellos —en lugar de sobre un conjunto privado— vuelve una cifra verificable por terceros. El libro reporta sobre conjuntos públicos por esa razón.</p>
+<p>La reproducibilidad exige, además, fijar cuanto varía: la versión del codificador de <em>embeddings</em>, la del modelo de lenguaje, las semillas de la optimización, la partición de los datos (capítulo&nbsp;5). Un resultado de análisis de binarios que no especifica estas piezas no es reproducible, y en un campo que avanza deprisa —codificadores nuevos cada año (sección&nbsp;8.2)— esa disciplina permite saber si una mejora viene del método o de un componente actualizado.</p>
+<p>El código del capítulo, en <code>codigo/cap08/</code>, fija estas piezas y produce las cifras marcadas como pendientes a lo largo del texto. Versionar el flujo compilado —<em>prompts</em>, índices, configuración— junto a las versiones de los componentes entrenados aparte cierra el círculo de reproducibilidad que el libro exige a todo resultado, y que en seguridad, donde una cifra inflada es una falsa protección, resulta innegociable.</p>
+</section>
+</section>
+<section id="codificador-coste-falsos-positivos-y-priorización" class="level2">
+<h2 class="anchored" data-anchor-id="codificador-coste-falsos-positivos-y-priorización">Codificador, coste, falsos positivos y priorización</h2>
+<p>Así como la calidad de un RAG dependía del <em>embedder</em> (capítulo&nbsp;7), la del BCSA depende del codificador de código que produce los <em>embeddings</em> de función (sección&nbsp;8.2). Y la elección no es única: hay codificadores derivados del grafo de flujo de control <span class="citation" data-cites="xu2017gemini">(<a href="#ref-xu2017gemini" role="doc-biblioref"><span class="nocase">Xu et&nbsp;al.</span> 2017</a>)</span>, otros que tratan el ensamblador como lenguaje <span class="citation" data-cites="gu2022uniasm">(<a href="#ref-gu2022uniasm" role="doc-biblioref"><span class="nocase">Gu et&nbsp;al.</span> 2022</a>)</span>, y otros conscientes de la función para escalar a repositorios enormes <span class="citation" data-cites="liu2025keenhash">(<a href="#ref-liu2025keenhash" role="doc-biblioref"><span class="nocase">Liu et&nbsp;al.</span> 2025</a>)</span>. Cada uno canjea invariancia, coste de cómputo y tamaño del <em>embedding</em>.</p>
+<p>Los criterios de elección son los del capítulo de recuperación, adaptados al binario. La <em>invariancia</em> entre arquitecturas y optimizaciones (sección&nbsp;8.2) es el rasgo decisivo: un codificador que no generaliza a través de compilaciones es inútil en la práctica. El <em>coste</em> de codificar y el <em>tamaño</em> del vector condicionan la escala alcanzable (sección&nbsp;8.2). Y la <em>cobertura</em> de arquitecturas —¿soporta ARM, x86, las que importan?— acota su aplicabilidad.</p>
+<p>La regla, como siempre, es medir y no fiarse de la novedad. Se evalúa cada codificador candidato por su recuperación entre compilaciones cruzadas (sección&nbsp;8.2) sobre el dominio propio, y se elige el que mejor rinde por su coste. Para DSPy, el codificador es un <em>embedder</em> intercambiable (sección&nbsp;8.1): cambiarlo no toca el flujo, solo la pieza que produce los vectores, y comparar dos es cuestión de reindexar y medir. La comparación de codificadores de código sobre los conjuntos del libro exige indexar cada uno sobre binarios desensamblados, un montaje BCSA propio del dominio.</p>
+<section id="coste-y-latencia-del-análisis." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="coste-y-latencia-del-análisis.">Coste y latencia del análisis.</h5>
+<p>El análisis de un binario es caro en cómputo, y conviene desglosar dónde. El <em>preprocesado</em> —desensamblar, levantar a representación intermedia, construir el grafo (secciones&nbsp;8.1 a&nbsp;8.5)— consume herramientas especializadas y tiempo. La <em>codificación</em> proyecta cada función a su <em>embedding</em>, un coste único por función indexada. Y el <em>razonamiento</em> del LLM, el sumando más caro por llamada, se paga por cada función que llega al análisis profundo.</p>
+<p>La arquitectura de criba (sección&nbsp;8.8) es la respuesta a ese coste. La mayoría de las funciones se descartan barato —por firma, por una similitud baja con cualquier patrón sospechoso—, y solo el puñado restante paga el razonamiento caro. Sobre un repositorio de millones de funciones, esta cascada —filtro barato, análisis caro selectivo— es la diferencia entre un sistema viable y uno inasumible, y reaparece idéntica desde el capítulo de recuperación.</p>
+<p>Las palancas de los capítulos previos se combinan: la caché evita reanalizar lo idéntico, el índice aproximado abarata la similitud a escala (sección&nbsp;8.2), el procesamiento por lotes y en paralelo (capítulo&nbsp;7) aprovecha el cómputo, y un modelo pequeño en el <em>edge</em> (sección&nbsp;8.6) recorta el coste por llamada donde la calidad lo permita. Estimar la factura antes de lanzar un análisis a escala —funciones por su coste de preprocesado, codificación y razonamiento— evita sorpresas, como en todo el libro. La tabla&nbsp;8.6 desglosa los tres sumandos.</p>
+<table class="caption-top table">
+<caption>Conviene desglosar dónde se va el cómputo. La arquitectura de criba reserva el sumando más caro —el razonamiento— para el puñado que el filtro barato marca como sospechoso.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Componente</th>
+<th style="text-align: left;">Cuándo se paga</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Preprocesado</td>
+<td style="text-align: left;">desensamblar, levantar IR, construir el grafo</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Codificación</td>
+<td style="text-align: left;">un coste único por función indexada</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Razonamiento (LLM)</td>
+<td style="text-align: left;">el más caro, por función al análisis profundo</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="falsos-positivos-y-fatiga-de-alertas." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="falsos-positivos-y-fatiga-de-alertas.">Falsos positivos y fatiga de alertas.</h5>
+<p>En la detección de seguridad, el falso positivo no es un error inocuo: es el enemigo operativo. Un sistema que marca demasiados binarios benignos como sospechosos sepulta al analista en alertas, y la <em>fatiga de alertas</em> resultante hace que las verdaderas se pierdan entre el ruido. Un detector con una tasa de acierto altísima pero muchos falsos positivos puede ser, en la práctica, peor que uno más modesto pero preciso, porque el analista deja de atenderlo.</p>
+<p>Esta realidad reordena las prioridades de la evaluación (capítulo&nbsp;4). En un dominio tan desequilibrado (sección&nbsp;8.7), la exactitud global engaña, y la <em>precisión</em> —qué fracción de las alertas es real— pesa tanto como la <em>exhaustividad</em> —qué fracción de las amenazas se detecta—. El coeficiente de Matthews <span class="citation" data-cites="matthews1975mcc">(<a href="#ref-matthews1975mcc" role="doc-biblioref">Matthews 1975</a>)</span>, robusto al desequilibrio, y el análisis explícito del canje entre falsos positivos y negativos son las herramientas adecuadas, no la exactitud a secas.</p>
+<p>La optimización debe, por tanto, incorporar el coste asimétrico en su métrica (capítulo&nbsp;6): penalizar el falso positivo según su coste real en atención del analista, y el falso negativo según el riesgo que deja pasar. Un sistema optimizado contra una métrica que ignora la fatiga de alertas será, por bien que puntúe en el papel, inservible en un centro de operaciones real. Medir lo verdaderamente importante, una vez más, es la diferencia entre una demostración y una herramienta. La figura&nbsp;8.10 encadena esa espiral.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap08/fig_10.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;8.10.</strong> Un detector que marca demasiado código benigno sepulta al analista en alertas, y la fatiga resultante hace que las verdaderas se pierdan. Un detector preciso pero modesto puede ser mejor que uno de acierto altísimo y muchos falsos positivos.</figcaption>
+</figure>
+</div>
+</section>
+<section id="triaje-y-priorización-de-hallazgos." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="triaje-y-priorización-de-hallazgos.">Triaje y priorización de hallazgos.</h5>
+<p>Detectar no basta; hay que <em>priorizar</em>. Un análisis a escala produce más hallazgos de los que un equipo puede atender, y el valor del sistema está tanto en encontrar las amenazas como en ordenarlas por urgencia. La priorización combina varias señales: la gravedad estimada —un CVSS calculado (capítulo&nbsp;7)—, la confianza del veredicto, la explotabilidad, y el contexto —un binario en un servidor expuesto urge más que el mismo en un sistema aislado—.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Priorizar(dspy.Signature):</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""ordena un hallazgo por urgencia de revision."""</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    hallazgo: <span class="bu">str</span> <span class="op">=</span> dspy.InputField(desc<span class="op">=</span><span class="st">"veredicto, gravedad, contexto"</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    urgencia: Literal[<span class="st">"critica"</span>, <span class="st">"alta"</span>, <span class="st">"media"</span>, <span class="st">"baja"</span>] <span class="op">=</span> dspy.OutputField()</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    justificacion: <span class="bu">str</span> <span class="op">=</span> dspy.OutputField()</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>La priorización es, ella misma, una tarea que DSPy optimiza contra el juicio de los analistas: qué orden de revisión habrían elegido los expertos, aprendido de casos etiquetados. Bien hecha, convierte una lista inabarcable de hallazgos en una cola de trabajo donde lo urgente sube y lo trivial espera, multiplicando el efecto del analista (sección&nbsp;8.9).</p>
+<p>Esta capa de priorización cierra el sistema como herramienta operativa, no como mero clasificador. Integra la detección (secciones&nbsp;8.2 y&nbsp;8.3), el cálculo de riesgo, la explicación (sección&nbsp;8.8) y el orden de atención en un flujo que un equipo de seguridad puede usar de verdad. Y, como todo en el libro, su calidad se mide —¿coincide su orden con el del experto?— antes de confiar en ella.</p>
+</section>
+</section>
+<section id="familias-de-malware-y-detección-de-lo-desconocido" class="level2">
+<h2 class="anchored" data-anchor-id="familias-de-malware-y-detección-de-lo-desconocido">Familias de <em>malware</em> y detección de lo desconocido</h2>
+<p>Más allá de decidir si un binario es malicioso, interesa saber a qué <em>familia</em> pertenece —de qué linaje de <em>malware</em> es variante—, porque la familia dicta la respuesta: qué hace, cómo se propaga, qué defensas existen. La clasificación de familias se apoya en la similitud (sección&nbsp;8.2): variantes de una misma familia comparten código y estructura, y quedan próximas en el espacio de <em>embeddings</em> pese a las mutaciones que las distinguen.</p>
+<p>El reto propio es que las familias <em>evolucionan</em>: una variante nueva puede alejarse de las conocidas lo bastante como para no encajar limpiamente en ninguna, y aparecen familias enteras antes inexistentes. Por eso la clasificación de familias no es un problema cerrado de etiquetas fijas, sino uno abierto donde el agrupamiento —descubrir familias nuevas por la cercanía de sus <em>embeddings</em>— complementa a la clasificación contra familias conocidas. El sistema debe poder decir «esto se parece a la familia X» y también «esto no se parece a nada conocido» (sección&nbsp;8.11).</p>
+<p>Para DSPy, la clasificación de familias es una tarea de las del capítulo&nbsp;3, ahora sobre <em>embeddings</em> de código en lugar de texto: recuperar las muestras conocidas más similares y razonar sobre la familia a la luz de ellas, con la cautela del desequilibrio (sección&nbsp;8.7) —algunas familias son raras— y de la evolución, que exige refrescar el banco de muestras como se refresca cualquier índice (capítulo&nbsp;7).</p>
+<section id="detectar-lo-desconocido." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="detectar-lo-desconocido.">Detectar lo desconocido.</h5>
+<p>El <em>malware</em> que más daña es, a menudo, el que nadie ha visto: una amenaza de día cero sin firma ni muestra previa. Detectarlo es, por definición, algo que la similitud con lo conocido no logra sola, y exige un cambio de pregunta: no «¿a qué se parece?», sino «¿es esto anómalo?». La detección de novedad busca binarios que se desvían de lo normal —del <em>software</em> benigno conocido— aunque no encajen en ninguna familia maliciosa.</p>
+<p>La señal aprovechable es, otra vez, la geometría del espacio de <em>embeddings</em>. Un binario cuyo <em>embedding</em> cae lejos de todo lo conocido —benigno y malicioso— es sospechoso por su rareza, y merece el análisis caro (sección&nbsp;8.10) aunque ninguna firma lo marque. La distancia al vecino más próximo en el banco es una medida de novedad barata que encamina los casos raros al razonamiento profundo, complementando la criba por firmas (sección&nbsp;8.8).</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap08/fig_11.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;8.11.</strong> El <em>malware</em> que más daña es el que nadie ha visto. La pregunta cambia de «¿a qué se parece?» a «¿es esto anómalo?». Un binario cuyo <em>embedding</em> cae lejos de todo lo conocido es sospechoso por su rareza y merece el análisis caro, aunque ninguna firma lo marque.</figcaption>
+</figure>
+</div>
+<p>El razonamiento del LLM aporta aquí un valor distinto. Frente a un binario sin precedentes, no hay vecinos informativos que recuperar, y el juicio recae en la capacidad del modelo de razonar sobre el código en abstracto —qué hace esta función, parece esto un cifrador de ficheros— a partir de su semántica, no de su parecido con lo conocido (sección&nbsp;8.3). Es el escenario donde el razonamiento generaliza más allá del banco, con todo su valor y todo su riesgo de alucinación (sección&nbsp;8.3): una hipótesis sobre lo nunca visto, que un humano debe verificar, pero que ningún sistema basado solo en firmas podría siquiera formular. La figura&nbsp;8.11 sitúa esa rareza en el espacio de <em>embeddings</em>.</p>
+</section>
+</section>
+<section id="flujo-frente-a-monolito-conjuntos-y-1-day-a-escala" class="level2">
+<h2 class="anchored" data-anchor-id="flujo-frente-a-monolito-conjuntos-y-1-day-a-escala">Flujo frente a monolito, conjuntos y 1-day a escala</h2>
+<p>Cabe preguntarse por qué descomponer el análisis en un flujo —recuperar, razonar, calcular (sección&nbsp;8.4)— en lugar de entrenar un único clasificador de extremo a extremo que, del binario, prediga directamente el veredicto. La respuesta repite la tesis del capítulo de flujos (capítulo&nbsp;7), ahora con fuerza añadida por el dominio.</p>
+<p>Un clasificador monolítico tiene tres desventajas aquí. Es <em>opaco</em>: emite una etiqueta sin explicación ni procedencia (sección&nbsp;8.8), inaceptable en seguridad. Es <em>rígido</em>: actualizar su conocimiento exige reentrenar, mientras que el flujo se actualiza refrescando el índice de funciones conocidas (sección&nbsp;8.11). Y es <em>ávido de datos</em>: entrenar un clasificador de binarios de calidad exige enormes conjuntos etiquetados, escasos en este dominio (sección&nbsp;8.7), mientras que el flujo aprovecha la recuperación y un puñado de demostraciones.</p>
+<p>El flujo, en cambio, separa las responsabilidades que conviene aislar. La recuperación aporta el conocimiento actualizable; el razonamiento, la explicación; el cálculo, la exactitud. Cada pieza se mide y se mejora por separado (sección&nbsp;8.2), y el conjunto se optimiza de extremo a extremo (sección&nbsp;8.4) sin renunciar a la transparencia. La descomposición no es solo una preferencia de ingeniería: en un dominio adverso, con datos escasos y exigencia de explicación, es la arquitectura que de verdad funciona. La tabla&nbsp;8.7 enfrenta ambas.</p>
+<table class="caption-top table">
+<caption>Por qué descomponer en lugar de entrenar un único clasificador de extremo a extremo. En un dominio adverso, con datos escasos y exigencia de explicación, el flujo es la arquitectura que funciona.</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th style="text-align: left;">Monolito</th>
+<th style="text-align: left;">Flujo (DSPy)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Explicación</td>
+<td style="text-align: left;">opaco, solo etiqueta</td>
+<td style="text-align: left;">razonamiento y procedencia</td>
+</tr>
+<tr class="even">
+<td>Actualizar</td>
+<td style="text-align: left;">reentrenar</td>
+<td style="text-align: left;">refrescar el índice</td>
+</tr>
+<tr class="odd">
+<td>Datos</td>
+<td style="text-align: left;">ávido de etiquetas</td>
+<td style="text-align: left;">recuperación + pocas demostr.</td>
+</tr>
+</tbody>
+</table>
+<section id="conjuntos-de-datos-del-dominio." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="conjuntos-de-datos-del-dominio.">Conjuntos de datos del dominio.</h5>
+<p>La evaluación seria exige conjuntos concretos, y el dominio tiene los suyos. Para la similitud de código binario, los conjuntos construidos compilando un mismo corpus de fuentes con distintos compiladores, arquitecturas y niveles de optimización proveen equivalencias conocidas por construcción (sección&nbsp;8.2): se sabe qué funciones son la misma, y se mide si el sistema las recupera entre compilaciones cruzadas (sección&nbsp;8.2). Para la clasificación de <em>malware</em>, existen colecciones etiquetadas por familia de uso común en la investigación, como la que popularizó la representación visual del binario que abrió el capítulo <span class="citation" data-cites="nataraj2011malwareimages">(<a href="#ref-nataraj2011malwareimages" role="doc-biblioref">Nataraj et&nbsp;al. 2011</a>)</span>.</p>
+<p>Cada conjunto trae sus sesgos, y conviene conocerlos. Un conjunto construido compilando software de código abierto no representa al <em>malware</em> ofuscado del mundo real (sección&nbsp;8.6); uno de <em>malware</em> antiguo no refleja las técnicas actuales (sección&nbsp;8.11). Reportar sobre varios conjuntos, y declarar sus limitaciones, es más honesto que una cifra única sobre un conjunto favorable, y es la práctica que el libro sigue.</p>
+<p>La advertencia que cierra el asunto es la de la contaminación, agravada en este dominio. Las variantes de una familia comparten código, y si unas caen en entrenamiento y otras casi idénticas en prueba, la evaluación se infla sin que el sistema generalice de verdad (capítulo&nbsp;5). Separar las familias entre particiones —no solo las muestras— es la única partición honesta, y omitirla produce las cifras espectaculares y falsas que tanto abundan en la literatura de detección. En seguridad, esa falsa confianza no es un desliz académico: es una vulnerabilidad operativa (sección&nbsp;8.10).</p>
+</section>
+<section id="buscar-vulnerabilidades-conocidas-a-escala." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="buscar-vulnerabilidades-conocidas-a-escala.">Buscar vulnerabilidades conocidas a escala.</h5>
+<p>El uso que mejor justifica todo el aparato del capítulo es la búsqueda de vulnerabilidades <em>conocidas</em> —de un día— en binarios desplegados. El problema es real y masivo: cuando se publica un parche de una biblioteca, miles de binarios en producción siguen incorporando la versión vulnerable, a menudo estáticamente enlazada y recompilada de mil formas distintas. Encontrar dónde sigue viva una vulnerabilidad ya parcheada es una tarea de similitud a escala (sección&nbsp;8.2): localizar la función vulnerable conocida dentro de un universo de binarios.</p>
+<p>La similitud de código binario está hecha para esto. Se toma la función vulnerable —la versión sin parchear— como consulta, se proyecta a su <em>embedding</em>, y se busca en el índice del repositorio las funciones más próximas (sección&nbsp;8.2), que son candidatas a portar la misma vulnerabilidad aunque se hayan compilado para otra arquitectura o con otras opciones (sección&nbsp;8.2). La invariancia del <em>embedding</em> es justo la propiedad que reconoce la función a través de sus mil recompilaciones, algo que una firma exacta no lograría (sección&nbsp;8.8).</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># buscar donde sigue viva una vulnerabilidad parcheada</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>func_vulnerable <span class="op">=</span> desensamblar_funcion(cve_2021_xxxx, version<span class="op">=</span><span class="st">"sin parchear"</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>candidatos <span class="op">=</span> indice_repositorio.buscar(embedder(func_vulnerable), k<span class="op">=</span><span class="dv">50</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># razonar sobre cada candidato: porta la vulnerabilidad o ya esta parcheado?</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> c <span class="kw">in</span> candidatos:</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> analizar(desensamblado<span class="op">=</span>c.codigo, contexto<span class="op">=</span>[func_vulnerable])</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> v.riesgo <span class="op">==</span> <span class="st">"alto"</span>:</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>        reportar(c, justificacion<span class="op">=</span>v.proposito)   <span class="co"># con procedencia</span></span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Aquí el razonamiento del LLM (sección&nbsp;8.3) añade el matiz que la similitud sola no da: distinguir un candidato que de verdad porta la vulnerabilidad de uno que ya incorpora el parche, que se le parece mucho pero corrige el fallo. La recuperación encuentra los sospechosos; el razonamiento confirma cuáles lo son y por qué, con la procedencia que un equipo de seguridad necesita para actuar (sección&nbsp;8.8). La cobertura —qué fracción de las instancias vulnerables halla el sistema— se mide sobre un conjunto de <em>1-day</em> conocido, que requiere binarios reales con su verdad de campo, fuera del banco de texto de este libro.</p>
+<p>Este caso condensa el valor del capítulo. Combina la representación que respeta la semántica (sección&nbsp;8.1), la similitud invariante a la compilación, el razonamiento que confirma y explica, y la escala que hace el problema abordable —todo orquestado por DSPy y medido contra datos—. Es, además, una tarea de impacto directo: cada instancia de una vulnerabilidad conocida que el sistema localiza es un agujero menos esperando a ser explotado, y ese valor operativo, no la sofisticación técnica, es la razón de ser del capítulo.</p>
+</section>
+</section>
+<section id="evaluación-límites-actuales-y-direcciones" class="level2">
+<h2 class="anchored" data-anchor-id="evaluación-límites-actuales-y-direcciones">Evaluación, límites actuales y direcciones</h2>
+<p>El capítulo cierra con honestidad sobre los límites. El razonamiento de un LLM sobre un binario es una hipótesis, no una prueba: puede alucinar un propósito o pasar por alto una vulnerabilidad sutil, y por eso se integra como apoyo al analista, no como veredicto. La evaluación exige conjuntos etiquetados por expertos, escasos y caros, y métricas que respeten el desequilibrio (capítulo&nbsp;4), porque el <em>malware</em> es raro frente al <em>software</em> benigno.</p>
+<p>El límite más peligroso es la <em>falsa confianza</em>. Un modelo que explica su veredicto con elocuencia (sección&nbsp;8.8) puede ser persuasivo y estar equivocado, y en seguridad esa combinación —seguridad aparente, error real— es la más costosa. Por eso el sistema se diseña en torno a la verificación humana (sección&nbsp;8.9) y se evalúa con la sospecha de que sus aciertos en validación pueden no generalizar a un adversario que se adapta (sección&nbsp;8.6). La honestidad sobre cuanto el sistema ignora es, aquí, una propiedad de seguridad.</p>
+<p>Hay un límite estructural que conviene nombrar: la equivalencia de programas es, en el caso general, indecidible. Decidir si dos binarios hacen exactamente lo mismo, o si una función contiene una vulnerabilidad explotable, no admite una solución algorítmica completa, y los métodos del capítulo —similitud aproximada, razonamiento heurístico— son, por necesidad, aproximaciones. Reconocerlo sitúa las expectativas: el objetivo no es la certeza, imposible, sino una aproximación útil y medible que amplíe el alcance del analista. La tabla&nbsp;8.8 reúne estos límites.</p>
+<table class="caption-top table">
+<caption>El objetivo no es la certeza, imposible, sino una aproximación útil y medible. La honestidad sobre cuanto el sistema ignora es, en seguridad, una propiedad de seguridad.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Límite</th>
+<th style="text-align: left;">Consecuencia</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">El razonamiento es una hipótesis</td>
+<td style="text-align: left;">apoyo al analista, no veredicto</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Etiquetas escasas y caras</td>
+<td style="text-align: left;">evaluación difícil; desequilibrio</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Falsa confianza</td>
+<td style="text-align: left;">explicación elocuente pero errada</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Equivalencia indecidible</td>
+<td style="text-align: left;">solo aproximaciones útiles y medibles</td>
+</tr>
+</tbody>
+</table>
+<p>Las direcciones abiertas son varias y activas. Mejores <em>embeddings</em> de código, más invariantes a la ofuscación (sección&nbsp;8.6); la fusión más estrecha de la vía de grafos con el razonamiento de LLM (sección&nbsp;8.9); la robustez frente a binarios adversariales (sección&nbsp;8.6); y los agentes de ingeniería inversa (sección&nbsp;8.8) que automatizan parte del análisis profundo. Ninguna está resuelta, y el campo se mueve deprisa (sección&nbsp;8.2).</p>
+<p>DSPy no resuelve estos problemas, y conviene no atribuirle más de su aportación real (sección&nbsp;8.1). No entrena codificadores, no desensambla, no cuantiza; orquesta esas piezas bajo un razonamiento y las optimiza contra una métrica. Pero esa aportación —componer fuentes heterogéneas, medir el conjunto, mejorarlo con método— es justo la que faltaba en un campo rico en representaciones y pobre en disciplina de evaluación. El andamiaje que ofrece es el del libro entero, aplicado al dominio más hostil.</p>
+<p>Con esto se cierra la parte técnica. El recorrido fue de menos a más: del <em>prompt</em> aislado a su anatomía, de la clasificación a la evaluación rigurosa, de la optimización de demostraciones e instrucciones a los flujos de varios pasos, y de ahí al análisis de binarios, donde todas las piezas se combinan sobre una entrada adversa. El hilo que las une es uno: no ajustar <em>prompts</em> a mano, sino declararlos, medirlos y optimizarlos —programarlos—, también, y sobre todo, donde más cuesta. El capítulo siguiente lleva esa disciplina a la práctica profesional: desplegar, mantener y operar estos sistemas en producción.</p>
+</section>
+<section id="lecturas-recomendadas" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="lecturas-recomendadas">Lecturas recomendadas</h2>
+<ul>
+<li><p><span class="citation" data-cites="liu2025keenhash"><span class="nocase">Liu et&nbsp;al.</span> (<a href="#ref-liu2025keenhash" role="doc-biblioref">2025</a>)</span> y <span class="citation" data-cites="gu2022uniasm"><span class="nocase">Gu et&nbsp;al.</span> (<a href="#ref-gu2022uniasm" role="doc-biblioref">2022</a>)</span>: <em>embeddings</em> de funciones para BCSA a gran escala.</p></li>
+<li><p><span class="citation" data-cites="xu2017gemini"><span class="nocase">Xu et&nbsp;al.</span> (<a href="#ref-xu2017gemini" role="doc-biblioref">2017</a>)</span>: el precursor que deriva el <em>embedding</em> del grafo de flujo de control.</p></li>
+<li><p><span class="citation" data-cites="brody2022gatv2">Brody et&nbsp;al. (<a href="#ref-brody2022gatv2" role="doc-biblioref">2022</a>)</span>: la atención dinámica sobre grafos.</p></li>
+<li><p><span class="citation" data-cites="hussain2025vulbinllm">Hussain et&nbsp;al. (<a href="#ref-hussain2025vulbinllm" role="doc-biblioref">2025</a>)</span>: LLM para detectar vulnerabilidades en binarios despojados de símbolos.</p></li>
+<li><p><span class="citation" data-cites="securityeyesai2025">Brosolo et&nbsp;al. (<a href="#ref-securityeyesai2025" role="doc-biblioref">2025</a>)</span>: la crítica a la representación visual del binario.</p></li>
+</ul>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">Referencias</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-agrawal2025gepa" class="csl-entry" role="listitem">
+<span class="nocase">Agrawal, Lakshya A. et&nbsp;al.</span> 2025. <span>«<span>GEPA</span>: Reflective Prompt Evolution Can Outperform Reinforcement Learning»</span>. <a href="https://arxiv.org/abs/2507.19457">https://arxiv.org/abs/2507.19457</a>.
+</div>
+<div id="ref-brody2022gatv2" class="csl-entry" role="listitem">
+Brody, Shaked, Uri Alon, y Eran Yahav. 2022. <span>«How Attentive are Graph Attention Networks?»</span> <a href="https://arxiv.org/abs/2105.14491">https://arxiv.org/abs/2105.14491</a>.
+</div>
+<div id="ref-securityeyesai2025" class="csl-entry" role="listitem">
+Brosolo, Matteo, K. A. Asmitha, Mauro Conti, et&nbsp;al. 2025. <span>«Security through the Eyes of <span>AI</span>: How Visualization is Shaping Malware Detection»</span>. <a href="https://arxiv.org/abs/2505.07574">https://arxiv.org/abs/2505.07574</a>.
+</div>
+<div id="ref-gu2022uniasm" class="csl-entry" role="listitem">
+<span class="nocase">Gu, Yeli et&nbsp;al.</span> 2022. <span>«<span>UniASM</span>: Binary Code Similarity Detection without Fine-tuning»</span>. <a href="https://arxiv.org/abs/2211.01144">https://arxiv.org/abs/2211.01144</a>.
+</div>
+<div id="ref-hu2021lora" class="csl-entry" role="listitem">
+<span class="nocase">Hu, Edward J. et&nbsp;al.</span> 2022. <span>«<span>LoRA</span>: Low-Rank Adaptation of Large Language Models»</span>. <em>International Conference on Learning Representations (ICLR)</em>. <a href="https://arxiv.org/abs/2106.09685">https://arxiv.org/abs/2106.09685</a>.
+</div>
+<div id="ref-hussain2025vulbinllm" class="csl-entry" role="listitem">
+Hussain, Nasir, Haohan Chen, Chanh Tran, et&nbsp;al. 2025. <span>«<span>VulBinLLM</span>: <span>LLM</span>-powered Vulnerability Detection for Stripped Binaries»</span>. <a href="https://arxiv.org/abs/2505.22010">https://arxiv.org/abs/2505.22010</a>.
+</div>
+<div id="ref-liu2025keenhash" class="csl-entry" role="listitem">
+<span class="nocase">Liu, Zhijie et&nbsp;al.</span> 2025. <span>«<span>KEENHash</span>: Hashing Programs into Function-Aware Embeddings for Large-Scale Binary Code Similarity Analysis»</span>. <a href="https://arxiv.org/abs/2506.11612">https://arxiv.org/abs/2506.11612</a>.
+</div>
+<div id="ref-matthews1975mcc" class="csl-entry" role="listitem">
+Matthews, B. W. 1975. <span>«Comparison of the predicted and observed secondary structure of T4 phage lysozyme»</span>. <em>Biochimica et Biophysica Acta (BBA) - Protein Structure</em> 405 (2): 442-51.
+</div>
+<div id="ref-nataraj2011malwareimages" class="csl-entry" role="listitem">
+Nataraj, L., S. Karthikeyan, G. Jacob, y B. S. Manjunath. 2011. <span>«Malware Images: Visualization and Automatic Classification»</span>. <em>Proceedings of the 8th International Symposium on Visualization for Cyber Security (VizSec)</em>.
+</div>
+<div id="ref-opsahlong2024mipro" class="csl-entry" role="listitem">
+<span class="nocase">Opsahl-Ong, Krista et&nbsp;al.</span> 2024. <span>«Optimizing Instructions and Demonstrations for Multi-Stage Language Model Programs»</span>. <a href="https://arxiv.org/abs/2406.11695">https://arxiv.org/abs/2406.11695</a>.
+</div>
+<div id="ref-rampasek2022gps" class="csl-entry" role="listitem">
+<span class="nocase">Rampášek, Ladislav et&nbsp;al.</span> 2022. <span>«Recipe for a General, Powerful, Scalable Graph Transformer»</span>. <a href="https://arxiv.org/abs/2205.12454">https://arxiv.org/abs/2205.12454</a>.
+</div>
+<div id="ref-reimers2019sbert" class="csl-entry" role="listitem">
+Reimers, Nils, y Iryna Gurevych. 2019. <span>«<span>Sentence-BERT</span>: Sentence Embeddings using Siamese <span>BERT</span>-Networks»</span>. <a href="https://arxiv.org/abs/1908.10084">https://arxiv.org/abs/1908.10084</a>.
+</div>
+<div id="ref-sutton2019bitter" class="csl-entry" role="listitem">
+Sutton, Richard S. 2019. <span>«The Bitter Lesson»</span>. <a href="http://www.incompleteideas.net/IncIdeas/BitterLesson.html">http://www.incompleteideas.net/IncIdeas/BitterLesson.html</a>.
+</div>
+<div id="ref-velickovic2018gat" class="csl-entry" role="listitem">
+<span class="nocase">Veličković, Petar et&nbsp;al.</span> 2018. <span>«Graph Attention Networks»</span>. <a href="https://arxiv.org/abs/1710.10903">https://arxiv.org/abs/1710.10903</a>.
+</div>
+<div id="ref-xu2017gemini" class="csl-entry" role="listitem">
+<span class="nocase">Xu, Xiaojun et&nbsp;al.</span> 2017. <span>«Neural Network-based Graph Embedding for Cross-Platform Binary Code Similarity Detection»</span>. <a href="https://arxiv.org/abs/1708.06525">https://arxiv.org/abs/1708.06525</a>.
+</div>
+<div id="ref-ying2021graphormer" class="csl-entry" role="listitem">
+<span class="nocase">Ying, Chengxuan et&nbsp;al.</span> 2021. <span>«Do Transformers Really Perform Bad for Graph Representation?»</span> <a href="https://arxiv.org/abs/2106.05234">https://arxiv.org/abs/2106.05234</a>.
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copiado");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copiado");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./cap07.html" class="pagination-link" aria-label="Capítulo 7. Flujos complejos: RAG, agentes y herramientas en seguridad">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Capítulo 7. Flujos complejos: RAG, agentes y herramientas en seguridad</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./cap09.html" class="pagination-link" aria-label="Capítulo 9. DSPy para privacidad: detección, minimización y no fuga de datos">
+        <span class="nav-page-text">Capítulo 9. DSPy para privacidad: detección, minimización y no fuga de datos</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>© 2026 Manuel Muñoz Plá · Edición web bajo licencia <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.es">CC BY-NC-ND 4.0</a> (uso académico con atribución; sin uso comercial ni obras derivadas) · El código va aparte bajo licencia MIT</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

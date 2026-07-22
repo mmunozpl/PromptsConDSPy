@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Capítulo 9. DSPy para privacidad: detección, minimización y no fuga de datos – Programación de prompts con DSPy</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./cap10.html" rel="next">
+<link href="./cap08.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-f7bd9765ec068e3aae6dba6073a1e2a9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No se han encontrado resultados",
+    "search-matching-documents-text": "documentos encontrados",
+    "search-copy-link-title": "Copiar el enlace en la búsqueda",
+    "search-hide-matches-text": "Ocultar resultados adicionales",
+    "search-more-match-text": "resultado adicional en este documento",
+    "search-more-matches-text": "resultados adicionales en este documento",
+    "search-clear-button-title": "Borrar",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancelar",
+    "search-submit-button-title": "Enviar",
+    "search-label": "Buscar"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./cap09.html">Capítulo 9. DSPy para privacidad: detección, minimización y no fuga de datos</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Buscar" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Programación de prompts con DSPy</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Alternar modo lector">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Buscar"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Inicio</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap01.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 1. Por qué programar prompts</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap02.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 2. Anatomía de un prompt y primer programa DSPy</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap03.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 3. Clasificación de intenciones en un SOC</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap04.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 4. Evaluación rigurosa de programas DSPy</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap05.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 5. Optimización de demostraciones</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap06.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 6. Optimización de instrucciones</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap07.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 7. Flujos complejos: RAG, agentes y herramientas en seguridad</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap08.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 8. DSPy en análisis de binarios: embeddings de código y razonamiento con LLM</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap09.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Capítulo 9. DSPy para privacidad: detección, minimización y no fuga de datos</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap10.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 10. Cierre: práctica profesional con DSPy</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">En esta página</h2>
+   
+  <ul>
+  <li><a href="#privacidad-como-objetivo-no-como-añadido" id="toc-privacidad-como-objetivo-no-como-añadido" class="nav-link active" data-scroll-target="#privacidad-como-objetivo-no-como-añadido">Privacidad como objetivo, no como añadido</a></li>
+  <li><a href="#el-modelo-de-amenaza-quién-aprende-qué-desde-dónde" id="toc-el-modelo-de-amenaza-quién-aprende-qué-desde-dónde" class="nav-link" data-scroll-target="#el-modelo-de-amenaza-quién-aprende-qué-desde-dónde">El modelo de amenaza: quién aprende qué, desde dónde</a></li>
+  <li><a href="#detección-de-pii-con-una-firma-tipada" id="toc-detección-de-pii-con-una-firma-tipada" class="nav-link" data-scroll-target="#detección-de-pii-con-una-firma-tipada">Detección de PII con una firma tipada</a></li>
+  <li><a href="#minimización-y-seudonimización-antes-del-modelo" id="toc-minimización-y-seudonimización-antes-del-modelo" class="nav-link" data-scroll-target="#minimización-y-seudonimización-antes-del-modelo">Minimización y seudonimización antes del modelo</a></li>
+  <li><a href="#delegación-consciente-de-la-privacidad-modelo-local-y-modelo-externo" id="toc-delegación-consciente-de-la-privacidad-modelo-local-y-modelo-externo" class="nav-link" data-scroll-target="#delegación-consciente-de-la-privacidad-modelo-local-y-modelo-externo">Delegación consciente de la privacidad: modelo local y modelo externo</a></li>
+  <li><a href="#métricas-de-fuga-medir-qué-expone-una-respuesta" id="toc-métricas-de-fuga-medir-qué-expone-una-respuesta" class="nav-link" data-scroll-target="#métricas-de-fuga-medir-qué-expone-una-respuesta">Métricas de fuga: medir qué expone una respuesta</a></li>
+  <li><a href="#optimizar-para-no-filtrar-privacidad-en-la-métrica-con-feedback" id="toc-optimizar-para-no-filtrar-privacidad-en-la-métrica-con-feedback" class="nav-link" data-scroll-target="#optimizar-para-no-filtrar-privacidad-en-la-métrica-con-feedback">Optimizar para no filtrar: privacidad en la métrica con <em>feedback</em></a></li>
+  <li><a href="#rag-que-no-expone-redacción-en-la-recuperación" id="toc-rag-que-no-expone-redacción-en-la-recuperación" class="nav-link" data-scroll-target="#rag-que-no-expone-redacción-en-la-recuperación">RAG que no expone: redacción en la recuperación</a></li>
+  <li><a href="#memorización-extracción-y-canarios" id="toc-memorización-extracción-y-canarios" class="nav-link" data-scroll-target="#memorización-extracción-y-canarios">Memorización, extracción y canarios</a></li>
+  <li><a href="#privacidad-diferencial-garantías-con-matemática-no-con-esperanza" id="toc-privacidad-diferencial-garantías-con-matemática-no-con-esperanza" class="nav-link" data-scroll-target="#privacidad-diferencial-garantías-con-matemática-no-con-esperanza">Privacidad diferencial: garantías con matemática, no con esperanza</a></li>
+  <li><a href="#cumplimiento-y-contexto-del-rgpd-al-reglamento-de-ia" id="toc-cumplimiento-y-contexto-del-rgpd-al-reglamento-de-ia" class="nav-link" data-scroll-target="#cumplimiento-y-contexto-del-rgpd-al-reglamento-de-ia">Cumplimiento y contexto: del RGPD al Reglamento de IA</a></li>
+  <li><a href="#un-pipeline-de-privacidad-de-extremo-a-extremo" id="toc-un-pipeline-de-privacidad-de-extremo-a-extremo" class="nav-link" data-scroll-target="#un-pipeline-de-privacidad-de-extremo-a-extremo">Un <em>pipeline</em> de privacidad de extremo a extremo</a></li>
+  <li><a href="#límites-y-compromisos-utilidadprivacidad" id="toc-límites-y-compromisos-utilidadprivacidad" class="nav-link" data-scroll-target="#límites-y-compromisos-utilidadprivacidad">Límites y compromisos utilidad/privacidad</a></li>
+  <li><a href="#lecturas-recomendadas" id="toc-lecturas-recomendadas" class="nav-link" data-scroll-target="#lecturas-recomendadas">Lecturas recomendadas</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Capítulo 9. DSPy para privacidad: detección, minimización y no fuga de datos</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>La privacidad es otra frontera, no un epílogo de la seguridad. La seguridad pregunta si algo es un ataque; la privacidad, si algo expone a alguien. El aparato es el mismo —firmas, módulos, optimización contra una métrica (capítulos&nbsp;2 y&nbsp;6)—, pero la métrica cambia: ya no mide solo el acierto, sino cuánto revela una salida sobre las personas que aparecen en los datos. Este capítulo lleva la disciplina del libro a ese objetivo con el mismo método de declarar, medir y optimizar: primero el modelo de amenaza —quién puede aprender qué, desde dónde—, después las piezas defensivas —detección de PII, minimización, delegación entre un modelo local y otro externo—, luego la métrica de fuga y su optimización, y al final los frentes que ninguna redacción resuelve: la memorización de los modelos, la privacidad diferencial, el marco legal y los compromisos que conviene declarar en vez de esconder.</p>
+<section id="privacidad-como-objetivo-no-como-añadido" class="level2">
+<h2 class="anchored" data-anchor-id="privacidad-como-objetivo-no-como-añadido">Privacidad como objetivo, no como añadido</h2>
+<p>Tratar la privacidad como un filtro que se añade al final —tachar datos tras generar la respuesta— llega tarde y protege mal. La alternativa es hacerla un objetivo del sistema desde el diseño: una propiedad que la métrica premia y el optimizador persigue, igual que la calidad. Así la privacidad deja de ser un parche y pasa a estar integrada en el programa compilado, medible y sujeta al mismo rigor que el resto del libro. La figura&nbsp;9.1 opone las dos posturas.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap09/fig_01.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;9.1.</strong> Tratar la privacidad como un filtro añadido al final protege mal. La alternativa es hacerla un objetivo del sistema desde el diseño: una propiedad que la métrica premia y el optimizador persigue, igual que la calidad.</figcaption>
+</figure>
+</div>
+<section id="dos-preguntas-distintas-sobre-el-mismo-texto." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="dos-preguntas-distintas-sobre-el-mismo-texto.">Dos preguntas distintas sobre el mismo texto.</h5>
+<p>El clasificador del capítulo&nbsp;3 pregunta si una alerta denota un ataque; el sistema de este capítulo pregunta si una respuesta expone a una persona. La diferencia no es cosmética. La seguridad defiende al sistema de sus entradas; la privacidad defiende a los sujetos de los datos frente a las salidas —y frente al propio sistema—. Un programa puede ser impecable en lo primero y desastroso en lo segundo: un asistente que resume tiques de soporte sin fallo alguno, pero cita nombre y dolencia del cliente en cada resumen. La teoría de la <em>integridad contextual</em> (<em>contextual integrity</em>) da el lenguaje preciso para esa segunda pregunta: la privacidad no consiste en ocultarlo todo, sino en que la información fluya conforme a las normas del contexto en que se recogió <span class="citation" data-cites="nissenbaum2004contextual">(<a href="#ref-nissenbaum2004contextual" role="doc-biblioref">Nissenbaum 2004</a>)</span>. El diagnóstico puede circular del paciente al médico, y no del paciente al asegurador; la dirección de un cliente puede ir al transportista, y no al resto de destinatarios de un hilo. Esa vara contextual se puede evaluar: el banco de pruebas ConfAIde somete a los modelos a escenarios de información compartida entre varias partes y mide si respetan quién puede saber qué, y encuentra fugas de secretos incluso en los modelos de mayor capacidad —GPT-4 revelaba información privada en el 39 % de los contextos en que un humano no lo haría— <span class="citation" data-cites="mireshghallah2024confaide">(<a href="#ref-mireshghallah2024confaide" role="doc-biblioref">Mireshghallah et&nbsp;al. 2024</a>)</span>. La lección de diseño es directa: la firma de cada módulo debe declarar no solo qué produce, sino para qué contexto y qué destinatario, porque «correcto» sin destinatario no define la fuga.</p>
+</section>
+<section id="las-superficies-de-exposición-de-un-programa-dspy." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="las-superficies-de-exposición-de-un-programa-dspy.">Las superficies de exposición de un programa DSPy.</h5>
+<p>Un programa de este libro toca datos personales en más sitios de los que la intuición sugiere, y cada superficie pide su defensa. La tabla&nbsp;9.1 las enumera con el lugar del capítulo que las trata. Dos merecen subrayado temprano. Primera: las demostraciones compiladas (capítulo&nbsp;5) son ejemplos reales del conjunto de entrenamiento y viajan dentro de cada <em>prompt</em>; si contienen PII, el programa la difunde en cada llamada, a cada proveedor, para siempre. Segunda: las trazas de observabilidad (capítulo&nbsp;10) retienen entradas y salidas completas; un registro pensado para depurar es, a efectos legales, un tratamiento más de datos personales. La privacidad de un programa compilado no se juega solo en la respuesta: se juega en el artefacto, en el índice, en los pesos y en los registros.</p>
+<table class="caption-top table">
+<caption>Superficies por las que un programa DSPy puede exponer datos personales, y dónde se trata cada una. El artefacto compilado y las trazas son las dos que la intuición olvida con más frecuencia.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Superficie</th>
+<th style="text-align: left;">Qué puede exponer</th>
+<th style="text-align: left;">Dónde se trata</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">entrada al modelo externo</td>
+<td style="text-align: left;">el texto del usuario y su contexto</td>
+<td style="text-align: left;">secciones&nbsp;9.4 y&nbsp;9.5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">demostraciones compiladas</td>
+<td style="text-align: left;">ejemplos reales dentro de cada <em>prompt</em></td>
+<td style="text-align: left;">secciones&nbsp;9.7 y&nbsp;9.9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">corpus e índice de RAG</td>
+<td style="text-align: left;">pasajes con PII; <em>embeddings</em> invertibles</td>
+<td style="text-align: left;">sección&nbsp;9.8</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">pesos ajustados</td>
+<td style="text-align: left;">memorización extraíble del corpus de ajuste</td>
+<td style="text-align: left;">secciones&nbsp;9.9 y&nbsp;9.10</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">trazas y registros</td>
+<td style="text-align: left;">entradas y salidas completas, retenidas</td>
+<td style="text-align: left;">sección&nbsp;9.11</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="el-modelo-de-amenaza-quién-aprende-qué-desde-dónde" class="level2">
+<h2 class="anchored" data-anchor-id="el-modelo-de-amenaza-quién-aprende-qué-desde-dónde">El modelo de amenaza: quién aprende qué, desde dónde</h2>
+<p>Como en los capítulos de seguridad, defender sin modelo de amenaza es decorar. Conviene nombrar a los adversarios antes de elegir defensas. El primero es el <em>proveedor curioso</em>: el <em>endpoint</em> externo ve cada <em>prompt</em> íntegro —con demostraciones y contexto recuperado incluidos— y puede retenerlo; no hace falta malicia, basta su registro de peticiones. El segundo es el <em>usuario adversario</em> del sistema desplegado, que pregunta con astucia para sonsacar datos de otros: del corpus recuperado, de las demostraciones, de la memoria de la sesión. El tercero es el <em>atacante con acceso a artefactos</em>: quien obtiene el programa compilado, el índice vectorial o los pesos ajustados y los interroga fuera de línea. Y el cuarto es el <em>observador de salidas</em> a escala, que no compromete nada y aun así acumula respuestas hasta reconstruir perfiles. Las cuatro amenazas operan sobre las superficies de la tabla&nbsp;9.1; los ataques concretos que siguen dan la medida de su alcance.</p>
+<section id="inferencia-de-pertenencia." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="inferencia-de-pertenencia.">Inferencia de pertenencia.</h5>
+<p>El ataque de <em>inferencia de pertenencia</em> (<em>membership inference</em>) responde a una pregunta binaria: ¿estuvo este ejemplo en los datos del sistema? El juego formal enfrenta a un adversario <span class="math inline">\(\mathcal{A}\)</span> con un ejemplo <span class="math inline">\(x\)</span> y acceso al sistema <span class="math inline">\(M\)</span>; el adversario emite 1 si cree que <span class="math inline">\(x\)</span> perteneció a los datos <span class="math inline">\(D\)</span>. Su <em>ventaja</em> es <span class="math display">\[\begin{equation}
+  \mathrm{Adv}(\mathcal{A}) \;=\;
+  \mathbb{P}\!\left[\mathcal{A}(x, M)=1 \mid x \in D\right] \;-\;
+  \mathbb{P}\!\left[\mathcal{A}(x, M)=1 \mid x \notin D\right],
+\end{equation}\]</span> cero para el azar y uno para el oráculo perfecto. El ataque se demostró práctico contra modelos de clasificación entrenando <em>modelos sombra</em> que imitan al objetivo y aprenden a distinguir sus confianzas sobre miembros y no miembros <span class="citation" data-cites="shokri2017membership">(<a href="#ref-shokri2017membership" role="doc-biblioref">Shokri et&nbsp;al. 2017</a>)</span>, y su conexión teórica con el sobreajuste está establecida: cuanto mayor la brecha de generalización, mayor la ventaja alcanzable <span class="citation" data-cites="yeom2018privacy">(<a href="#ref-yeom2018privacy" role="doc-biblioref">Yeom et&nbsp;al. 2018</a>)</span>. Para un programa DSPy la pertenencia no se limita a los pesos: pertenecer al corpus de RAG o al banco de demostraciones también es pertenencia, y se ataca con la misma lógica —preguntar y medir cuánto cambia la conducta del sistema cuando el ejemplo está—. Que un tercero pueda confirmar «su historia clínica está en el corpus de este asistente» ya es una fuga, aunque ningún campo se cite literalmente. La figura&nbsp;9.2 esquematiza el juego.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap09/fig_02.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;9.2.</strong> El juego de la inferencia de pertenencia: el adversario observa la conducta del sistema ante un ejemplo y decide si perteneció a sus datos. La ventaja&nbsp;(9.1) mide cuánto mejor que el azar responde; el sobreajuste la alimenta <span class="citation" data-cites="yeom2018privacy">(<a href="#ref-yeom2018privacy" role="doc-biblioref">Yeom et&nbsp;al. 2018</a>)</span>.</figcaption>
+</figure>
+</div>
+</section>
+<section id="inferencia-de-atributos-el-texto-inocuo-también-habla." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="inferencia-de-atributos-el-texto-inocuo-también-habla.">Inferencia de atributos: el texto inocuo también habla.</h5>
+<p>El segundo ataque no busca recuperar datos: los <em>deduce</em>. La <em>inferencia de atributos</em> (<em>attribute inference</em>) explota que el estilo, los giros dialectales y las menciones circunstanciales de un texto denotan lugar de residencia, edad, sexo o ingresos de su autor aunque ningún campo los declare. Con perfiles reales de Reddit, los modelos grandes infieren esos atributos con hasta un 85 % de acierto en la primera opción —95 % entre las tres primeras— a una centésima del coste de los anotadores humanos <span class="citation" data-cites="staab2024beyond">(<a href="#ref-staab2024beyond" role="doc-biblioref">Staab et&nbsp;al. 2024</a>)</span>, y la redacción previa de la PII explícita apenas degrada el ataque, porque las pistas no son campos: son el texto entero. La consecuencia para este capítulo es incómoda y necesaria: una métrica de fuga que solo cuente menciones literales subestima el riesgo, y la defensa perfecta contra la inferencia no existe —se mitiga acotando cuánto texto ajeno a la tarea circula, no puliendo el tachado—.</p>
+</section>
+<section id="inversión-de-embeddings-el-índice-es-el-corpus." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="inversión-de-embeddings-el-índice-es-el-corpus.">Inversión de <em>embeddings</em>: el índice es el corpus.</h5>
+<p>El tercer ataque desmonta una confianza extendida: tratar los <em>embeddings</em> como una representación «ya anónima». La <em>inversión de embeddings</em> (<em>embedding inversion</em>) entrena un generador que, dado un vector, reconstruye iterativamente el texto de origen; el método corrector recupera de forma exacta el 92 % de los textos de 32 tokens del banco estudiado <span class="citation" data-cites="morris2023text">(<a href="#ref-morris2023text" role="doc-biblioref">Morris et&nbsp;al. 2023</a>)</span>. Un índice vectorial filtrado equivale entonces al corpus filtrado, con nombres, dolencias y números de cuenta incluidos. La regla operativa: el índice del capítulo&nbsp;7 se protege con los mismos controles que los documentos originales —cifrado, control de acceso, retención—, y la redacción de PII debe ocurrir antes de indexar, no solo antes de responder (sección&nbsp;9.8). La tabla&nbsp;9.2 reúne los cuatro ataques.</p>
+<table class="caption-top table">
+<caption>Los cuatro ataques del modelo de amenaza: qué pregunta responde cada uno y qué señal explota. Ninguno requiere comprometer el sistema; todos operan observándolo o interrogándolo.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Ataque</th>
+<th style="text-align: left;">Pregunta que responde</th>
+<th style="text-align: left;">Señal que explota</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">pertenencia</td>
+<td style="text-align: left;">¿estuvo <span class="math inline">\(x\)</span> en los datos?</td>
+<td style="text-align: left;">confianzas; sobreajuste</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"><span class="citation" data-cites="shokri2017membership">(<a href="#ref-shokri2017membership" role="doc-biblioref">Shokri et&nbsp;al. 2017</a>)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">extracción</td>
+<td style="text-align: left;">¿qué contienen los datos?</td>
+<td style="text-align: left;">memorización literal</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"><span class="citation" data-cites="carlini2021extracting">(<a href="#ref-carlini2021extracting" role="doc-biblioref">Carlini et&nbsp;al. 2021</a>)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">inferencia de atributos</td>
+<td style="text-align: left;">¿qué es cierto del autor?</td>
+<td style="text-align: left;">estilo y contexto del</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">texto <span class="citation" data-cites="staab2024beyond">(<a href="#ref-staab2024beyond" role="doc-biblioref">Staab et&nbsp;al. 2024</a>)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">inversión de <em>embeddings</em></td>
+<td style="text-align: left;">¿qué decía el pasaje?</td>
+<td style="text-align: left;">geometría del espacio</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">vectorial <span class="citation" data-cites="morris2023text">(<a href="#ref-morris2023text" role="doc-biblioref">Morris et&nbsp;al. 2023</a>)</span></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="de-la-amenaza-a-la-defensa." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="de-la-amenaza-a-la-defensa.">De la amenaza a la defensa.</h5>
+<p>El resto del capítulo responde a esta tabla, y conviene dejar el mapa a la vista. Contra la pertenencia, controlar el sobreajuste (capítulo&nbsp;4) y, donde haga falta garantía, la privacidad diferencial (sección&nbsp;9.10). Contra la extracción, la higiene del artefacto y los canarios (sección&nbsp;9.9). Contra la inferencia de atributos, minimizar cuánto texto circula y aceptar el límite (secciones&nbsp;9.4 y&nbsp;9.13). Contra la inversión, tratar el índice como el corpus (sección&nbsp;9.8). El orden de implantación sigue el coste: primero lo barato y general —minimización, control de acceso, firmas estrechas—, después lo estructural —la frontera de confianza de la sección&nbsp;9.5—, al final lo formal —DP donde el riesgo lo justifique—. Y el modelo de amenaza se revisita con cada cambio de arquitectura: añadir un recuperador, un módulo o un proveedor redibuja las superficies sin pedir permiso.</p>
+</section>
+</section>
+<section id="detección-de-pii-con-una-firma-tipada" class="level2">
+<h2 class="anchored" data-anchor-id="detección-de-pii-con-una-firma-tipada">Detección de PII con una firma tipada</h2>
+<p>El primer paso defensivo es localizar la información personal identificable (PII): nombres, identificadores, direcciones, datos de salud. Una firma tipada (capítulo&nbsp;2) declara la tarea —del texto a una lista de entidades personales con su tipo y su posición—, y el sistema la cumple con la disciplina de contrato ya conocida. La detección es una tarea de clasificación y extracción como las del capítulo&nbsp;3, ahora al servicio de la protección de datos (figura&nbsp;9.3).</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap09/fig_03.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;9.3.</strong> Una firma declara la tarea —del texto a una lista de entidades personales con su tipo y su posición— y el sistema la cumple con la disciplina de contrato ya conocida: una extracción tipada al servicio de la protección de datos.</figcaption>
+</figure>
+</div>
+<section id="qué-cuenta-como-pii-identificadores-y-cuasi-identificadores." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="qué-cuenta-como-pii-identificadores-y-cuasi-identificadores.">Qué cuenta como PII: identificadores y cuasi-identificadores.</h5>
+<p>La taxonomía útil distingue tres estratos. Los <em>identificadores directos</em> señalan a una persona por sí solos: nombre completo, DNI, número de teléfono, dirección de correo. Los <em>cuasi-identificadores</em> (<em>quasi-identifiers</em>) no identifican aislados, pero sí combinados: el trabajo clásico sobre <span class="math inline">\(k\)</span>-anonimato recoge que código postal, sexo y fecha de nacimiento bastaban para identificar de forma única al 87 % de la población estadounidense <span class="citation" data-cites="sweeney2002kanon">(<a href="#ref-sweeney2002kanon" role="doc-biblioref">Sweeney 2002</a>)</span>, y esa aritmética de la combinación es la razón de que «quité el nombre» no sea anonimizar. El tercer estrato son las <em>categorías especiales</em> del artículo&nbsp;9 del RGPD —salud, ideología, afiliación sindical, orientación sexual, biometría— <span class="citation" data-cites="gdpr2016">(<a href="#ref-gdpr2016" role="doc-biblioref">Parlamento Europeo y Consejo de la Unión Europea 2016</a>)</span>, cuyo tratamiento está prohibido salvo excepciones tasadas: para el detector no son un tipo más, sino etiquetas que elevan la gravedad de cualquier fuga que las contenga. Y la integridad contextual de la sección&nbsp;9.1 añade el matiz final: la lista de tipos no es universal; el esquema de entidades de un sistema clínico y el de un SOC difieren, y la firma debe declarar el esquema del dominio, no uno genérico. La tabla&nbsp;9.3 resume los estratos con su operación de minimización por defecto, que la sección&nbsp;9.4 desarrolla.</p>
+<table class="caption-top table">
+<caption>Los estratos de la información personal, con la gravedad típica de su fuga y la operación de minimización por defecto. El esquema concreto —tipos, pesos, excepciones— lo declara cada dominio.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Estrato</th>
+<th style="text-align: left;">Ejemplos</th>
+<th style="text-align: left;">Gravedad</th>
+<th style="text-align: left;">Por defecto</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">identificador directo</td>
+<td style="text-align: left;">nombre, DNI, teléfono, correo</td>
+<td style="text-align: left;">alta</td>
+<td style="text-align: left;">seudonimizar</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">cuasi-identificador</td>
+<td style="text-align: left;">código postal, fecha de nacimiento, empleo</td>
+<td style="text-align: left;">media</td>
+<td style="text-align: left;">generalizar</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">categoría especial (art.&nbsp;9)</td>
+<td style="text-align: left;">salud, ideología, biometría</td>
+<td style="text-align: left;">máxima</td>
+<td style="text-align: left;">redactar</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">identificador del dominio</td>
+<td style="text-align: left;">expediente, póliza, habitación</td>
+<td style="text-align: left;">alta</td>
+<td style="text-align: left;">seudonimizar</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="la-firma-y-el-módulo." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="la-firma-y-el-módulo.">La firma y el módulo.</h5>
+<p>La detección se declara con los tipos del capítulo&nbsp;2: un modelo estructurado por entidad y una firma que devuelve la lista completa.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> EntidadPII(pydantic.BaseModel):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    tipo: Literal[<span class="st">"persona"</span>, <span class="st">"identificador"</span>, <span class="st">"contacto"</span>,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>                  <span class="st">"localizacion"</span>, <span class="st">"salud"</span>, <span class="st">"financiero"</span>]</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    texto: <span class="bu">str</span>    <span class="co"># la mención literal, tal como aparece</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    inicio: <span class="bu">int</span>   <span class="co"># posición del primer carácter</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> DetectarPII(dspy.Signature):</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""localiza toda la información personal identificable."""</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    texto: <span class="bu">str</span> <span class="op">=</span> dspy.InputField()</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    entidades: <span class="bu">list</span>[EntidadPII] <span class="op">=</span> dspy.OutputField(</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        desc<span class="op">=</span><span class="st">"todas las menciones, con tipo y posición exactos"</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>detector <span class="op">=</span> dspy.ChainOfThought(DetectarPII)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>La posición importa tanto como el tipo: la redacción posterior (sección&nbsp;9.4) sustituye tramos del texto original, y un detector que devuelve menciones sin anclar obliga a buscarlas de nuevo, con las ambigüedades de toda búsqueda —dos «García» distintos, una fecha repetida—. El campo <code>inicio</code> convierte la salida en un plan de edición ejecutable, y la validación del contrato —¿la mención existe de verdad en esa posición?— se comprueba con código, no con confianza, en la línea de las salvaguardas del capítulo&nbsp;7.</p>
+</section>
+<section id="reglas-ner-clásico-y-modelo-un-detector-híbrido." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="reglas-ner-clásico-y-modelo-un-detector-híbrido.">Reglas, NER clásico y modelo: un detector híbrido.</h5>
+<p>No todo pide un LM. Los identificadores con estructura —DNI y NIE, IBAN, tarjetas con dígito de control, matrículas, correos— se detectan con expresiones regulares y validadores deterministas: coste cero, precisión casi perfecta, cobertura total del formato. El reconocimiento de entidades nominales (NER) neuronal clásico cubre bien nombres y lugares en texto formal. El LM aporta la capa que a ambos se les escapa: menciones indirectas («el paciente del 4.º B», «mi mujer»), correferencias que encadenan una identidad a lo largo del documento, y jerga informal donde el NER entrenado en noticias pierde cobertura. La composición natural es un módulo DSPy que fusiona las tres fuentes y resuelve solapamientos —la regla gana en su formato; el LM gana en lo indirecto—, con la ventaja añadida de que un modelo local pequeño puede ejecutar esta etapa sin sacar el texto de la máquina, anticipo del patrón de la sección&nbsp;9.5.</p>
+</section>
+<section id="los-tipos-difíciles." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="los-tipos-difíciles.">Los tipos difíciles.</h5>
+<p>La dificultad real de la detección no está en los nombres propios sino en los bordes, y conviene inventariarlos porque concentran los falsos negativos. Las <em>referencias relativas</em>: «cumplió cuarenta años la semana pasada» fija una fecha de nacimiento sin escribirla, y «trabaja en la sucursal de la plaza mayor» fija un lugar de trabajo; el detector literal no ve nada y el esquema debe declarar si el dominio exige capturarlas. La <em>PII de terceros</em>: el texto de un cliente menciona a su pareja, a un compañero, a un menor; personas que no consintieron el tratamiento y que el esquema trata con la misma gravedad que al titular. Los <em>identificadores del dominio</em>: número de expediente, de póliza, de habitación; inocuos fuera de contexto e identificadores directos dentro, porque la organización mantiene la tabla que los resuelve. Las <em>formas degradadas</em>: texto de OCR con errores, campos pegados sin espacios, grafías criollas de un nombre; todo detector pierde exhaustividad ahí, y la medición por tipo de la sección&nbsp;9.3 debe incluir una partición «texto sucio» para no medirse solo en el caso fácil. La lista no es exhaustiva: es el principio del inventario que cada dominio completa con sus propios bordes, y cada borde añadido es un caso de prueba permanente del conjunto de evaluación.</p>
+</section>
+<section id="medir-la-detección-antes-de-fiarse." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="medir-la-detección-antes-de-fiarse.">Medir la detección antes de fiarse.</h5>
+<p>Un detector no auditado es una promesa. La medida estándar es precisión, exhaustividad y F1 <em>a nivel de tramo</em> —una detección cuenta si tipo y posición coinciden— y desglosada por tipo, porque el agregado esconde los tipos raros justo donde la gravedad es mayor. La asimetría de costes es la contraria a la habitual: un falso positivo tacha de más y cuesta algo de utilidad; un falso negativo deja pasar un dato personal, y ese coste no se recupera. El umbral se fija con el método del capítulo&nbsp;4, sesgado hacia la exhaustividad. Un detector declarado con firma tipada sobre el corpus público ai4privacy alcanza un F1 global modesto de  % (precisión  %, exhaustividad  %), y el desglose por tipo confirma la intuición: los identificadores estructurados se detectan bien —contacto  %, financiero  % de exhaustividad— y las menciones más libres, mal —persona  %, localización  %—, justo el reparto que motiva el detector híbrido y la optimización. La literatura aporta la advertencia de fondo: incluso las limpiezas industriales basadas en NER dejan PII residual —en datos clínicos, el NER moderno alcanza el 97 % de exhaustividad con los nombres pero cae al 80 % con ciertos identificadores—, y esa limpieza imperfecta reduce, no elimina, la fuga posterior del modelo entrenado sobre el texto «limpio» <span class="citation" data-cites="lukas2023analyzing">(<a href="#ref-lukas2023analyzing" role="doc-biblioref">Lukas et&nbsp;al. 2023</a>)</span>, de modo que la pregunta operativa nunca es «¿limpio o no?», sino cuánta exhaustividad se alcanza en el dominio propio y qué riesgo residual se acepta por escrito.</p>
+</section>
+</section>
+<section id="minimización-y-seudonimización-antes-del-modelo" class="level2">
+<h2 class="anchored" data-anchor-id="minimización-y-seudonimización-antes-del-modelo">Minimización y seudonimización antes del modelo</h2>
+<p>El principio de minimización dicta enviar al modelo solo los datos que la tarea necesita. Redactar o seudonimizar la PII <em>antes</em> de que el texto llegue al modelo —sobre todo si es un <em>endpoint</em> externo (capítulo&nbsp;10)— reduce la superficie de exposición en origen. La redacción previa es, para la privacidad, el equivalente de la validación de entradas para la seguridad: una barrera en la frontera del sistema, no una corrección posterior (figura&nbsp;9.4).</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap09/fig_04.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;9.4.</strong> El principio de minimización dicta enviar al modelo solo los datos que la tarea necesita. Redactar la PII <em>antes</em> de que el texto llegue al modelo —sobre todo si es un <em>endpoint</em> externo— reduce la superficie de exposición en origen.</figcaption>
+</figure>
+</div>
+<section id="tres-operaciones-tres-compromisos." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="tres-operaciones-tres-compromisos.">Tres operaciones, tres compromisos.</h5>
+<p>Minimizar no es una sola operación sino tres, con compromisos distintos que la tabla&nbsp;9.4 resume. La <em>redacción</em> (<em>redaction</em>) elimina o enmascara la mención —«[REDACTADO]»—: máxima protección del campo, máxima pérdida de utilidad, y un texto lleno de huecos que el modelo lee peor. La <em>seudonimización</em> (<em>pseudonymization</em>) sustituye cada identidad por un marcador estable —<code>&lt;PERSONA_1&gt;</code>—: conserva la estructura del relato (quién hizo qué a quién) y permite revertir la sustitución al volver la respuesta, a costa de mantener una tabla de mapeo que es, en sí misma, un dato sensible. La <em>generalización</em> sustituye el valor por una clase —la edad por una franja, el municipio por la provincia—: conserva la utilidad estadística y pierde el detalle, y es la operación natural para cuasi-identificadores que la tarea usa como contexto, no como identidad. La elección no es global sino por tipo y por tarea: un triaje clínico puede generalizar la edad, seudonimizar al paciente y redactar el número de historia, todo en el mismo texto.</p>
+<table class="caption-top table">
+<caption>Las tres operaciones de minimización y sus compromisos. La elección se hace por tipo de entidad y por tarea, no globalmente; las tres conviven en un mismo texto.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Operación</th>
+<th style="text-align: left;">Conserva</th>
+<th style="text-align: left;">Pierde</th>
+<th style="text-align: left;">Reversible</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">redacción</td>
+<td style="text-align: left;">nada del campo</td>
+<td style="text-align: left;">legibilidad local</td>
+<td style="text-align: left;">no</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">seudonimización</td>
+<td style="text-align: left;">estructura y correferencia</td>
+<td style="text-align: left;">la identidad literal</td>
+<td style="text-align: left;">sí, con tabla local</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">generalización</td>
+<td style="text-align: left;">valor estadístico</td>
+<td style="text-align: left;">el detalle exacto</td>
+<td style="text-align: left;">no</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="seudonimización-coherente-y-reinyección." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="seudonimización-coherente-y-reinyección.">Seudonimización coherente y reinyección.</h5>
+<p>Dos detalles separan una seudonimización útil de una decorativa. Primero, la <em>coherencia</em>: la misma identidad recibe el mismo marcador en todo el documento —y en toda la sesión—, o el modelo pierde la correferencia y con ella la mitad del razonamiento; por eso el mapa se indexa por la mención normalizada, no por la posición. Segundo, la <em>reinyección</em>: la respuesta del modelo vuelve con los marcadores, y una pasada local los sustituye por los valores reales antes de mostrarla al usuario autorizado. El efecto neto: el proveedor externo procesa el caso completo sin conocer a la persona, y el usuario final recibe una respuesta con nombres reales sin que estos hayan salido de la frontera.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> seudonimizar(texto: <span class="bu">str</span>, entidades: <span class="bu">list</span>[EntidadPII]) <span class="op">-&gt;</span> <span class="bu">tuple</span>[<span class="bu">str</span>, <span class="bu">dict</span>]:</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""sustituye cada mención por un marcador estable; devuelve el mapa."""</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    mapa: <span class="bu">dict</span>[<span class="bu">str</span>, <span class="bu">str</span>] <span class="op">=</span> {}</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> ent <span class="kw">in</span> <span class="bu">sorted</span>(entidades, key<span class="op">=</span><span class="kw">lambda</span> e: <span class="op">-</span>e.inicio):</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        marca <span class="op">=</span> mapa.setdefault(</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>            ent.texto, <span class="ss">f"&lt;</span><span class="sc">{</span>ent<span class="sc">.</span>tipo<span class="sc">.</span>upper()<span class="sc">}</span><span class="ss">_</span><span class="sc">{</span><span class="bu">len</span>(mapa) <span class="op">+</span> <span class="dv">1</span><span class="sc">}</span><span class="ss">&gt;"</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        texto <span class="op">=</span> (texto[:ent.inicio] <span class="op">+</span> marca</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>                 <span class="op">+</span> texto[ent.inicio <span class="op">+</span> <span class="bu">len</span>(ent.texto):])</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> texto, mapa</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> reinyectar(respuesta: <span class="bu">str</span>, mapa: <span class="bu">dict</span>[<span class="bu">str</span>, <span class="bu">str</span>]) <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""restaura los valores reales en la respuesta, ya dentro de la frontera."""</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> original, marca <span class="kw">in</span> mapa.items():</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>        respuesta <span class="op">=</span> respuesta.replace(marca, original)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> respuesta</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>El recorrido de atrás hacia delante evita que cada sustitución desplace las posiciones pendientes, y el <code>setdefault</code> garantiza la coherencia: la segunda mención de «García» reutiliza el marcador de la primera. La tabla <code>mapa</code> no viaja nunca con el <em>prompt</em>: vive en la memoria del proceso local, se descarta al servir la respuesta y, si debe persistir —auditoría, sesiones largas—, se cifra y se somete a la misma retención que el dato original, porque un mapa de seudónimos filtrado deshace toda la defensa.</p>
+</section>
+<section id="marcadores-que-sobreviven-al-resto-del-sistema." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="marcadores-que-sobreviven-al-resto-del-sistema.">Marcadores que sobreviven al resto del sistema.</h5>
+<p>El marcador sustituto no vive aislado: atraviesa el modelo, los validadores y la prosa de la respuesta, y su diseño decide cuánta utilidad sobrevive. Tres reglas prácticas. Conservar el <em>tipo</em>: un validador de aguas abajo que espera una fecha no debe romperse porque la fecha sea ahora <code>&lt;FECHA_1&gt;</code>; si el flujo valida formatos, el sustituto respeta el formato —una fecha sintética imposible antes que una etiqueta—. Conservar la <em>gramática</em>: en español, «<code>&lt;PERSONA_1&gt;</code> está ingresada» delata el género que se quiso ocultar o rompe la concordancia; los sustitutos con forma de nombre neutro evitan que el modelo tropiece o que la reinyección deje frases cojas. Y conservar la <em>distinguibilidad</em>: el modelo debe poder razonar «<code>&lt;PERSONA_1&gt;</code> llamó dos veces; <code>&lt;PERSONA_2&gt;</code>, ninguna», así que los marcadores nunca se colapsan entre sí aunque el tipo coincida. La seudonimización bien hecha es invisible para el resto del programa; cada excepción a estas reglas se paga en utilidad medida, no en opiniones.</p>
+</section>
+<section id="los-límites-de-la-minimización." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="los-límites-de-la-minimización.">Los límites de la minimización.</h5>
+<p>Conviene decir en voz alta cuanto la minimización no consigue. No detiene la inferencia de atributos: el texto seudonimizado sigue delatando dialecto, edad aproximada y circunstancias <span class="citation" data-cites="staab2024beyond">(<a href="#ref-staab2024beyond" role="doc-biblioref">Staab et&nbsp;al. 2024</a>)</span>, porque las pistas no son menciones sino tejido. No arregla la acumulación: cien respuestas inocuas sobre la misma persona seudonimizada componen un perfil; el observador de salidas de la sección&nbsp;9.2 no necesita nombres para enlazarlas. Y no sustituye a la minimización de la <em>tarea</em>: la firma que pide «resume el caso» expone menos que la que pide «resume el caso con todos los datos del cliente», y el diseño de firmas estrechas —solo los campos que la decisión necesita— es minimización aplicada antes de todo tachado. La redacción es una capa; la arquitectura que decide qué texto circula es la defensa de fondo, y es el asunto de la sección siguiente.</p>
+</section>
+</section>
+<section id="delegación-consciente-de-la-privacidad-modelo-local-y-modelo-externo" class="level2">
+<h2 class="anchored" data-anchor-id="delegación-consciente-de-la-privacidad-modelo-local-y-modelo-externo">Delegación consciente de la privacidad: modelo local y modelo externo</h2>
+<p>Las secciones anteriores dan las piezas; la arquitectura las compone. El patrón de <em>delegación consciente de la privacidad</em> (<em>privacy-conscious delegation</em>) reparte el trabajo entre dos modelos con niveles de confianza distintos: uno <em>local</em> y de confianza —pequeño, autoalojado, con acceso al texto crudo— y otro <em>externo</em> y potente —una API de frontera que nunca ve los datos sin minimizar—. El modelo local detecta, minimiza y reformula; el externo aporta la capacidad de razonamiento que el pequeño no alcanza; y el local integra la respuesta y reinyecta los datos dentro de la frontera. DSPy expresa este reparto con naturalidad: cada módulo del programa puede fijar su propio modelo con <code>dspy.context</code> (capítulo&nbsp;7), de modo que la frontera de confianza queda escrita en el código, no en la esperanza.</p>
+<section id="papillon-el-patrón-compilado." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="papillon-el-patrón-compilado.">PAPILLON: el patrón, compilado.</h5>
+<p>El sistema PAPILLON materializa el patrón como un programa DSPy de dos módulos: un <em>creador de peticiones</em> que, con el modelo local, redacta una consulta útil pero libre de datos personales para el modelo externo, y un <em>agregador de información</em> que, de nuevo en local, funde la respuesta externa con el contexto privado para producir la respuesta final <span class="citation" data-cites="siyan2025papillon">(<a href="#ref-siyan2025papillon" role="doc-biblioref">Siyan et&nbsp;al. 2025</a>)</span>. Ambos <em>prompts</em> se optimizan conjuntamente con MIPROv2 (capítulo&nbsp;6) contra una métrica doble de calidad y fuga. Para evaluar sin datos artificiales, los autores construyen PUPA, un banco de 901 interacciones reales usuario-modelo con PII, muestreadas de WildChat; el mejor <em>pipeline</em> compilado mantiene la calidad de respuesta en el 85,5 % de las consultas con una fuga restringida al 7,5 %, usando Llama-3.1-8B como modelo local y una API externa como motor de razonamiento <span class="citation" data-cites="siyan2025papillon">(<a href="#ref-siyan2025papillon" role="doc-biblioref">Siyan et&nbsp;al. 2025</a>)</span>. Las cifras importan menos que su forma: ni la calidad es la del modelo grande a texto abierto, ni la fuga es cero; la delegación compra un punto intermedio que antes no existía, y la optimización automática es la diferencia entre ese punto y un prototipo inutilizable. La figura&nbsp;9.5 dibuja la frontera de confianza.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap09/fig_05.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;9.5.</strong> El patrón de PAPILLON: un modelo local redacta una petición sin PII para el modelo externo y otro módulo local integra la respuesta con el contexto privado <span class="citation" data-cites="siyan2025papillon">(<a href="#ref-siyan2025papillon" role="doc-biblioref">Siyan et&nbsp;al. 2025</a>)</span>. La frontera de confianza queda escrita en el programa: el texto crudo nunca la cruza.</figcaption>
+</figure>
+</div>
+</section>
+<section id="cuándo-delegar-y-cuándo-no." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="cuándo-delegar-y-cuándo-no.">Cuándo delegar y cuándo no.</h5>
+<p>La delegación añade un modelo, una pasada y una fuente de error, así que no es el punto de partida universal. La decisión compara tres arquitecturas. Solo local: máxima privacidad, calidad limitada por el modelo que quepa en la máquina (el apéndice&nbsp;A documenta el despliegue con vLLM), y la opción obligada cuando el dato no puede salir bajo ningún supuesto. Solo externo con minimización previa (sección&nbsp;9.4): la calidad del modelo grande, exposición acotada pero real —el texto minimizado sigue saliendo—, y la opción razonable cuando el riesgo del dominio es medio. Delegación: el término medio compilable, al precio de orquestar dos modelos y de aceptar la fuga residual que la métrica mida. El criterio del capítulo&nbsp;10 se aplica sin cambios: se elige la arquitectura más simple cuyo riesgo medido quepa en el presupuesto de riesgo aceptado por escrito, y se deja constancia de la alternativa descartada.</p>
+</section>
+<section id="la-frontera-también-es-operativa." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="la-frontera-también-es-operativa.">La frontera también es operativa.</h5>
+<p>El patrón exige disciplina fuera del programa. El modelo local corre en infraestructura controlada —la del apéndice&nbsp;A o un servicio interno—, con la caché y los registros dentro de la misma frontera: una caché de <em>prompts</em> crudos en un servicio externo de caché anula el diseño. Las llamadas al exterior pasan por un único punto de salida auditable, donde se registra qué salió —el texto minimizado, no el crudo— y se aplican las comprobaciones de la sección&nbsp;9.6 antes de enviar, no solo antes de responder. Y el contrato con el proveedor externo (encargado del tratamiento, en términos del RGPD; sección&nbsp;9.11) fija retención y uso de los datos enviados, porque la frontera técnica sin la jurídica queda coja.</p>
+</section>
+<section id="el-coste-de-la-frontera." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-coste-de-la-frontera.">El coste de la frontera.</h5>
+<p>La delegación se paga en latencia y se cobra en factura, y ambas partidas se presupuestan como manda el capítulo&nbsp;10. La latencia suma dos inferencias en serie —la local de minimizar y la externa de razonar— más la pasada local de integración; la local corre en un modelo pequeño servido con vLLM (apéndice&nbsp;A), y detección y seudonimización pueden fundirse en una sola llamada para no pagar dos veces el arranque. La factura externa, en cambio, tiende a <em>bajar</em>: el texto minimizado es más corto que el crudo —sin firmas de correo, sin hilos completos, sin campos ajenos a la tarea—, y los <em>tokens</em> que no viajan no se cobran; la privacidad y el ahorro empujan aquí en la misma dirección. Y la caché del capítulo&nbsp;10 gana una propiedad lateral valiosa: si la clave de caché se calcula sobre el texto seudonimizado, el almacén de caché no contiene PII —dos tiques distintos de la misma persona ni siquiera comparten clave—, y una pieza más de infraestructura sale del perímetro sensible. El coste en latencia es real y se mide: sobre el corpus ai4privacy, el patrón de delegación —detectar, redactar y luego responder— sube la latencia p50 de &nbsp;s (un solo paso) a &nbsp;s, algo más del doble, a cambio de que el texto crudo no salga de la máquina.</p>
+</section>
+</section>
+<section id="métricas-de-fuga-medir-qué-expone-una-respuesta" class="level2">
+<h2 class="anchored" data-anchor-id="métricas-de-fuga-medir-qué-expone-una-respuesta">Métricas de fuga: medir qué expone una respuesta</h2>
+<p>Solo se protege lo medido. Una <em>métrica de fuga</em> cuantifica cuánta PII aparece en una salida que no debería contenerla, y convierte la privacidad en un número que se sigue y se optimiza (capítulo&nbsp;4). Como toda métrica del libro, se valida contra el juicio humano y se documenta: qué cuenta como fuga, con qué gravedad, y cómo se pondera frente a la utilidad de la respuesta (figura&nbsp;9.6).</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap09/fig_06.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;9.6.</strong> Solo se protege lo medido. Una métrica de fuga cuantifica cuánta PII aparece en una salida que no debería contenerla, y convierte la privacidad en un número que se sigue y se optimiza. Se valida contra el juicio humano, como toda métrica del libro.</figcaption>
+</figure>
+</div>
+<section id="definir-la-fuga-de-forma-operativa." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="definir-la-fuga-de-forma-operativa.">Definir la fuga de forma operativa.</h5>
+<p>La definición ejecutable tiene dos condiciones: un tramo de la salida es fuga si (a) es información personal según el esquema de la sección&nbsp;9.3 y (b) la tarea declarada no lo necesita. La segunda condición es la que las herramientas genéricas omiten y la integridad contextual exige: en un parte para el médico, la dolencia no es fuga; en el resumen para facturación, sí. Sea <span class="math inline">\(f(\hat{y}) \in [0,1]\)</span> la fracción de entidades personales de la salida <span class="math inline">\(\hat{y}\)</span> que incumple (b) —ponderada por gravedad si el esquema la declara—, y <span class="math inline">\(u(x,\hat{y}) \in [0,1]\)</span> la utilidad de la respuesta medida como en el capítulo&nbsp;4. Las dos formas útiles de componerlas son <span class="math display">\[\begin{equation}
+  m_{\lambda}(x,\hat{y}) \;=\; u(x,\hat{y}) - \lambda\, f(\hat{y})
+  \qquad\text{o bien}\qquad
+  m_{\tau}(x,\hat{y}) \;=\; u(x,\hat{y})\cdot
+    \mathbf{1}\!\left[\, f(\hat{y}) \le \tau \,\right],
+\end{equation}\]</span> la penalización lineal con peso <span class="math inline">\(\lambda\)</span> y la puerta dura con umbral <span class="math inline">\(\tau\)</span>. La lineal da gradiente de mejora al optimizador —una fuga menos siempre suma—; la puerta expresa políticas de tolerancia cero —una respuesta que filtra vale cero, por útil que sea—. En la práctica conviene optimizar con la lineal y desplegar con la puerta como salvaguarda final, con el valor de <span class="math inline">\(\lambda\)</span> elegido de forma deliberada y documentada; su barrido exige el flujo de fuga completo —juez de utilidad y de fuga sobre respuestas servidas—, aparte del banco de detección de PII de este capítulo.</p>
+</section>
+<section id="el-juez-de-fuga-y-su-validación." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-juez-de-fuga-y-su-validación.">El juez de fuga y su validación.</h5>
+<p>Medir <span class="math inline">\(f\)</span> exige un evaluador. El detector de la sección&nbsp;9.3 resuelve la parte literal —¿qué entidades hay en la salida?—, y un juez LM (capítulo&nbsp;4) resuelve la contextual —¿las necesita la tarea?—, con una firma que recibe tarea declarada, entrada minimizada y respuesta, y devuelve los tramos injustificados con su motivo. Dos cautelas gobiernan ese juez. Primera: ve datos personales por construcción, así que corre en el lado local de la frontera de la sección&nbsp;9.5; evaluar la fuga enviándosela a un tercero sería el chiste que se cuenta solo. Segunda: es un modelo, no un oráculo; se valida contra una muestra etiquetada a mano —acuerdo juez-humano, con las el detector de PII sobre ai4privacy concuerda con las etiquetas del corpus a un F1 de  %, cifra que un juez de fuga tendría que superar antes de fiarse de él— y se revalida cuando cambia el modelo del juez, la plantilla o el dominio, exactamente como cualquier juez del capítulo&nbsp;4. La firma hace explícita la definición operativa —sin la tarea como entrada, el juez no puede distinguir el uso legítimo de la fuga—:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> EvaluarFuga(dspy.Signature):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""señala la PII de la respuesta que la tarea no justifica."""</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    tarea: <span class="bu">str</span> <span class="op">=</span> dspy.InputField(desc<span class="op">=</span><span class="st">"finalidad declarada de la respuesta"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    respuesta: <span class="bu">str</span> <span class="op">=</span> dspy.InputField()</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    fraccion: <span class="bu">float</span> <span class="op">=</span> dspy.OutputField(</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        desc<span class="op">=</span><span class="st">"fracción de PII injustificada, ponderada por gravedad"</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    motivos: <span class="bu">list</span>[<span class="bu">str</span>] <span class="op">=</span> dspy.OutputField(</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        desc<span class="op">=</span><span class="st">"cada tramo injustificado y por qué la tarea no lo exige"</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>juez_fuga <span class="op">=</span> dspy.ChainOfThought(EvaluarFuga)   <span class="co"># con el modelo LOCAL</span></span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="ponderar-sin-ocultar." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="ponderar-sin-ocultar.">Ponderar sin ocultar.</h5>
+<p>El escalar <span class="math inline">\(m_\lambda\)</span> existe para el optimizador; el cuadro de mando existe para las personas, y no debe heredar la compresión. Utilidad y fuga se publican por separado —con la fuga desglosada por tipo y gravedad: un teléfono no pesa como un diagnóstico—, porque un solo número esconde precisamente la pregunta que un incidente hará aflorar: ¿cuánta fuga aceptamos a cambio de qué? La asimetría de la sección&nbsp;9.3 reaparece aquí: optimizar solo la media invita a compensar una fuga grave con diez respuestas brillantes, y esa aritmética es indefendible ante un regulador. El percentil alto de <span class="math inline">\(f\)</span> —el peor caso típico— pertenece al cuadro de mando tanto como la media, en la línea de los indicadores operativos del capítulo&nbsp;10.</p>
+</section>
+<section id="un-ejemplo-trazado." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="un-ejemplo-trazado.">Un ejemplo trazado.</h5>
+<p>Un tique concreto fija las ideas; las cifras del ejemplo son ilustrativas del mecanismo, no medidas. Entra: «Soy Marta R., línea 612&nbsp;XXX&nbsp;XXX. No pude pagar la factura de marzo porque estuve ingresada; ¿puedo fraccionarla?». La tarea declarada: proponer un plan de pagos. El sistema A responde con fluidez: «Dado su ingreso hospitalario de marzo, fraccionamos su deuda en tres plazos...». El juez de utilidad puntúa alto —pongamos <span class="math inline">\(u = 0{,}9\)</span>: resuelve y es clara—, pero el juez de fuga marca un tramo: «ingreso hospitalario» es categoría especial (artículo&nbsp;9) y el plan de pagos no lo necesita; con el peso de gravedad del esquema, <span class="math inline">\(f = 0{,}5\)</span>. Con <span class="math inline">\(\lambda = 0{,}6\)</span>, la métrica compuesta&nbsp;(9.2) da <span class="math inline">\(m = 0{,}9 - 0{,}6 \cdot 0{,}5 = 0{,}6\)</span>. El sistema B responde: «Podemos fraccionar la factura de marzo en tres plazos sin recargo»; algo más seca —<span class="math inline">\(u = 0{,}85\)</span>—, sin tramo alguno de fuga —<span class="math inline">\(f = 0\)</span>— y con <span class="math inline">\(m = 0{,}85\)</span>. La respuesta un punto menos brillante gana con claridad, que es exactamente la preferencia que el sistema debe aprender; y si la política del dominio es de tolerancia cero, la puerta <span class="math inline">\(m_\tau\)</span> habría anulado a A directamente. Obsérvese cuánto trabajo hace la tarea declarada: en un parte médico, la misma mención no habría sido fuga; el juez no evalúa palabras, evalúa flujos contra contexto (sección&nbsp;9.1).</p>
+</section>
+</section>
+<section id="optimizar-para-no-filtrar-privacidad-en-la-métrica-con-feedback" class="level2">
+<h2 class="anchored" data-anchor-id="optimizar-para-no-filtrar-privacidad-en-la-métrica-con-feedback">Optimizar para no filtrar: privacidad en la métrica con <em>feedback</em></h2>
+<p>Con una métrica de fuga en su sitio, la optimización del capítulo&nbsp;6 sirve a la privacidad sin cambios de fondo: se penaliza la fuga en la métrica y el optimizador busca instrucciones y demostraciones que no filtran. El <em>feedback</em> textual de GEPA <span class="citation" data-cites="agrawal2025gepa">(<a href="#ref-agrawal2025gepa" role="doc-biblioref"><span class="nocase">Agrawal et&nbsp;al.</span> 2025</a>)</span> es aquí valioso, porque una fuga se puede explicar —«reveló el apellido del paciente citado en el contexto»— y esa crítica orienta la corrección mejor que una nota escalar.</p>
+<section id="la-métrica-compuesta-en-código." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="la-métrica-compuesta-en-código.">La métrica compuesta, en código.</h5>
+<p>La métrica combina los dos jueces de la sección&nbsp;9.6 y, para GEPA, devuelve además la explicación que alimenta la reflexión:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> metrica_privacidad(ejemplo, pred, trace<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                       lam: <span class="bu">float</span> <span class="op">=</span> <span class="fl">0.6</span>) <span class="op">-&gt;</span> dspy.Prediction:</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""utilidad menos fuga ponderada; con crítica textual para GEPA."""</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    utilidad <span class="op">=</span> juez_utilidad(pregunta<span class="op">=</span>ejemplo.pregunta,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                             respuesta<span class="op">=</span>pred.respuesta).nota</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    fuga <span class="op">=</span> juez_fuga(tarea<span class="op">=</span>ejemplo.tarea,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                     respuesta<span class="op">=</span>pred.respuesta)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    nota <span class="op">=</span> utilidad <span class="op">-</span> lam <span class="op">*</span> fuga.fraccion</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    critica <span class="op">=</span> (<span class="ss">f"utilidad </span><span class="sc">{</span>utilidad<span class="sc">:.2f}</span><span class="ss">; "</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>               <span class="ss">f"fuga </span><span class="sc">{</span>fuga<span class="sc">.</span>fraccion<span class="sc">:.2f}</span><span class="ss">: </span><span class="sc">{</span>fuga<span class="sc">.</span>motivos<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> dspy.Prediction(score<span class="op">=</span>nota, feedback<span class="op">=</span>critica)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>MIPROv2 usa la nota; GEPA usa además la crítica, y la diferencia se nota en el tipo de instrucción que emerge: con <em>feedback</em> textual, las instrucciones compiladas incorporan reglas explícitas —«no repitas identificadores del contexto; refiérete al cliente por su rol»— que el proponente destiló de los motivos de fuga, el mismo mecanismo del frente de Pareto del capítulo&nbsp;6 puesto a trabajar con dos objetivos reales. La comparación GEPA frente a MIPROv2 con la métrica de fuga reutiliza el arnés del capítulo&nbsp;6 —donde ya se midió, sobre clasificación, que GEPA gana calidad al mayor coste— aplicado al flujo de privacidad completo, que este capítulo no ensambla.</p>
+</section>
+<section id="las-demostraciones-también-filtran." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="las-demostraciones-también-filtran.">Las demostraciones también filtran.</h5>
+<p>Hay una fuga que la métrica de salida no ve: la del propio artefacto. El arranque del capítulo&nbsp;5 elige ejemplos reales del conjunto de entrenamiento y los incrusta como demostraciones en el programa compilado; si ese conjunto contiene PII, el programa la difunde en cada llamada —a todo proveedor, en toda traza— sin que ninguna respuesta la contenga. La higiene tiene tres pasos: seudonimizar el conjunto de entrenamiento antes de compilar (sección&nbsp;9.4), pasar el detector de PII sobre el artefacto compilado como puerta de la promoción —el JSON de demostraciones se audita igual que el código—, y mantener la auditoría en la integración continua del capítulo&nbsp;10, porque cada recompilación puede traer demostraciones nuevas. La fracción de demostraciones con PII antes y después de la higiene se obtiene pasando el detector de PII sobre el artefacto compilado del capítulo&nbsp;3, cuyas demostraciones (registros de un SOC) contienen direcciones y usuarios; es la auditoría que la integración continua automatiza.</p>
+</section>
+<section id="compilar-también-es-tratar-datos." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="compilar-también-es-tratar-datos.">Compilar también es tratar datos.</h5>
+<p>Un detalle que pasa inadvertido hasta que se piensa en volumen: la optimización <em>ejecuta</em> el programa cientos o miles de veces sobre el conjunto de desarrollo (capítulo&nbsp;6), y cada ejecución envía ese conjunto —sus casos reales— por el mismo camino que una petición de producción. Si el programa delega en un modelo externo, la compilación es una campaña de envíos masivos de datos al proveedor; si el juez corre fuera, otra. La disciplina es la misma que en producción, aplicada antes: el conjunto de desarrollo se seudonimiza igual que el de entrenamiento, los jueces corren en local, y el presupuesto de la optimización —cuántos <em>rollouts</em>, con qué datos, hacia dónde— figura en el plan de la corrida como figura su coste en euros. La frontera de confianza de la sección&nbsp;9.5 no distingue entre compilar y servir, y el diseño tampoco debería. La figura&nbsp;9.7 sitúa los dos jueces en el bucle.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap09/fig_07.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;9.7.</strong> El bucle de optimización con la privacidad dentro: cada candidato se evalúa con un juez de utilidad y un juez de fuga —este, siempre en el lado local—, y el optimizador recibe la nota compuesta&nbsp;(9.2) y, con GEPA, la crítica textual que explica cada fuga.</figcaption>
+</figure>
+</div>
+</section>
+<section id="qué-esperar-con-los-pies-en-el-suelo." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="qué-esperar-con-los-pies-en-el-suelo.">Qué esperar, con los pies en el suelo.</h5>
+<p>La evidencia publicada marca el orden de magnitud alcanzable: en PAPILLON, la optimización conjunta de los dos módulos con MIPROv2 es la que lleva el compromiso a calidad del 85,5 % con fuga del 7,5 % <span class="citation" data-cites="siyan2025papillon">(<a href="#ref-siyan2025papillon" role="doc-biblioref">Siyan et&nbsp;al. 2025</a>)</span>; sin compilar, el mismo esqueleto queda lejos en ambos ejes. Dos lecturas prudentes. Primera: la fuga optimizada no es cero, y ningún optimizador la llevará a cero mientras la utilidad exija citar el caso; la puerta <span class="math inline">\(m_\tau\)</span> de la ecuación&nbsp;(9.2) existe para el resto. Segunda: la métrica optimizada es la métrica del juez; si el juez de fuga no ve la inferencia de atributos (sección&nbsp;9.2), el programa compilado tampoco la evitará. La optimización refina contra la vara elegida —elegir bien la vara sigue siendo trabajo del capítulo&nbsp;4—.</p>
+</section>
+</section>
+<section id="rag-que-no-expone-redacción-en-la-recuperación" class="level2">
+<h2 class="anchored" data-anchor-id="rag-que-no-expone-redacción-en-la-recuperación">RAG que no expone: redacción en la recuperación</h2>
+<p>Un sistema de recuperación (capítulo&nbsp;7) puede filtrar por partida doble: trayendo pasajes con datos personales y vertiéndolos en la respuesta. La defensa redacta la PII en el propio pasaje recuperado antes de que el lector razone sobre él, de modo que el conocimiento útil llega sin los datos que exponen. Es la inyección indirecta del capítulo de flujos vista desde la privacidad: el contenido recuperado es dato, y su PII, un riesgo a contener (figura&nbsp;9.8).</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap09/fig_08.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;9.8.</strong> Un recuperador puede filtrar por partida doble: trayendo pasajes con datos personales y vertiéndolos en la respuesta. La defensa redacta la PII en el propio pasaje antes de que el lector razone, de modo que el conocimiento útil llega sin los datos que exponen.</figcaption>
+</figure>
+</div>
+<section id="el-control-de-acceso-va-antes-que-la-redacción." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-control-de-acceso-va-antes-que-la-redacción.">El control de acceso va antes que la redacción.</h5>
+<p>La primera fuga de un RAG no es sutil: es recuperar un documento que el usuario no tenía derecho a leer y resumírselo con esmero. Antes de toda redacción, el índice filtra por autorización: cada documento lleva sus lectores legítimos como metadato, la consulta llega con la identidad del solicitante, y el recuperador descarta lo no autorizado <em>antes</em> de la ordenación —después es tarde: hasta el hueco visible de un resultado omitido denota existencia—. En sistemas multiinquilino, la partición del índice por inquilino es más robusta que el filtro por metadato: un error de filtro en un índice compartido expone al vecino; un índice por inquilino convierte ese error en un fallo de recuperación, ruidoso e inocuo. Y la finalidad se ata al índice: el corpus recogido para soporte no se consulta desde el módulo de mercadotecnia, por disponible que esté —limitación de finalidad, dicho en arquitectura (sección&nbsp;9.11)—.</p>
+</section>
+<section id="redactar-al-indexar-o-al-recuperar." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="redactar-al-indexar-o-al-recuperar.">Redactar al indexar o al recuperar.</h5>
+<p>Queda decidir dónde tacha el sistema, y las dos opciones reparten costes de forma distinta (tabla&nbsp;9.5). Redactar <em>al indexar</em> protege también el almacén: los vectores se calculan sobre texto ya minimizado, y la inversión de <em>embeddings</em> de la sección&nbsp;9.2 recupera, como mucho, texto tachado. Su límite es la rigidez: una sola versión redactada sirve a todos los usos, y recuperar el detalle legítimo exige ir al documento original con su control de acceso. Redactar <em>al recuperar</em> conserva un índice fiel y adapta el tachado al destinatario —el médico ve la dolencia; facturación no—, al precio de un almacén vectorial que sigue siendo tan sensible como el corpus y de una pasada de redacción en cada consulta. La regla por defecto del capítulo: redactar al indexar todo cuanto ningún caso de uso legítimo necesita, y reservar la redacción por destinatario para los campos que unos roles ven y otros no.</p>
+<table class="caption-top table">
+<caption>Dónde tachar en un RAG: los dos puntos de redacción y sus compromisos. Por defecto, al indexar; por destinatario, al recuperar.</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th style="text-align: left;">Al indexar</th>
+<th style="text-align: left;">Al recuperar</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>protege el índice</td>
+<td style="text-align: left;">sí (vectores sin PII)</td>
+<td style="text-align: left;">no (índice fiel al corpus)</td>
+</tr>
+<tr class="even">
+<td>adapta al destinatario</td>
+<td style="text-align: left;">no (una versión)</td>
+<td style="text-align: left;">sí (tachado por rol)</td>
+</tr>
+<tr class="odd">
+<td>coste por consulta</td>
+<td style="text-align: left;">nulo</td>
+<td style="text-align: left;">una pasada de redacción</td>
+</tr>
+<tr class="even">
+<td>riesgo de inversión</td>
+<td style="text-align: left;">residual</td>
+<td style="text-align: left;">íntegro</td>
+</tr>
+<tr class="odd">
+<td></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"><span class="citation" data-cites="morris2023text">(<a href="#ref-morris2023text" role="doc-biblioref">Morris et&nbsp;al. 2023</a>)</span></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="el-índice-es-un-dato-personal-más." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-índice-es-un-dato-personal-más.">El índice es un dato personal más.</h5>
+<p>De la inversión de <em>embeddings</em> (sección&nbsp;9.2) se sigue una regla de trato: el almacén vectorial hereda la clasificación del corpus que representa —cifrado en reposo, control de acceso, retención y derecho de supresión incluidos—. Dos corolarios operativos. Primero, calcular los <em>embeddings</em> de un corpus sensible contra una API externa ya es exposición: el texto viaja entero al proveedor antes de que exista vector alguno; para corpus con PII, el <em>embedder</em> corre en local (apéndice&nbsp;A) o la redacción precede al cálculo. Segundo, borrar a una persona del sistema exige borrar sus pasajes del índice, no solo del corpus: los vectores retienen el contenido a efectos prácticos, y la supresión del artículo&nbsp;17 alcanza a las representaciones (sección&nbsp;9.11).</p>
+</section>
+<section id="la-consulta-también-exfiltra." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="la-consulta-también-exfiltra.">La consulta también exfiltra.</h5>
+<p>El análisis anterior mira al corpus; falta mirar a la consulta. La pregunta del usuario lleva su propia PII —«¿qué cobertura tiene la póliza de Marta R. tras su ingreso?»— y esa frase viaja íntegra al <em>embedder</em>, al registro del recuperador y, en arquitecturas con reescritura de consulta (capítulo&nbsp;7), a un modelo más. Tres consecuencias. La reescritura de consulta hereda un papel de privacidad: reformular hacia términos del dominio —«cobertura hospitalización póliza»— minimiza antes de embeber, con el mismo módulo que ya existía para mejorar la recuperación. El <em>embedder</em> de consultas sigue la regla del corpus: para dominios sensibles, local. Y el registro de consultas —quién buscó qué, cuándo— es un historial de intereses de las personas, a veces más delator que el propio corpus: se seudonimiza, se somete a retención corta y se excluye del conjunto de entrenamiento de futuros modelos salvo decisión expresa y documentada.</p>
+</section>
+</section>
+<section id="memorización-extracción-y-canarios" class="level2">
+<h2 class="anchored" data-anchor-id="memorización-extracción-y-canarios">Memorización, extracción y canarios</h2>
+<p>Los modelos memorizan fragmentos de su corpus de entrenamiento, y un atacante puede extraerlos con <em>prompts</em> diseñados: se ha demostrado la extracción de datos de entrenamiento de modelos de lenguaje <span class="citation" data-cites="carlini2021extracting">(<a href="#ref-carlini2021extracting" role="doc-biblioref">Carlini et&nbsp;al. 2021</a>)</span> y se ha cuantificado cómo la memorización crece con el tamaño del modelo, la duplicación y el contexto <span class="citation" data-cites="carlini2023quantifying">(<a href="#ref-carlini2023quantifying" role="doc-biblioref">Carlini et&nbsp;al. 2023</a>)</span>. Para un sistema con DSPy, la lección es doble: no incluir datos sensibles en las demostraciones compiladas (capítulo&nbsp;5), que viajan en cada <em>prompt</em>, y evaluar la resistencia del sistema a la extracción como un objetivo medible más. La figura&nbsp;9.9 recuerda cómo crece la memorización.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap09/fig_09.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;9.9.</strong> Forma cualitativa (ilustrativa) de un resultado medido: la memorización crece de forma log-lineal con el tamaño del modelo, la duplicación del ejemplo y la longitud del contexto <span class="citation" data-cites="carlini2023quantifying">(<a href="#ref-carlini2023quantifying" role="doc-biblioref">Carlini et&nbsp;al. 2023</a>)</span>; la extracción con <em>prompts</em> diseñados está demostrada <span class="citation" data-cites="carlini2021extracting">(<a href="#ref-carlini2021extracting" role="doc-biblioref">Carlini et&nbsp;al. 2021</a>)</span>.</figcaption>
+</figure>
+</div>
+<section id="la-extracción-funciona-en-producción." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="la-extracción-funciona-en-producción.">La extracción funciona en producción.</h5>
+<p>La objeción habitual —«eso vale para modelos de laboratorio, no para un producto alineado»— quedó desmontada: con un ataque de divergencia que fuerza al modelo a abandonar su estilo de asistente, se extrajeron más de diez mil ejemplos de entrenamiento memorizados literalmente de ChatGPT con unos doscientos dólares de consultas, y gigabytes de datos de entrenamiento de modelos abiertos y semiabiertos <span class="citation" data-cites="nasr2025scalable">(<a href="#ref-nasr2025scalable" role="doc-biblioref">Nasr et&nbsp;al. 2025</a>)</span>. El alineamiento esconde la memorización; no la borra. Para este capítulo, la lectura es operativa: si el conjunto de ajuste o el corpus contienen datos personales, hay que asumir que un adversario con acceso de consulta puede recuperar parte de ellos, y las defensas se dimensionan para ese supuesto, no para el mejor caso.</p>
+</section>
+<section id="medir-con-canarios-la-exposición." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="medir-con-canarios-la-exposición.">Medir con canarios: la exposición.</h5>
+<p>La resistencia a la extracción se mide, no se supone, y el instrumento clásico es el <em>canario</em> (<em>canary</em>): una secuencia sintética única —«mi código de reserva es QX-482-193»— que se siembra en los datos y cuya recuperabilidad se cuantifica después. Sobre un conjunto <span class="math inline">\(R\)</span> de candidatos del mismo formato, la <em>exposición</em> (<em>exposure</em>) del canario <span class="math inline">\(c\)</span> se define por su rango de verosimilitud bajo el modelo, <span class="math display">\[\begin{equation}
+  \mathrm{exposicion}(c) \;=\; \log_2 \lvert R \rvert \;-\;
+  \log_2 \mathop{\mathrm{rango}}_{\,\theta}(c),
+\end{equation}\]</span> de cero —el canario es uno más entre los candidatos— al máximo cuando el modelo lo prefiere a todos <span class="citation" data-cites="carlini2019secret">(<a href="#ref-carlini2019secret" role="doc-biblioref">Carlini et&nbsp;al. 2019</a>)</span>. La metodología se traslada al programa completo: canarios sembrados en el conjunto de entrenamiento delatan demostraciones compiladas que los arrastran; canarios en el corpus de RAG delatan pasajes que cruzan la frontera sin redactar; y la búsqueda del canario en salidas, trazas y artefactos se automatiza como una prueba más de la integración continua (capítulo&nbsp;10). La exposición de canarios exige medir la memorización de un modelo <em>entrenado</em> sobre el corpus sembrado, no un modelo servido de solo lectura, de modo que queda fuera del banco local, que sirve el modelo por vLLM sin canal de entrenamiento.</p>
+</section>
+<section id="diseñar-el-canario." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="diseñar-el-canario.">Diseñar el canario.</h5>
+<p>Un canario mal diseñado mide poco. Las reglas del oficio: formato realista —la misma estructura que el dato que imita, para que el modelo lo trate como a los demás— pero valor imposible —un dígito de control inválido, un rango reservado—, de modo que nunca colisione con un dato real ni pueda dañar a nadie si aflora. Entropía suficiente y documentada: la exposición&nbsp;(9.3) se lee contra el tamaño del espacio de candidatos <span class="math inline">\(\lvert R \rvert\)</span>, y un canario de cuatro dígitos satura la escala enseguida. Uno por superficie y por lote: el canario del corpus de RAG no es el del conjunto de ajuste ni el del banco de demostraciones, porque cada uno responde una pregunta distinta sobre por dónde cruzan los datos. Rotación: un canario que apareció en una salida está quemado —ya vive en trazas y cachés— y se reemplaza. Y el registro de canarios —qué secuencia se sembró dónde— es en sí mismo material sensible: quien lo posea puede fabricar «fugas» o buscarlas con ventaja, así que se custodia aparte, como la tabla de seudónimos de la sección&nbsp;9.4.</p>
+</section>
+<section id="qué-memoriza-un-programa-dspy." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="qué-memoriza-un-programa-dspy.">Qué memoriza un programa DSPy.</h5>
+<p>Conviene separar los dos regímenes del libro. Un programa compilado a <em>prompts</em> —instrucciones más demostraciones— no memoriza en los pesos nada del dominio: su «memoria» es el propio artefacto, visible, auditable y borrable, y esa transparencia es una ventaja de privacidad genuina frente al ajuste fino; la contrapartida es que difunde sus demostraciones en cada llamada (sección&nbsp;9.7). El ajuste de pesos —<code>BootstrapFinetune</code> en el capítulo&nbsp;5— reabre en cambio la memorización clásica, con los factores medidos por <span class="citation" data-cites="carlini2023quantifying">Carlini et&nbsp;al. (<a href="#ref-carlini2023quantifying" role="doc-biblioref">2023</a>)</span>: crece con la escala del modelo, con la duplicación del ejemplo —deduplicar el corpus es la mitigación barata con mejor rendimiento— y con la longitud del contexto que el atacante puede aportar. La regla del capítulo: para datos personales, preferir la adaptación a nivel de <em>prompt</em>; si el ajuste de pesos es imprescindible, deduplicar, sembrar canarios, medir la exposición&nbsp;(9.3) antes de promover, y considerar el entrenamiento con privacidad diferencial de la sección siguiente.</p>
+</section>
+<section id="la-memoria-conversacional-es-otra-superficie." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="la-memoria-conversacional-es-otra-superficie.">La memoria conversacional es otra superficie.</h5>
+<p>Entre el artefacto y los pesos queda una memoria intermedia que los sistemas interactivos acumulan sin declarar: el historial. Un asistente con memoria de sesión —o peor, con memoria persistente entre sesiones— arrastra en cada turno cuanto el usuario dijo antes, y ese arrastre tiene tres consecuencias. Crece el <em>prompt</em> efectivo, y con él cuanto cruza la frontera en cada llamada: la minimización de la sección&nbsp;9.4 se aplica al historial igual que a la entrada nueva, podando cuanto la tarea del turno no necesita. Aparece un almacén más —el de sesiones— con su retención, su control de acceso y su derecho de supresión, exactamente como el índice de la sección&nbsp;9.8. Y se abre un canal de fuga entre personas: en sistemas compartidos, la memoria de un usuario no debe asomar en la sesión de otro, y esa separación se prueba con canarios sembrados por sesión, no se supone. La memoria es útil; lo indefendible es la memoria por defecto, sin inventario ni caducidad.</p>
+</section>
+</section>
+<section id="privacidad-diferencial-garantías-con-matemática-no-con-esperanza" class="level2">
+<h2 class="anchored" data-anchor-id="privacidad-diferencial-garantías-con-matemática-no-con-esperanza">Privacidad diferencial: garantías con matemática, no con esperanza</h2>
+<p>Todas las defensas anteriores son empíricas: reducen la fuga medida sin acotar la no medida. La <em>privacidad diferencial</em> (<em>differential privacy</em>, DP) da el paso que falta: una garantía matemática sobre el mecanismo, válida contra cualquier adversario y cualquier ataque futuro. Un mecanismo aleatorio <span class="math inline">\(M\)</span> es <span class="math inline">\((\varepsilon,\delta)\)</span>-diferencialmente privado si, para todo par de conjuntos de datos <span class="math inline">\(D\)</span> y <span class="math inline">\(D'\)</span> que difieren en una sola persona y todo conjunto de salidas <span class="math inline">\(S\)</span>, <span class="math display">\[\begin{equation}
+  \mathbb{P}\!\left[\, M(D) \in S \,\right] \;\le\;
+  e^{\varepsilon} \, \mathbb{P}\!\left[\, M(D') \in S \,\right] + \delta,
+\end{equation}\]</span> de modo que la presencia o ausencia de un individuo apenas cambia la distribución de resultados <span class="citation" data-cites="dwork2006calibrating">(<a href="#ref-dwork2006calibrating" role="doc-biblioref">Dwork et&nbsp;al. 2006</a>)</span>. La consecuencia que importa aquí: la ventaja de cualquier ataque de pertenencia —ecuación&nbsp;(9.1)— queda acotada por <span class="math inline">\(\varepsilon\)</span>, no por el ingenio del atacante.</p>
+<section id="dp-sgd-para-el-ajuste-de-pesos." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="dp-sgd-para-el-ajuste-de-pesos.">DP-SGD para el ajuste de pesos.</h5>
+<p>Cuando el ajuste fino sobre datos personales es inevitable, el entrenamiento mismo puede hacerse diferencialmente privado: DP-SGD recorta el gradiente de cada ejemplo a una norma máxima, añade ruido gaussiano al agregado y contabiliza el presupuesto <span class="math inline">\(\varepsilon\)</span> gastado a lo largo del entrenamiento <span class="citation" data-cites="abadi2016dpsgd">(<a href="#ref-abadi2016dpsgd" role="doc-biblioref">Abadi et&nbsp;al. 2016</a>)</span>. El precio es real —más cómputo por paso y una pérdida de calidad que crece al bajar <span class="math inline">\(\varepsilon\)</span>—, y el retorno también: sobre extracción de PII se ha medido que el entrenamiento con DP a nivel de frase reduce drásticamente la fuga, aunque no la anula —del orden del 3 % de las secuencias de PII sigue siendo recuperable en el banco estudiado— <span class="citation" data-cites="lukas2023analyzing">(<a href="#ref-lukas2023analyzing" role="doc-biblioref">Lukas et&nbsp;al. 2023</a>)</span>. Traducido a este libro: DP-SGD se aplica al <code>BootstrapFinetune</code> del capítulo&nbsp;5 cuando el conjunto de ajuste contiene personas, con el presupuesto <span class="math inline">\(\varepsilon\)</span> y la caída de calidad medidos y documentados; el barrido de <span class="math inline">\(\varepsilon\)</span> exige entrenar con DP-SGD, un canal de entrenamiento aparte del servidor de inferencia, fuera del banco local. La figura&nbsp;9.10 denota la forma del compromiso: la utilidad sube con <span class="math inline">\(\varepsilon\)</span> —menos ruido, menos garantía— y se acerca asintóticamente al techo del entrenamiento sin privacidad; elegir <span class="math inline">\(\varepsilon\)</span> es elegir un punto de esa curva a sabiendas.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap09/fig_10.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;9.10.</strong> Forma cualitativa (ilustrativa) del compromiso de DP-SGD <span class="citation" data-cites="abadi2016dpsgd">(<a href="#ref-abadi2016dpsgd" role="doc-biblioref">Abadi et&nbsp;al. 2016</a>)</span>: con presupuestos <span class="math inline">\(\varepsilon\)</span> pequeños el ruido domina y la utilidad cae; al crecer <span class="math inline">\(\varepsilon\)</span> la utilidad se acerca al techo del entrenamiento sin privacidad, a costa de la garantía&nbsp;(9.4). Elegir <span class="math inline">\(\varepsilon\)</span> es fijar un punto de esta curva por escrito.</figcaption>
+</figure>
+</div>
+</section>
+<section id="demostraciones-sintéticas-con-garantía." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="demostraciones-sintéticas-con-garantía.">Demostraciones sintéticas con garantía.</h5>
+<p>La otra superficie con solución de principio son las demostraciones. En vez de incrustar ejemplos reales —aunque sea seudonimizados—, se generan ejemplos <em>sintéticos</em> con privacidad diferencial a partir del conjunto privado, y son esos sintéticos los que viajan en el <em>prompt</em>: el aprendizaje en contexto conserva casi toda la utilidad y ningún ejemplo real cruza la frontera <span class="citation" data-cites="tang2024dpicl">(<a href="#ref-tang2024dpicl" role="doc-biblioref">Tang et&nbsp;al. 2024</a>)</span>. El mismo espíritu anima a PATE, donde un conjunto de maestros entrenados sobre particiones disjuntas vota con ruido las etiquetas que un estudiante público aprende <span class="citation" data-cites="papernot2017pate">(<a href="#ref-papernot2017pate" role="doc-biblioref">Papernot et&nbsp;al. 2017</a>)</span>: agregación ruidosa de muchos, en lugar de memoria de uno. Para DSPy, la receta es directa: el generador DP produce el banco de demostraciones candidatas y el optimizador del capítulo&nbsp;5 selecciona entre ellas; la pérdida de utilidad frente a demostraciones reales exige generar el banco sintético con privacidad diferencial —un proceso de entrenamiento—, que el banco de solo inferencia de este capítulo no cubre. La tabla&nbsp;9.6 empareja cada superficie con su mecanismo.</p>
+<table class="caption-top table">
+<caption>Qué mecanismo con garantía formal cubre cada superficie del programa, y su coste característico. La garantía&nbsp;(9.4) vale contra cualquier ataque; el coste se paga en utilidad y cómputo.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Superficie</th>
+<th style="text-align: left;">Mecanismo</th>
+<th style="text-align: left;">Referencia</th>
+<th style="text-align: left;">Coste</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">pesos ajustados</td>
+<td style="text-align: left;">DP-SGD</td>
+<td style="text-align: left;"><span class="citation" data-cites="abadi2016dpsgd">(<a href="#ref-abadi2016dpsgd" role="doc-biblioref">Abadi et&nbsp;al. 2016</a>)</span></td>
+<td style="text-align: left;">calidad, cómputo</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">demostraciones</td>
+<td style="text-align: left;">generación sintética DP</td>
+<td style="text-align: left;"><span class="citation" data-cites="tang2024dpicl">(<a href="#ref-tang2024dpicl" role="doc-biblioref">Tang et&nbsp;al. 2024</a>)</span></td>
+<td style="text-align: left;">utilidad</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">etiquetado</td>
+<td style="text-align: left;">PATE (maestros con ruido)</td>
+<td style="text-align: left;"><span class="citation" data-cites="papernot2017pate">(<a href="#ref-papernot2017pate" role="doc-biblioref">Papernot et&nbsp;al. 2017</a>)</span></td>
+<td style="text-align: left;">datos, cómputo</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">estadísticas publicadas</td>
+<td style="text-align: left;">mecanismos clásicos</td>
+<td style="text-align: left;"><span class="citation" data-cites="dwork2006calibrating">(<a href="#ref-dwork2006calibrating" role="doc-biblioref">Dwork et&nbsp;al. 2006</a>)</span></td>
+<td style="text-align: left;">precisión</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="leer-varepsilon-con-honestidad." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="leer-varepsilon-con-honestidad.">Leer <span class="math inline">\(\varepsilon\)</span> con honestidad.</h5>
+<p>La garantía es exacta; su lectura, no tanto. Primero, <span class="math inline">\(\varepsilon\)</span> compone: cada uso del dato gasta presupuesto, y un <span class="math inline">\(\varepsilon\)</span> razonable por mecanismo puede sumar uno indefendible por sistema; el presupuesto se contabiliza global, como el coste del capítulo&nbsp;10. Segundo, la unidad protegida es el registro de una persona: si el mismo secreto aparece en cien registros, la garantía por registro no lo cubre —la duplicación vuelve a cobrarse—. Tercero, DP protege contra la inferencia <em>sobre la pertenencia del dato</em>, no contra la inferencia de atributos a partir del texto que el sistema publica (sección&nbsp;9.2): son amenazas distintas con defensas distintas. Y cuarto, con conjuntos pequeños el ruido arrasa la utilidad; ahí la respuesta honesta no es un <span class="math inline">\(\varepsilon\)</span> de fantasía, sino otra arquitectura —más minimización, menos ajuste—. DP es el instrumento de precisión del capítulo, no su martillo.</p>
+</section>
+</section>
+<section id="cumplimiento-y-contexto-del-rgpd-al-reglamento-de-ia" class="level2">
+<h2 class="anchored" data-anchor-id="cumplimiento-y-contexto-del-rgpd-al-reglamento-de-ia">Cumplimiento y contexto: del RGPD al Reglamento de IA</h2>
+<p>El marco legal da forma a estas decisiones. El Reglamento general de protección de datos <span class="citation" data-cites="gdpr2016">(<a href="#ref-gdpr2016" role="doc-biblioref">Parlamento Europeo y Consejo de la Unión Europea 2016</a>)</span> consagra la minimización —tratar solo los datos necesarios—, la limitación de la finalidad y los derechos de las personas, y exige poder rendir cuentas de un tratamiento automático. La disciplina del libro —artefactos versionados, trazas auditables, decisiones explicables (capítulo&nbsp;10)— provee buena parte de cuanto el cumplimiento reclama, y hace de la privacidad una propiedad demostrable, no una promesa.</p>
+<table class="caption-top table">
+<caption>Principios y derechos del RGPD <span class="citation" data-cites="gdpr2016">(<a href="#ref-gdpr2016" role="doc-biblioref">Parlamento Europeo y Consejo de la Unión Europea 2016</a>)</span> frente a la pieza técnica de este capítulo que los sostiene. El mapa no sustituye al asesoramiento jurídico: da la correspondencia operativa.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Principio o derecho (RGPD)</th>
+<th style="text-align: left;">Lo aporta la disciplina del capítulo</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">minimización (art.&nbsp;5)</td>
+<td style="text-align: left;">redacción y seudonimización antes del modelo</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">(sección&nbsp;9.4)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">limitación de finalidad (art.&nbsp;5)</td>
+<td style="text-align: left;">firmas que acotan la tarea; índices</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">atados a su finalidad (sección&nbsp;9.8)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">categorías especiales (art.&nbsp;9)</td>
+<td style="text-align: left;">esquema de tipos con gravedad</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">(sección&nbsp;9.3)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">supresión (art.&nbsp;17)</td>
+<td style="text-align: left;">borrado en corpus, índice y artefactos; recompilar</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">(sección&nbsp;9.11)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">encargado del tratamiento (art.&nbsp;28)</td>
+<td style="text-align: left;">contrato con el proveedor del</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;"><em>endpoint</em> (sección&nbsp;9.5)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">notificación de brechas (art.&nbsp;33)</td>
+<td style="text-align: left;">la fuga medida es un incidente con</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">reloj (sección&nbsp;9.12)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">decisiones automatizadas (art.&nbsp;22)</td>
+<td style="text-align: left;">intervención humana en el bucle</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">(capítulo&nbsp;10)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">evaluación de impacto (art.&nbsp;35)</td>
+<td style="text-align: left;">modelo de amenaza y métricas</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">documentados (secciones&nbsp;9.2 y&nbsp;9.6)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">rendición de cuentas (art.&nbsp;5)</td>
+<td style="text-align: left;">artefactos versionados, trazas auditables</td>
+</tr>
+</tbody>
+</table>
+<section id="anonimizar-no-es-seudonimizar." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="anonimizar-no-es-seudonimizar.">Anonimizar no es seudonimizar.</h5>
+<p>El RGPD traza una frontera que el lenguaje coloquial difumina: los datos <em>seudonimizados</em> siguen siendo personales —la reidentificación es posible con información adicional, como la tabla de mapeo de la sección&nbsp;9.4— y quedan dentro del reglamento; solo los datos <em>anónimos</em>, irreversiblemente desvinculados de toda persona, salen de su alcance <span class="citation" data-cites="gdpr2016">(<a href="#ref-gdpr2016" role="doc-biblioref">Parlamento Europeo y Consejo de la Unión Europea 2016</a>)</span>. Y el listón de la anonimización real es alto: la aritmética de los cuasi-identificadores de la sección&nbsp;9.3 muestra cuán poco hace falta para reidentificar <span class="citation" data-cites="sweeney2002kanon">(<a href="#ref-sweeney2002kanon" role="doc-biblioref">Sweeney 2002</a>)</span>. La consecuencia práctica: casi todo corpus de texto «anonimizado» del mundo real está, en el mejor de los casos, seudonimizado, y el sistema que lo trata se diseña bajo el reglamento —minimización, acceso, retención—, no fuera de él.</p>
+</section>
+<section id="supresión-y-desaprendizaje." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="supresión-y-desaprendizaje.">Supresión y desaprendizaje.</h5>
+<p>El derecho de supresión choca con la física de los pesos: quitar a una persona de un modelo ya entrenado no es borrar una fila. El <em>desaprendizaje automático</em> (<em>machine unlearning</em>) ataca ese problema —la arquitectura SISA fragmenta el entrenamiento en particiones y rebanadas para reentrenar solo la porción afectada por cada baja <span class="citation" data-cites="bourtoule2021unlearning">(<a href="#ref-bourtoule2021unlearning" role="doc-biblioref">Bourtoule et&nbsp;al. 2021</a>)</span>—, pero sigue siendo costoso y parcial. Aquí los programas a nivel de <em>prompt</em> exhiben su segunda ventaja de privacidad: suprimir a una persona es borrar sus pasajes del corpus y del índice, retirar sus ejemplos del conjunto de entrenamiento y recompilar el programa —horas de cómputo barato, no un reentrenamiento—; el artefacto resultante, auditable, permite además <em>demostrar</em> la supresión. Con pesos ajustados, en cambio, la baja honesta exige reentrenar desde el último punto limpio o aplicar desaprendizaje con sus garantías; una razón más para la regla de la sección&nbsp;9.9.</p>
+</section>
+<section id="el-reglamento-de-ia-en-una-capa-distinta." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-reglamento-de-ia-en-una-capa-distinta.">El Reglamento de IA, en una capa distinta.</h5>
+<p>Desde 2024, el Reglamento de Inteligencia Artificial se suma al marco: donde el RGPD protege el dato, el nuevo reglamento regula el <em>sistema</em>, con obligaciones graduadas por riesgo —transparencia, documentación técnica, registros de actividad, supervisión humana— y un régimen propio para los modelos de propósito general <span class="citation" data-cites="aiact2024">(<a href="#ref-aiact2024" role="doc-biblioref">Parlamento Europeo y Consejo de la Unión Europea 2024</a>)</span>. Para el ingeniero de este libro, la novedad no es conceptual sino de exigibilidad: la documentación del sistema, las evaluaciones con métricas declaradas y las trazas de cada decisión —costumbres que los capítulos&nbsp;4 y&nbsp;10 ya imponen— pasan de buena práctica a requisito. Quien llegue con la disciplina del libro puesta encontrará en el reglamento burocracia; quien llegue sin ella, una reconstrucción.</p>
+</section>
+<section id="residencia-y-transferencia." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="residencia-y-transferencia.">Residencia y transferencia.</h5>
+<p>Dónde se procesa importa tanto como cómo. Enviar datos personales a un <em>endpoint</em> fuera del Espacio Económico Europeo activa el capítulo&nbsp;V del RGPD —transferencias internacionales, con sus garantías y cláusulas— <span class="citation" data-cites="gdpr2016">(<a href="#ref-gdpr2016" role="doc-biblioref">Parlamento Europeo y Consejo de la Unión Europea 2016</a>)</span>, y aun dentro de él, el contrato de encargado (artículo&nbsp;28) debe fijar qué retiene el proveedor y por cuánto tiempo: varios servicios conservan las peticiones un plazo con fines de supervisión de abusos, y ese plazo es parte del modelo de amenaza del proveedor curioso (sección&nbsp;9.2), no una nota al pie. Las palancas del ingeniero, de menor a mayor control: elegir regiones de procesamiento europeas cuando el proveedor las ofrece; pactar retención cero por contrato; mover la carga sensible al modelo local de la sección&nbsp;9.5, donde la transferencia sencillamente no ocurre. La delegación consciente de la privacidad es también, leída desde el derecho, una herramienta de residencia de datos.</p>
+</section>
+<section id="las-trazas-también-son-tratamiento." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="las-trazas-también-son-tratamiento.">Las trazas también son tratamiento.</h5>
+<p>Queda la superficie que la tabla&nbsp;9.1 señala y casi nadie gobierna: la observabilidad. Los registros de depuración retienen entradas y salidas completas —con su PII—, y un almacén de trazas sin política es, a menudo, la mayor base de datos personales de la organización. Las reglas mínimas: registrar el texto minimizado, no el crudo, siempre que el caso lo permita; retener por tiempo definido y borrar por calendario; restringir el acceso a las trazas con el mismo rigor que al corpus; y excluir de los registros la tabla de seudónimos y todo material de reinyección. La observabilidad del capítulo&nbsp;10 no se sacrifica: se minimiza, como todo lo demás.</p>
+</section>
+</section>
+<section id="un-pipeline-de-privacidad-de-extremo-a-extremo" class="level2">
+<h2 class="anchored" data-anchor-id="un-pipeline-de-privacidad-de-extremo-a-extremo">Un <em>pipeline</em> de privacidad de extremo a extremo</h2>
+<p>Las piezas se componen en un flujo: detectar la PII, redactarla antes del modelo, razonar sobre el texto minimizado, y comprobar la salida contra la métrica de fuga antes de servirla. Como cualquier programa de DSPy, se declara con firmas y módulos, se optimiza de extremo a extremo contra una métrica que pondera utilidad y privacidad, y se despliega con las salvaguardas del capítulo&nbsp;10. La privacidad deja de ser un conjunto de reglas dispersas y se vuelve un sistema medible y mantenible. La figura&nbsp;9.11 encadena los pasos.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap09/fig_11.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;9.11.</strong> Las piezas se componen: detectar la PII, redactarla antes del modelo, razonar sobre el texto minimizado y comprobar la salida contra la métrica de fuga antes de servirla. Se declara con firmas y se optimiza de extremo a extremo contra una métrica que pondera utilidad y privacidad.</figcaption>
+</figure>
+</div>
+<section id="el-caso-soporte-con-datos-de-clientes." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-caso-soporte-con-datos-de-clientes.">El caso: soporte con datos de clientes.</h5>
+<p>Sirva de banco un asistente que responde tiques de soporte de una operadora: los tiques traen nombre, número de línea, dirección y, a veces, datos de pago. El programa compone las piezas del capítulo —detección, seudonimización, delegación, auditoría de fuga y reinyección— con la frontera de confianza escrita en el código:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AsistenteSoporte(dspy.Module):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, lm_externo: dspy.LM):</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.detectar <span class="op">=</span> dspy.ChainOfThought(DetectarPII)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.responder <span class="op">=</span> dspy.ChainOfThought(ResponderCaso)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.auditar <span class="op">=</span> dspy.ChainOfThought(EvaluarFuga)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.lm_externo <span class="op">=</span> lm_externo</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, tique: <span class="bu">str</span>) <span class="op">-&gt;</span> dspy.Prediction:</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>        entidades <span class="op">=</span> <span class="va">self</span>.detectar(texto<span class="op">=</span>tique).entidades</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        texto, mapa <span class="op">=</span> seudonimizar(tique, entidades)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> dspy.context(lm<span class="op">=</span><span class="va">self</span>.lm_externo):   <span class="co"># solo ve lo minimizado</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>            borrador <span class="op">=</span> <span class="va">self</span>.responder(caso<span class="op">=</span>texto).respuesta</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>        fuga <span class="op">=</span> <span class="va">self</span>.auditar(tarea<span class="op">=</span><span class="st">"responder al cliente"</span>,</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>                            respuesta<span class="op">=</span>borrador)</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> fuga.fraccion <span class="op">&gt;</span> <span class="fl">0.0</span>:                  <span class="co"># puerta dura antes de servir</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> FugaDetectada(fuga.motivos)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> dspy.Prediction(respuesta<span class="op">=</span>reinyectar(borrador, mapa))</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Los módulos <code>detectar</code> y <code>auditar</code> corren con el modelo local por defecto; solo <code>responder</code> cruza la frontera, y lo hace con el texto seudonimizado. La puerta final aplica la política <span class="math inline">\(m_\tau\)</span> de la ecuación&nbsp;(9.2) con tolerancia cero: en este dominio, mejor una excepción atendida por una persona que una fuga servida con fluidez.</p>
+</section>
+<section id="compilar-auditar-promover." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="compilar-auditar-promover.">Compilar, auditar, promover.</h5>
+<p>La compilación sigue el guion del capítulo&nbsp;6 con la métrica compuesta de la sección&nbsp;9.7: el conjunto de entrenamiento se seudonimiza antes de que el optimizador lo vea, MIPROv2 o GEPA buscan instrucciones y demostraciones que suben utilidad sin subir fuga, y el artefacto resultante pasa dos puertas antes de la promoción: el detector de PII sobre sus demostraciones (sección&nbsp;9.7) y la búsqueda de canarios sembrados (sección&nbsp;9.9). Los resultados del caso —utilidad y fuga antes y después de compilar, con <span class="math inline">\(N \ge 3\)</span> corridas como manda la política de cifras del libro— exigen el flujo de delegación completo con sus jueces de utilidad y de fuga; el banco de este capítulo mide sus piezas —detección de PII (F1  %) y latencia de la delegación—, no el sistema entero ensamblado. La forma esperada, a la luz de lo publicado, es la de PAPILLON: una mejora conjunta sustancial frente al esqueleto sin compilar, con una fuga residual que la puerta dura intercepta <span class="citation" data-cites="siyan2025papillon">(<a href="#ref-siyan2025papillon" role="doc-biblioref">Siyan et&nbsp;al. 2025</a>)</span>. El guion completo cabe en cuatro líneas:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> MIPROv2(metric<span class="op">=</span>metrica_privacidad, auto<span class="op">=</span><span class="st">"medium"</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>asistente <span class="op">=</span> opt.<span class="bu">compile</span>(AsistenteSoporte(lm_externo),</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                        trainset<span class="op">=</span>tiques_seudonimizados)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>auditar_artefacto(asistente)   <span class="co"># PII en demos y canarios, antes de promover</span></span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="operar-la-fuga-como-incidente." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="operar-la-fuga-como-incidente.">Operar: la fuga como incidente.</h5>
+<p>En producción, el capítulo&nbsp;10 manda, con tres añadidos propios de la privacidad. Primero, la métrica de fuga se monitoriza como indicador de primera clase: una muestra de las respuestas servidas pasa por el juez local de forma asíncrona, y su deriva dispara alarma igual que la deriva de calidad —los datos cambian, y el tachado que bastaba deja de bastar—. Segundo, los canarios viven también en producción: sembrados en el corpus, su aparición en cualquier salida es un detector de fallo de la cadena completa con coste casi nulo. Tercero, una fuga confirmada se trata como incidente con reloj legal: el RGPD da plazos estrictos de notificación de brechas <span class="citation" data-cites="gdpr2016">(<a href="#ref-gdpr2016" role="doc-biblioref">Parlamento Europeo y Consejo de la Unión Europea 2016</a>)</span>, de modo que el cuaderno de respuesta —qué se filtró, a quién, desde cuándo, qué se contiene y a quién se avisa— se escribe antes del primer incidente, no durante.</p>
+</section>
+<section id="variantes-del-patrón." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="variantes-del-patrón.">Variantes del patrón.</h5>
+<p>El mismo esqueleto se ajusta por dominio moviendo tres diales: el esquema de tipos, la gravedad y la posición de la frontera. En clínica, las categorías especiales del artículo&nbsp;9 dominan: gravedad máxima para todo dato de salud, puerta dura con <span class="math inline">\(\tau = 0\)</span>, y la frontera se cierra del todo —también el módulo de razonamiento corre en local, porque el criterio de la sección&nbsp;9.5 descarta sacar el caso—. En banca, los identificadores estructurados mandan: los validadores deterministas de la sección&nbsp;9.3 cubren cuentas y tarjetas con precisión casi perfecta, y el esfuerzo del LM se concentra en las menciones indirectas de patrimonio y circunstancias. Y en el SOC del capítulo&nbsp;3, la privacidad aparece donde menos se la espera: las alertas llevan nombres de usuario, direcciones IP —que pueden ser dato personal— y fragmentos de correos de empleados; el triaje que este libro optimiza es también un tratamiento, y el analista es a la vez defensor del sistema y sujeto de datos cuya actividad queda registrada. Tres dominios, un programa: cambian el esquema, los pesos y la frontera; el método no.</p>
+</section>
+</section>
+<section id="límites-y-compromisos-utilidadprivacidad" class="level2">
+<h2 class="anchored" data-anchor-id="límites-y-compromisos-utilidadprivacidad">Límites y compromisos utilidad/privacidad</h2>
+<p>La honestidad obliga a cerrar con el compromiso de fondo: proteger la privacidad cuesta utilidad. Redactar demasiado empobrece la respuesta; redactar de menos expone a las personas, y no existe un punto óptimo universal, sino una frontera que cada sistema fija según su riesgo y su finalidad. Hacer ese compromiso explícito en la métrica —con su peso deliberado— es mejor que dejarlo implícito, y es la forma en que la programación de <em>prompts</em> sirve a la privacidad sin fingir que el conflicto no existe. La figura&nbsp;9.12 dibuja esa frontera.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap09/fig_12.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;9.12.</strong> Proteger la privacidad cuesta utilidad (curva ilustrativa): redactar demasiado empobrece la respuesta; redactar de menos expone a las personas. No hay un óptimo universal, sino una frontera que cada sistema fija según su riesgo, y conviene hacerla explícita en la métrica.</figcaption>
+</figure>
+</div>
+<section id="lo-que-ninguna-redacción-arregla." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="lo-que-ninguna-redacción-arregla.">Lo que ninguna redacción arregla.</h5>
+<p>Tres riesgos sobreviven a todo el capítulo, y nombrarlos es parte del oficio. La inferencia de atributos: mientras el sistema publique texto con sustancia, ese texto denota cosas de su autor que ningún tachado de menciones elimina <span class="citation" data-cites="staab2024beyond">(<a href="#ref-staab2024beyond" role="doc-biblioref">Staab et&nbsp;al. 2024</a>)</span>. La acumulación: respuestas individualmente inocuas componen perfiles, y la defensa está en las políticas de acceso y retención, no en la respuesta suelta. Y el factor humano: el usuario autorizado que reenvía la respuesta reinyectada, el registro exportado a una hoja de cálculo, el proveedor que cambia sus términos. La privacidad de un sistema es sociotécnica; el programa compilado es su núcleo medible, no su totalidad.</p>
+</section>
+<section id="cuándo-la-respuesta-es-no-construir." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="cuándo-la-respuesta-es-no-construir.">Cuándo la respuesta es no construir.</h5>
+<p>La minimización tiene un caso extremo que conviene mantener sobre la mesa: no tratar. Si la tarea se resuelve con estadísticas agregadas, con datos sintéticos o sin el campo sensible, la mejor defensa es no recoger ese dato —el dato que no circula no se filtra, no se retiene y no se notifica—. El capítulo&nbsp;10 pregunta cuándo no usar DSPy; este capítulo hereda la pregunta con más filo: un sistema brillante sobre datos que no debieron tratarse es un pasivo con métricas excelentes. La decisión de construir se toma con el modelo de amenaza delante, y «no» es una salida respetable.</p>
+</section>
+<section id="el-compromiso-se-gobierna-no-se-resuelve." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-compromiso-se-gobierna-no-se-resuelve.">El compromiso se gobierna, no se resuelve.</h5>
+<p>Puesto que el punto óptimo no existe, la pregunta madura no es «cuál es el <span class="math inline">\(\lambda\)</span> correcto» sino «quién lo fija, con qué información y cada cuánto se revisa». La respuesta operativa tiene tres piezas. Un <em>dueño</em> del compromiso: la persona o el comité —delegado de protección de datos incluido donde exista— que aprueba <span class="math inline">\(\lambda\)</span> y <span class="math inline">\(\tau\)</span> a la vista de las curvas medidas, no de adjetivos. Un <em>calendario</em>: el compromiso se revisita cuando cambian los datos, la finalidad o el modelo, y como mínimo a intervalos fijos, porque la deriva de la sección&nbsp;9.12 también afecta a la frontera elegida. Y un <em>registro de excepciones</em>: cada caso en que la puerta dura se puenteó —siempre habrá uno urgente— queda anotado con quién, cuándo y por qué, porque la excepción sin registro es la política real. Gobernar el compromiso es la versión adulta de resolverlo; el programa compilado aporta la parte que sí se resuelve: que el punto elegido, sea cual sea, esté medido y se mantenga.</p>
+</section>
+<section id="lista-de-comprobación-del-capítulo." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="lista-de-comprobación-del-capítulo.">Lista de comprobación del capítulo.</h5>
+<ul>
+<li><p>Modelo de amenaza escrito: adversarios y superficies de la tabla&nbsp;9.1, con responsables.</p></li>
+<li><p>Esquema de PII del dominio declarado; detector medido por tipo, con la exhaustividad como prioridad (sección&nbsp;9.3).</p></li>
+<li><p>Minimización por defecto: redactar, seudonimizar o generalizar antes de todo modelo externo; firmas estrechas.</p></li>
+<li><p>Frontera de confianza escrita en el código: qué modelo ve qué texto (sección&nbsp;9.5); caché y registros dentro.</p></li>
+<li><p>Métrica de fuga validada contra humanos; utilidad y fuga separadas en el cuadro de mando; puerta dura en producción.</p></li>
+<li><p>Artefacto compilado auditado: demostraciones sin PII, canarios ausentes de salidas y trazas.</p></li>
+<li><p>Índice vectorial tratado como el corpus: acceso, cifrado, retención, supresión (sección&nbsp;9.8).</p></li>
+<li><p>Ajuste de pesos solo con deduplicación, canarios y, con datos personales, DP-SGD y presupuesto <span class="math inline">\(\varepsilon\)</span> documentado.</p></li>
+<li><p>Mapa RGPD al día (tabla&nbsp;9.7); retención y acceso de trazas definidos; cuaderno de incidentes escrito.</p></li>
+<li><p>Compromiso utilidad/privacidad decidido por escrito, con su <span class="math inline">\(\lambda\)</span> o su <span class="math inline">\(\tau\)</span> y quién lo aprobó.</p></li>
+</ul>
+</section>
+</section>
+<section id="lecturas-recomendadas" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="lecturas-recomendadas">Lecturas recomendadas</h2>
+<ul>
+<li><p><span class="citation" data-cites="carlini2021extracting">Carlini et&nbsp;al. (<a href="#ref-carlini2021extracting" role="doc-biblioref">2021</a>)</span>: la extracción de datos de entrenamiento, demostrada; el punto de partida del área.</p></li>
+<li><p><span class="citation" data-cites="staab2024beyond">Staab et&nbsp;al. (<a href="#ref-staab2024beyond" role="doc-biblioref">2024</a>)</span>: la inferencia de atributos con LLM; por qué tachar menciones no basta.</p></li>
+<li><p><span class="citation" data-cites="siyan2025papillon">Siyan et&nbsp;al. (<a href="#ref-siyan2025papillon" role="doc-biblioref">2025</a>)</span>: delegación consciente de la privacidad construida y optimizada con DSPy; el patrón de este capítulo, medido.</p></li>
+<li><p><span class="citation" data-cites="dwork2006calibrating">Dwork et&nbsp;al. (<a href="#ref-dwork2006calibrating" role="doc-biblioref">2006</a>)</span>: la definición de privacidad diferencial y el cálculo del ruido; la base formal.</p></li>
+<li><p><span class="citation" data-cites="abadi2016dpsgd">Abadi et&nbsp;al. (<a href="#ref-abadi2016dpsgd" role="doc-biblioref">2016</a>)</span>: DP-SGD, el entrenamiento profundo con garantía; la referencia para el ajuste fino privado.</p></li>
+<li><p><span class="citation" data-cites="lukas2023analyzing">Lukas et&nbsp;al. (<a href="#ref-lukas2023analyzing" role="doc-biblioref">2023</a>)</span>: fuga de PII y defensas medidas de punta a punta; el estudio empírico de referencia.</p></li>
+<li><p><span class="citation" data-cites="nissenbaum2004contextual">Nissenbaum (<a href="#ref-nissenbaum2004contextual" role="doc-biblioref">2004</a>)</span>: la integridad contextual; el marco conceptual que da sentido a «fuga».</p></li>
+</ul>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">Referencias</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-abadi2016dpsgd" class="csl-entry" role="listitem">
+Abadi, Martín, Andy Chu, Ian Goodfellow, et&nbsp;al. 2016. <span>«Deep Learning with Differential Privacy»</span>. <em>Proceedings of the 2016 ACM SIGSAC Conference on Computer and Communications Security (CCS)</em>. <a href="https://arxiv.org/abs/1607.00133">https://arxiv.org/abs/1607.00133</a>.
+</div>
+<div id="ref-agrawal2025gepa" class="csl-entry" role="listitem">
+<span class="nocase">Agrawal, Lakshya A. et&nbsp;al.</span> 2025. <span>«<span>GEPA</span>: Reflective Prompt Evolution Can Outperform Reinforcement Learning»</span>. <a href="https://arxiv.org/abs/2507.19457">https://arxiv.org/abs/2507.19457</a>.
+</div>
+<div id="ref-bourtoule2021unlearning" class="csl-entry" role="listitem">
+Bourtoule, Lucas, Varun Chandrasekaran, Christopher A. Choquette-Choo, et&nbsp;al. 2021. <span>«Machine Unlearning»</span>. <em>2021 IEEE Symposium on Security and Privacy (S&amp;P)</em>. <a href="https://arxiv.org/abs/1912.03817">https://arxiv.org/abs/1912.03817</a>.
+</div>
+<div id="ref-carlini2023quantifying" class="csl-entry" role="listitem">
+Carlini, Nicholas, Daphne Ippolito, Matthew Jagielski, Katherine Lee, Florian Tramèr, y Chiyuan Zhang. 2023. <span>«Quantifying Memorization Across Neural Language Models»</span>. <em>The Eleventh International Conference on Learning Representations (ICLR)</em>. <a href="https://arxiv.org/abs/2202.07646">https://arxiv.org/abs/2202.07646</a>.
+</div>
+<div id="ref-carlini2019secret" class="csl-entry" role="listitem">
+Carlini, Nicholas, Chang Liu, Úlfar Erlingsson, Jernej Kos, y Dawn Song. 2019. <span>«The Secret Sharer: Evaluating and Testing Unintended Memorization in Neural Networks»</span>. <em>28th USENIX Security Symposium (USENIX Security 19)</em>. <a href="https://arxiv.org/abs/1802.08232">https://arxiv.org/abs/1802.08232</a>.
+</div>
+<div id="ref-carlini2021extracting" class="csl-entry" role="listitem">
+Carlini, Nicholas, Florian Tramèr, Eric Wallace, et&nbsp;al. 2021. <span>«Extracting Training Data from Large Language Models»</span>. <em>30th USENIX Security Symposium (USENIX Security 21)</em>. <a href="https://arxiv.org/abs/2012.07805">https://arxiv.org/abs/2012.07805</a>.
+</div>
+<div id="ref-dwork2006calibrating" class="csl-entry" role="listitem">
+Dwork, Cynthia, Frank McSherry, Kobbi Nissim, y Adam Smith. 2006. <span>«Calibrating Noise to Sensitivity in Private Data Analysis»</span>. <em>Third Theory of Cryptography Conference (TCC), LNCS 3876</em>.
+</div>
+<div id="ref-lukas2023analyzing" class="csl-entry" role="listitem">
+Lukas, Nils, Ahmed Salem, Robert Sim, Shruti Tople, Lukas Wutschitz, y Santiago Zanella-Béguelin. 2023. <span>«Analyzing Leakage of Personally Identifiable Information in Language Models»</span>. <em>2023 IEEE Symposium on Security and Privacy (S&amp;P)</em>. <a href="https://arxiv.org/abs/2302.00539">https://arxiv.org/abs/2302.00539</a>.
+</div>
+<div id="ref-mireshghallah2024confaide" class="csl-entry" role="listitem">
+Mireshghallah, Niloofar, Hyunwoo Kim, Xuhui Zhou, et&nbsp;al. 2024. <span>«Can <span>LLMs</span> Keep a Secret? Testing Privacy Implications of Language Models via Contextual Integrity Theory»</span>. <em>The Twelfth International Conference on Learning Representations (ICLR)</em>. <a href="https://arxiv.org/abs/2310.17884">https://arxiv.org/abs/2310.17884</a>.
+</div>
+<div id="ref-morris2023text" class="csl-entry" role="listitem">
+Morris, John X., Volodymyr Kuleshov, Vitaly Shmatikov, y Alexander M. Rush. 2023. <span>«Text Embeddings Reveal (Almost) As Much As Text»</span>. <em>Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing (EMNLP)</em>. <a href="https://arxiv.org/abs/2310.06816">https://arxiv.org/abs/2310.06816</a>.
+</div>
+<div id="ref-nasr2025scalable" class="csl-entry" role="listitem">
+Nasr, Milad, Javier Rando, Nicholas Carlini, et&nbsp;al. 2025. <span>«Scalable Extraction of Training Data from Aligned, Production Language Models»</span>. <em>The Thirteenth International Conference on Learning Representations (ICLR)</em>. <a href="https://arxiv.org/abs/2311.17035">https://arxiv.org/abs/2311.17035</a>.
+</div>
+<div id="ref-nissenbaum2004contextual" class="csl-entry" role="listitem">
+Nissenbaum, Helen. 2004. <span>«Privacy as Contextual Integrity»</span>. <em>Washington Law Review</em> 79 (1): 119-57.
+</div>
+<div id="ref-papernot2017pate" class="csl-entry" role="listitem">
+Papernot, Nicolas, Martín Abadi, Úlfar Erlingsson, Ian Goodfellow, y Kunal Talwar. 2017. <span>«Semi-supervised Knowledge Transfer for Deep Learning from Private Training Data»</span>. <em>The Fifth International Conference on Learning Representations (ICLR)</em>. <a href="https://arxiv.org/abs/1610.05755">https://arxiv.org/abs/1610.05755</a>.
+</div>
+<div id="ref-gdpr2016" class="csl-entry" role="listitem">
+Parlamento Europeo y Consejo de la Unión Europea. 2016. <em>Reglamento (UE) 2016/679 (Reglamento general de protección de datos)</em>. Diario Oficial de la Unión Europea, L 119.
+</div>
+<div id="ref-aiact2024" class="csl-entry" role="listitem">
+Parlamento Europeo y Consejo de la Unión Europea. 2024. <em>Reglamento (UE) 2024/1689 (Reglamento de Inteligencia Artificial)</em>. Diario Oficial de la Unión Europea, L, 12.7.2024.
+</div>
+<div id="ref-shokri2017membership" class="csl-entry" role="listitem">
+Shokri, Reza, Marco Stronati, Congzheng Song, y Vitaly Shmatikov. 2017. <span>«Membership Inference Attacks Against Machine Learning Models»</span>. <em>2017 IEEE Symposium on Security and Privacy (S&amp;P)</em>. <a href="https://arxiv.org/abs/1610.05820">https://arxiv.org/abs/1610.05820</a>.
+</div>
+<div id="ref-siyan2025papillon" class="csl-entry" role="listitem">
+Siyan, Li, Vethavikashini Chithrra Raghuram, Omar Khattab, Julia Hirschberg, y Zhou Yu. 2025. <span>«<span>PAPILLON</span>: Privacy Preservation from Internet-based and Local Language Model Ensembles»</span>. <em>Proceedings of the 2025 Conference of the Nations of the Americas Chapter of the Association for Computational Linguistics (NAACL)</em>. <a href="https://arxiv.org/abs/2410.17127">https://arxiv.org/abs/2410.17127</a>.
+</div>
+<div id="ref-staab2024beyond" class="csl-entry" role="listitem">
+Staab, Robin, Mark Vero, Mislav Balunović, y Martin Vechev. 2024. <span>«Beyond Memorization: Violating Privacy via Inference with Large Language Models»</span>. <em>The Twelfth International Conference on Learning Representations (ICLR)</em>. <a href="https://arxiv.org/abs/2310.07298">https://arxiv.org/abs/2310.07298</a>.
+</div>
+<div id="ref-sweeney2002kanon" class="csl-entry" role="listitem">
+Sweeney, Latanya. 2002. <span>«k-Anonymity: A Model for Protecting Privacy»</span>. <em>International Journal of Uncertainty, Fuzziness and Knowledge-Based Systems</em> 10 (5): 557-70.
+</div>
+<div id="ref-tang2024dpicl" class="csl-entry" role="listitem">
+Tang, Xinyu, Richard Shin, Huseyin A. Inan, et&nbsp;al. 2024. <span>«Privacy-Preserving In-Context Learning with Differentially Private Few-Shot Generation»</span>. <em>The Twelfth International Conference on Learning Representations (ICLR)</em>. <a href="https://arxiv.org/abs/2309.11765">https://arxiv.org/abs/2309.11765</a>.
+</div>
+<div id="ref-yeom2018privacy" class="csl-entry" role="listitem">
+Yeom, Samuel, Irene Giacomelli, Matt Fredrikson, y Somesh Jha. 2018. <span>«Privacy Risk in Machine Learning: Analyzing the Connection to Overfitting»</span>. <em>31st IEEE Computer Security Foundations Symposium (CSF)</em>. <a href="https://arxiv.org/abs/1709.01604">https://arxiv.org/abs/1709.01604</a>.
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copiado");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copiado");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./cap08.html" class="pagination-link" aria-label="Capítulo 8. DSPy en análisis de binarios: embeddings de código y razonamiento con LLM">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Capítulo 8. DSPy en análisis de binarios: embeddings de código y razonamiento con LLM</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./cap10.html" class="pagination-link" aria-label="Capítulo 10. Cierre: práctica profesional con DSPy">
+        <span class="nav-page-text">Capítulo 10. Cierre: práctica profesional con DSPy</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>© 2026 Manuel Muñoz Plá · Edición web bajo licencia <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.es">CC BY-NC-ND 4.0</a> (uso académico con atribución; sin uso comercial ni obras derivadas) · El código va aparte bajo licencia MIT</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

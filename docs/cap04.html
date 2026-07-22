@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Capítulo 4. Evaluación rigurosa de programas DSPy – Programación de prompts con DSPy</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./cap05.html" rel="next">
+<link href="./cap03.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-f7bd9765ec068e3aae6dba6073a1e2a9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No se han encontrado resultados",
+    "search-matching-documents-text": "documentos encontrados",
+    "search-copy-link-title": "Copiar el enlace en la búsqueda",
+    "search-hide-matches-text": "Ocultar resultados adicionales",
+    "search-more-match-text": "resultado adicional en este documento",
+    "search-more-matches-text": "resultados adicionales en este documento",
+    "search-clear-button-title": "Borrar",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancelar",
+    "search-submit-button-title": "Enviar",
+    "search-label": "Buscar"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./cap04.html">Capítulo 4. Evaluación rigurosa de programas DSPy</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Alternar barra lateral" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Buscar" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Programación de prompts con DSPy</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Alternar modo lector">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Buscar"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Inicio</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap01.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 1. Por qué programar prompts</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap02.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 2. Anatomía de un prompt y primer programa DSPy</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap03.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 3. Clasificación de intenciones en un SOC</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap04.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Capítulo 4. Evaluación rigurosa de programas DSPy</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap05.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 5. Optimización de demostraciones</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap06.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 6. Optimización de instrucciones</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap07.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 7. Flujos complejos: RAG, agentes y herramientas en seguridad</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap08.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 8. DSPy en análisis de binarios: embeddings de código y razonamiento con LLM</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap09.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 9. DSPy para privacidad: detección, minimización y no fuga de datos</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cap10.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capítulo 10. Cierre: práctica profesional con DSPy</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">En esta página</h2>
+   
+  <ul>
+  <li><a href="#la-evaluación-como-estimación-y-los-conjuntos" id="toc-la-evaluación-como-estimación-y-los-conjuntos" class="nav-link active" data-scroll-target="#la-evaluación-como-estimación-y-los-conjuntos">La evaluación como estimación y los conjuntos</a></li>
+  <li><a href="#la-clase-example-y-la-construcción-de-datos" id="toc-la-clase-example-y-la-construcción-de-datos" class="nav-link" data-scroll-target="#la-clase-example-y-la-construcción-de-datos">La clase <code>Example</code> y la construcción de datos</a></li>
+  <li><a href="#definición-de-métricas-de-la-exactitud-a-f1-y-mcc" id="toc-definición-de-métricas-de-la-exactitud-a-f1-y-mcc" class="nav-link" data-scroll-target="#definición-de-métricas-de-la-exactitud-a-f1-y-mcc">Definición de métricas: de la exactitud a F1 y MCC</a></li>
+  <li><a href="#dspy.evaluate-y-la-consistencia" id="toc-dspy.evaluate-y-la-consistencia" class="nav-link" data-scroll-target="#dspy.evaluate-y-la-consistencia"><code>dspy.Evaluate</code> y la consistencia</a></li>
+  <li><a href="#la-ley-de-goodhart-y-los-límites-de-tasa" id="toc-la-ley-de-goodhart-y-los-límites-de-tasa" class="nav-link" data-scroll-target="#la-ley-de-goodhart-y-los-límites-de-tasa">La ley de Goodhart y los límites de tasa</a></li>
+  <li><a href="#significancia-estadística-de-una-diferencia" id="toc-significancia-estadística-de-una-diferencia" class="nav-link" data-scroll-target="#significancia-estadística-de-una-diferencia">Significancia estadística de una diferencia</a></li>
+  <li><a href="#el-lm-como-juez-y-las-métricas-de-generación" id="toc-el-lm-como-juez-y-las-métricas-de-generación" class="nav-link" data-scroll-target="#el-lm-como-juez-y-las-métricas-de-generación">El LM como juez y las métricas de generación</a></li>
+  <li><a href="#diseñar-un-conjunto-de-evaluación-y-su-coste" id="toc-diseñar-un-conjunto-de-evaluación-y-su-coste" class="nav-link" data-scroll-target="#diseñar-un-conjunto-de-evaluación-y-su-coste">Diseñar un conjunto de evaluación y su coste</a></li>
+  <li><a href="#trampas-de-la-evaluación-y-métricas-multiobjetivo" id="toc-trampas-de-la-evaluación-y-métricas-multiobjetivo" class="nav-link" data-scroll-target="#trampas-de-la-evaluación-y-métricas-multiobjetivo">Trampas de la evaluación y métricas multiobjetivo</a></li>
+  <li><a href="#evaluar-programas-multietapa-y-umbrales" id="toc-evaluar-programas-multietapa-y-umbrales" class="nav-link" data-scroll-target="#evaluar-programas-multietapa-y-umbrales">Evaluar programas multietapa y umbrales</a></li>
+  <li><a href="#métricas-con-retroalimentación-y-cómo-reportar" id="toc-métricas-con-retroalimentación-y-cómo-reportar" class="nav-link" data-scroll-target="#métricas-con-retroalimentación-y-cómo-reportar">Métricas con retroalimentación y cómo reportar</a></li>
+  <li><a href="#lecturas-recomendadas" id="toc-lecturas-recomendadas" class="nav-link" data-scroll-target="#lecturas-recomendadas">Lecturas recomendadas</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Capítulo 4. Evaluación rigurosa de programas DSPy</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>El capítulo&nbsp;1 sostuvo que un programa que no se mide no se puede compilar, y el&nbsp;3 aplazó a este la cuestión de cómo medir. Aquí se salda esa deuda. Evaluar un programa de LM no es ejecutar una métrica y anotar un número: es estimar, con honestidad estadística, una cantidad ruidosa sobre datos reservados, eligiendo una métrica que respete la estructura de la tarea. Sin ese rigor, la optimización de los capítulos&nbsp;5 y&nbsp;6 perseguiría una diana falsa.</p>
+<p>El capítulo construye el aparato de evaluación de extremo a extremo: los conjuntos, la clase <code>Example</code>, la definición de métricas —de las booleanas a las que usan un LM como juez—, las medidas robustas al desequilibrio, la evaluación paralela con <code>dspy.Evaluate</code>, la consistencia frente a la exactitud y la ley de Goodhart. El hilo conductor es la honestidad: toda cifra se reporta como media con desviación, con su modelo y su fecha, nunca como un decimal suelto.</p>
+<section id="la-evaluación-como-estimación-y-los-conjuntos" class="level2">
+<h2 class="anchored" data-anchor-id="la-evaluación-como-estimación-y-los-conjuntos">La evaluación como estimación y los conjuntos</h2>
+<p>Una métrica calculada sobre un conjunto de prueba no es la calidad del programa: es una <em>estimación</em> de ella. La cantidad de interés es el riesgo poblacional <span class="math inline">\(R(\pi)\)</span> de la ecuación&nbsp;(1.8) —la métrica esperada sobre la distribución real de la tarea—, y de ella se observa la media empírica sobre una muestra finita. De ahí dos consecuencias que gobiernan todo el capítulo. La primera: la estimación tiene error de muestreo, que decrece con el tamaño del conjunto de prueba, de modo que una diferencia entre dos programas solo es real si supera ese ruido. La segunda: la estimación solo es insesgada si el conjunto de prueba no se usó para nada más —ni para ajustar, ni para elegir—; en cuanto se mira para decidir, deja de ser prueba y se convierte en validación.</p>
+<p>Esta lectura convierte la evaluación en un problema de estadística, no de contabilidad. Medir bien es estimar bien, y estimar bien exige separar los datos, repetir las corridas y reportar la dispersión. El resto del capítulo desarrolla cada una de esas exigencias. La figura&nbsp;4.1 dibuja la estimación y su error.</p>
+<section id="cuánto-conjunto-hace-falta." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="cuánto-conjunto-hace-falta.">Cuánto conjunto hace falta.</h5>
+<p>La pregunta tiene respuesta aproximada antes de etiquetar un solo caso. Para una métrica de proporción —exactitud, tasa de acierto— sobre <span class="math inline">\(N\)</span> ejemplos, el error típico de la estimación es <span class="math display">\[\begin{equation}
+  \mathrm{EE} \;=\; \sqrt{\frac{p\,(1-p)}{N}},
+\end{equation}\]</span> máximo en <span class="math inline">\(p=0{,}5\)</span>, donde vale <span class="math inline">\(0{,}5/\sqrt{N}\)</span>. La aritmética que se sigue es la que gobierna los presupuestos de etiquetado: con <span class="math inline">\(N=100\)</span>, el error típico ronda los cinco puntos porcentuales —solo se detectan con confianza diferencias enormes—; con <span class="math inline">\(N=400\)</span> baja a dos puntos y medio; con <span class="math inline">\(N=1000\)</span>, a uno y medio. La regla rápida para comparar dos sistemas: para resolver una diferencia de <span class="math inline">\(\Delta\)</span> puntos hacen falta, en orden de magnitud, <span class="math inline">\(N \sim 1/\Delta^2\)</span> ejemplos —cuatro veces más conjunto por cada mitad de diferencia—. De ahí una consecuencia de diseño que sorprende a quien llega del ajuste fino: el conjunto de <em>prueba</em> merece ejemplos con más urgencia que el de entrenamiento, porque un programa de <em>prompts</em> aprende con decenas de demostraciones, pero distinguir al bueno del mediano exige cientos de casos de medida.</p>
+</section>
+<section id="dos-fuentes-de-ruido-no-una." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="dos-fuentes-de-ruido-no-una.">Dos fuentes de ruido, no una.</h5>
+<p>La dispersión de una cifra tiene dos orígenes que conviene separar porque se combaten con recursos distintos. El <em>ruido de muestreo</em> —qué ejemplos cayeron en la prueba— se reduce con más ejemplos, como manda la ecuación&nbsp;(4.1). El <em>ruido de decodificación</em> —la estocasticidad de la salida del modelo ante el mismo ejemplo (capítulo&nbsp;2)— se reduce con más corridas, no con más ejemplos, y desaparece a temperatura cero al precio de medir solo el modo determinista del sistema. El diagnóstico es barato: repetir la evaluación completa con otra semilla de muestreo separa cuánta varianza viene de cada fuente, y la partida presupuestaria se asigna donde duele —más ejemplos si domina el muestreo, más corridas si domina la decodificación—. Confundirlas lleva a remedios inútiles: triplicar corridas no arregla una prueba de ochenta ejemplos, y agrandar la prueba no estabiliza un sistema que muestrea con temperatura alta. El desglose para el clasificador del libro queda: la desviación por decodificación es de &nbsp;puntos y la de muestreo, &nbsp;puntos (ambas pequeñas y de magnitud comparable en este banco).</p>
+</section>
+<section id="leer-un-intervalo-sin-místicas." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="leer-un-intervalo-sin-místicas.">Leer un intervalo sin místicas.</h5>
+<p>El intervalo se usa mejor cuando se lee sin solemnidad: es el rango de valores compatible con los datos al nivel de confianza elegido, y su anchura es información de primera clase —un sistema «del 82 %» con un intervalo de diez puntos es un sistema del que se sabe poco—. Dos hábitos de escritura se siguen. La <em>resolución honesta</em>: los decimales que se publican los autoriza el error típico de la ecuación&nbsp;(4.1), y escribir «81,37 %» con un error de dos puntos es vestir de precisión un redondeo; la cifra se da a la resolución que el intervalo sostiene. Y la <em>comparación explícita</em>: «A supera a B» se escribe solo cuando la pareada de la sección&nbsp;4.6 lo avala; en el resto de los casos, el texto honesto es «no distinguibles con este conjunto», que no es un fracaso sino un resultado —a menudo el más barato de todos, porque autoriza a elegir por coste el empate de calidad—.</p>
+</section>
+<section id="validación-cruzada-con-mesura." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="validación-cruzada-con-mesura.">Validación cruzada, con mesura.</h5>
+<p>La validación cruzada clásica —<span class="math inline">\(k\)</span> particiones, entrenar en <span class="math inline">\(k-1\)</span> y validar en la restante, promediar— multiplica por <span class="math inline">\(k\)</span> el número de llamadas, y con un LM eso es multiplicar la factura, así que aquí se usa con más mesura que en el aprendizaje clásico. Sus dos usos rentables: cuando el corpus es tan escaso que un solo reparto de validación deja demasiado ruido para <em>elegir</em> —la rotación exprime cada ejemplo—, y cuando se quiere estimar la sensibilidad del sistema al reparto mismo —una dispersión grande entre pliegues delata un corpus heterogéneo o una fuga—. La prueba final queda fuera de la rotación en todos los casos: la validación cruzada informa elecciones, y la cifra que se publica sigue saliendo de un conjunto sellado que ninguna rotación tocó.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap04/fig_01.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;4.1.</strong> La métrica es una estimación del riesgo poblacional <span class="math inline">\(R(\pi)\)</span>, con un error de muestreo que decrece con el tamaño del conjunto. Una diferencia entre dos programas solo es real si supera ese ruido.</figcaption>
+</figure>
+</div>
+</section>
+<section id="los-conjuntos." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="los-conjuntos.">Los conjuntos.</h5>
+<p>La práctica seria parte el corpus en cuatro papeles, no en dos. El conjunto de <strong>entrenamiento</strong> provee las demostraciones que el optimizador selecciona o arranca. El de <strong>validación</strong> guía esa selección: es el que el optimizador consulta para decidir qué configuración conserva. El de <strong>desarrollo</strong> —a veces fundido con la validación— sirve al humano para iterar el diseño sin tocar la prueba. Y el de <strong>prueba</strong>, sellado hasta el final, da la única cifra que se publica.</p>
+<p>La separación obedece a una jerarquía de contaminación. Cada vez que un conjunto informa una decisión, su estimación se vuelve optimista para esa decisión; por eso el conjunto que mide el resultado final debe estar limpio de toda elección previa. La estratificación —preservar la proporción de clases en cada partición— y la vigilancia contra la fuga completan la higiene. Un reparto típico reserva la mayor parte para entrenamiento y porciones menores, pero suficientes para que el ruido de muestreo no domine, a validación y prueba. La figura&nbsp;4.2 alinea los cuatro papeles.</p>
+</section>
+<section id="el-conjunto-vivo." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-conjunto-vivo.">El conjunto vivo.</h5>
+<p>«Sellado» no significa eterno. El mundo del que la prueba era muestra deriva —los ataques del capítulo&nbsp;3 evolucionan, el lenguaje de los <em>tickets</em> cambia—, y una prueba envejecida mide un mundo que ya no existe. El mantenimiento tiene reglas simples. Nunca se edita en sitio: cada revisión produce una <em>versión</em> nueva del conjunto, con su identificador y su huella criptográfica, porque dos cifras solo son comparables si se midieron sobre la misma versión. La versión nueva conserva un núcleo de la vieja —el solapamiento permite empalmar las series históricas— y añade casos recientes muestreados con el mismo protocolo. Y la cadencia se ata a la deriva medida, no al calendario por sí solo: cuando el monitoreo de producción (capítulo&nbsp;10) denota que la distribución se movió, la prueba se revisa. Un conjunto de evaluación es un instrumento de medida: se calibra, se versiona y se recambia, como cualquier otro.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap04/fig_02.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;4.2.</strong> La práctica seria parte el corpus en cuatro papeles. Cada vez que un conjunto informa una decisión, su estimación se vuelve optimista; por eso el que mide el resultado final —la prueba— debe estar sellado de toda elección previa.</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="la-clase-example-y-la-construcción-de-datos" class="level2">
+<h2 class="anchored" data-anchor-id="la-clase-example-y-la-construcción-de-datos">La clase <code>Example</code> y la construcción de datos</h2>
+<p>DSPy representa cada caso con un <code>dspy.Example</code>, un contenedor de campos que distingue las entradas de las salidas esperadas. El método <code>with_inputs</code> marca qué campos son entrada; el resto se toma como referencia para la métrica.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> dspy</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>ejemplos <span class="op">=</span> [</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    dspy.Example(mensaje<span class="op">=</span>m, equipo<span class="op">=</span>y).with_inputs(<span class="st">"mensaje"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> m, y <span class="kw">in</span> <span class="bu">zip</span>(mensajes, etiquetas)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>entreno, desarrollo, prueba <span class="op">=</span> particionar(ejemplos)  <span class="co"># estratificado, sin fuga</span></span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>La distinción importa porque el programa recibe solo los campos de entrada y debe producir los de salida, que la métrica compara con la referencia. Un <code>Example</code> bien construido es la unidad atómica de la evaluación y de la optimización: ambas iteran sobre listas de <code>Example</code>. La figura&nbsp;4.3 dibuja esa unidad.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap04/fig_03.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;4.3.</strong> Un <code>dspy.Example</code> distingue las entradas —marcadas con <code>with_inputs</code>— de las salidas esperadas. El programa recibe solo las entradas; la métrica compara su salida con la referencia. Es la unidad atómica de la evaluación y de la optimización.</figcaption>
+</figure>
+</div>
+<section id="datos-reales-sintéticos-y-aumentados." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="datos-reales-sintéticos-y-aumentados.">Datos reales, sintéticos y aumentados.</h5>
+<p>No siempre hay datos etiquetados suficientes, y entonces surgen tres clases de dato que conviene no mezclar. El <strong>dato real</strong> es el patrón de oro: caro de etiquetar, pero el único que mide la tarea verdadera. El <strong>dato sintético declarado</strong> se genera con reglas o con un LM para cubrir huecos o controlar un fenómeno pedagógico; es legítimo siempre que se marque como tal y no se haga pasar por real. El <strong>dato aumentado</strong> parte de ejemplos reales y los varía — parafraseando, traduciendo— para ampliar el conjunto.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># aumentar con un LM: variar un ejemplo real, marcando el origen sintetico</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>parafrasear <span class="op">=</span> dspy.Predict(<span class="st">"texto -&gt; variante"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>sinteticos <span class="op">=</span> [</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    dspy.Example(mensaje<span class="op">=</span>parafrasear(texto<span class="op">=</span>e.mensaje).variante,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                 equipo<span class="op">=</span>e.equipo, origen<span class="op">=</span><span class="st">"sintetico"</span>).with_inputs(<span class="st">"mensaje"</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> e <span class="kw">in</span> entreno</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>]</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>El riesgo del dato sintético es el desplazamiento de distribución: un LM genera texto más limpio y uniforme que el mundo real, y un sistema afinado sobre él puede fallar en producción. Por eso la métrica que decide se mide siempre sobre dato real reservado, y el sintético se confina al entrenamiento, marcado y auditable. La tabla&nbsp;4.1 opone las tres clases.</p>
+</section>
+<section id="cuidado-con-el-juez-que-etiquetó." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="cuidado-con-el-juez-que-etiquetó.">Cuidado con el juez que etiquetó.</h5>
+<p>Hay una variante del problema tan común como inadvertida: etiquetas «reales» que en origen produjo otro LM —un corpus etiquetado con un modelo grande para ahorrar expertos, una referencia generada y revisada por encima—. Evaluar un sistema de LM contra referencias escritas por un LM introduce un sesgo de familia: se premia al sistema que se parece al etiquetador, no al que acierta, y la cifra mejora por afinidad estilística. Si el etiquetado asistido es inevitable —a menudo lo es—, la higiene mínima tiene tres piezas: declarar la procedencia de cada etiqueta en el propio ejemplo —el campo <code>origen</code> del listado anterior—, verificar con humanos una submuestra y reportar el acuerdo, y garantizar que el modelo que etiquetó no es el que se evalúa ni su pariente cercano. La regla de fondo del libro no cambia: la cifra que decide se apoya en juicio humano en algún punto de su cadena de custodia, y ese punto se documenta.</p>
+</section>
+<section id="la-procedencia-viaja-con-el-ejemplo." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="la-procedencia-viaja-con-el-ejemplo.">La procedencia viaja con el ejemplo.</h5>
+<p>Los campos extra de un <code>Example</code> —<code>origen</code>, fecha, fuente, versión del esquema— no molestan al programa, que solo consume las entradas marcadas, y valen su peso en auditorías: permiten rebanar resultados por procedencia (¿falla más en lo sintético o en lo real?), reconstruir cómo se compuso un conjunto meses después y aplicar las políticas de datos del capítulo&nbsp;9 —qué ejemplos contienen datos personales y con qué base—. La costumbre barata que evita arqueologías caras: todo ejemplo nace con su ficha, y la ficha viaja con él por particiones, versiones y repositorios.</p>
+<table class="caption-top table">
+<caption>No conviene mezclarlas. El dato real es el patrón de oro; el sintético y el aumentado cubren huecos, pero la métrica que decide se mide siempre sobre dato real reservado.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Clase</th>
+<th style="text-align: left;">Origen</th>
+<th style="text-align: left;">Riesgo</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Real</td>
+<td style="text-align: left;">etiquetado a mano</td>
+<td style="text-align: left;">caro, pero mide la tarea</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sintético declarado</td>
+<td style="text-align: left;">reglas o un LM</td>
+<td style="text-align: left;">desplazamiento de distribución</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Aumentado</td>
+<td style="text-align: left;">varía ejemplos reales</td>
+<td style="text-align: left;">hereda el sesgo del original</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="definición-de-métricas-de-la-exactitud-a-f1-y-mcc" class="level2">
+<h2 class="anchored" data-anchor-id="definición-de-métricas-de-la-exactitud-a-f1-y-mcc">Definición de métricas: de la exactitud a F1 y MCC</h2>
+<p>En DSPy una métrica es una función que recibe el ejemplo y la predicción y devuelve un número —o un booleano—. Las hay de tres clases. La <strong>booleana</strong> comprueba una coincidencia exacta: útil para etiquetas cerradas. La <strong>numérica</strong> computa un solapamiento gradual —F1 de tokens, distancia— cuando la salida no es una etiqueta sino texto. Y la <strong>semántica</strong> delega el juicio en otro LM, el <em>LM como juez</em>, cuando la corrección depende del significado y no de la forma.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> exactitud(ejemplo, pred, traza<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ejemplo.equipo <span class="op">==</span> pred.equipo          <span class="co"># metrica booleana</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Juez(dspy.Signature):</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""decide si la respuesta cubre la referencia en sentido."""</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    referencia: <span class="bu">str</span> <span class="op">=</span> dspy.InputField()</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    respuesta: <span class="bu">str</span> <span class="op">=</span> dspy.InputField()</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    correcta: <span class="bu">bool</span> <span class="op">=</span> dspy.OutputField()</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>juez <span class="op">=</span> dspy.Predict(Juez)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> metrica_semantica(ejemplo, pred, traza<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> juez(referencia<span class="op">=</span>ejemplo.respuesta, respuesta<span class="op">=</span>pred.respuesta).correcta</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>El juez basado en LM es potente y traicionero: hereda los sesgos del modelo que lo implementa y puede premiar la verbosidad o el estilo. Por eso se calibra contra juicios humanos en una muestra antes de confiar en él, y se reporta como una métrica más, con su incertidumbre.</p>
+<section id="la-métrica-es-código-y-el-código-se-prueba." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="la-métrica-es-código-y-el-código-se-prueba.">La métrica es código, y el código se prueba.</h5>
+<p>Un error en la métrica es el peor error del sistema, porque corrompe todas las cifras y, peor, la diana del optimizador: Goodhart por accidente. Y las métricas concentran casos borde que invitan al error: ¿qué devuelve la booleana si la predicción llegó vacía?, ¿cómo trata la numérica una salida malformada que el adaptador no pudo reparar?, ¿qué pasa con la división por cero de la precisión cuando no hubo positivos predichos —ecuación&nbsp;(4.2)—? La respuesta profesional es la de cualquier código: pruebas unitarias de la métrica con una batería de casos límite —acierto pleno, fallo pleno, salida vacía, salida malformada, empate—, sus propiedades declaradas y comprobadas —el rango, la simetría si la hay, el valor en los degenerados—, y control de versiones: cambiar la métrica invalida la comparabilidad de las cifras anteriores, exactamente como cambiar la firma (capítulo&nbsp;2), y se anota en la ficha de cada resultado.</p>
+</section>
+<section id="normalizar-antes-de-comparar." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="normalizar-antes-de-comparar.">Normalizar antes de comparar.</h5>
+<p>La coincidencia exacta esconde una decisión: ¿exacta respecto a qué? Entre la referencia «Crítico» y la predicción «critico» median una mayúscula y una tilde, y castigarlas como errores mide la ortografía del modelo, no su juicio. Toda métrica de comparación declara su normalización —minúsculas, tildes, espacios, puntuación final— y la aplica por igual a referencia y predicción; en español, la tilde perdida es el caso estrella, porque los modelos la omiten con frecuencia y ningún clasificador debería suspender por ella. El límite también se declara: normalizar sinónimos ya no es normalización sino juicio semántico, y ese salto se da con la métrica semántica de la tabla&nbsp;4.2, no con una lista de equivalencias escondida en la función. La normalización elegida queda escrita junto a la métrica, porque cambia la cifra y, por tanto, es parte de su definición.</p>
+</section>
+<section id="métricas-para-estructuras." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="métricas-para-estructuras.">Métricas para estructuras.</h5>
+<p>Cuando la salida es un conjunto o un objeto, la pregunta «¿acertó?» se descompone. Para <em>conjuntos</em> —las etiquetas múltiples del capítulo&nbsp;3, las entidades extraídas del capítulo&nbsp;9—, las medidas naturales premian el solapamiento: la <span class="math inline">\(F_1\)</span> por muestra entre el conjunto predicho y el real, o la proporción de elementos en desacuerdo, en vez del todo-o-nada del conjunto exacto, que castiga igual olvidar una etiqueta que inventarse cinco. Para <em>objetos con campos</em>, la medida se hace campo a campo —exactitud por campo, con la coincidencia definida según su tipo: exacta en el identificador, normalizada en el texto, con tolerancia en el número— y se agrega con pesos declarados, porque errar el CVE no pesa como errar la descripción. Y una tasa merece columna propia: la de <em>validez estructural</em> —cuántas salidas respetaron el esquema a la primera—, que mide al adaptador tanto como al modelo y anticipa el coste de reintentos en producción (capítulo&nbsp;2). Las tres capas —estructura válida, campos correctos, conjunto completo— se reportan por separado: cada una falla por causas distintas y se arregla con palancas distintas.</p>
+</section>
+<section id="referencias-múltiples-y-empates." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="referencias-múltiples-y-empates.">Referencias múltiples y empates.</h5>
+<p>No toda tarea tiene una única respuesta correcta, y forzar una referencia única convierte en «error» a la variante legítima. Los remedios son dos, por orden de coste. Referencias múltiples: el ejemplo lista las respuestas aceptables y la métrica puntúa contra la más favorable —el máximo sobre las referencias—, con la disciplina de que la lista la mantenga el criterio experto, no la acumulación de salidas bonitas del propio sistema, porque esa acumulación es Goodhart entrando por la puerta de los datos. Y para el caso continuo —resúmenes, explicaciones, donde el espacio de aciertos no se enumera—, el juez semántico de la sección&nbsp;4.7 con una rúbrica que defina la equivalencia. El síntoma de que la tarea necesita este trato se detecta en el propio corpus: si los anotadores de la sección&nbsp;4.2 disienten dando respuestas distintas y todas defendibles, la referencia única era una ficción desde el principio.</p>
+<table class="caption-top table">
+<caption>En DSPy una métrica recibe el ejemplo y la predicción y devuelve un número o un booleano. La clase se elige según la naturaleza de la salida.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Clase</th>
+<th style="text-align: left;">Qué compara</th>
+<th style="text-align: left;">Cuándo</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Booleana</td>
+<td style="text-align: left;">coincidencia exacta</td>
+<td style="text-align: left;">etiquetas cerradas</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Numérica</td>
+<td style="text-align: left;">solapamiento gradual</td>
+<td style="text-align: left;">texto, distancias</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Semántica</td>
+<td style="text-align: left;">el juicio de un LM</td>
+<td style="text-align: left;">corrección de significado</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="precisión-exhaustividad-y-f1." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="precisión-exhaustividad-y-f1.">Precisión, exhaustividad y F1.</h5>
+<p>La exactitud engaña en un corpus desequilibrado, como advirtió el capítulo&nbsp;3. Las medidas por clase lo corrigen. Para una clase, con verdaderos positivos <span class="math inline">\(\mathit{VP}\)</span>, falsos positivos <span class="math inline">\(\mathit{FP}\)</span> y falsos negativos <span class="math inline">\(\mathit{FN}\)</span>, la precisión y la exhaustividad son <span class="math display">\[\begin{equation}
+  P = \frac{\mathit{VP}}{\mathit{VP}+\mathit{FP}}, \qquad
+  R = \frac{\mathit{VP}}{\mathit{VP}+\mathit{FN}},
+\end{equation}\]</span> y su media armónica es la <span class="math inline">\(F_1\)</span>, <span class="math display">\[\begin{equation}
+  F_1 = \frac{2\,P\,R}{P+R}.
+\end{equation}\]</span> En un problema multiclase, el <em>F1 macro</em> promedia la <span class="math inline">\(F_1\)</span> de cada clase por igual, de modo que una clase rara pesa tanto como una frecuente —justo lo que un SOC necesita, donde el ataque infrecuente es el que importa—. El <em>F1 micro</em>, en cambio, agrega antes de promediar y favorece a las clases mayoritarias. La elección entre macro y micro es una decisión de diseño con consecuencias. La figura&nbsp;4.4 fija el convenio de la matriz y la tabla&nbsp;4.3, el criterio entre macro y micro.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap04/fig_04.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;4.4.</strong> Cruza la clase real con la predicha. La precisión (ecuación&nbsp;(4.2)) mira la columna de positivos predichos; la exhaustividad, la fila de positivos reales. El MCC solo es alto cuando las cuatro casillas aciertan (ecuación&nbsp;(4.5)).</figcaption>
+</figure>
+</div>
+</section>
+<section id="más-allá-del-acierto." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="más-allá-del-acierto.">Más allá del acierto.</h5>
+<p>Dos coeficientes corrigen un defecto que la <span class="math inline">\(F_1\)</span> no captura: el acierto por azar. La <strong>Kappa de Cohen</strong> descuenta la concordancia esperada al azar <span class="citation" data-cites="cohen1960kappa">(<a href="#ref-cohen1960kappa" role="doc-biblioref">Cohen 1960</a>)</span>, <span class="math display">\[\begin{equation}
+  \kappa = \frac{p_o - p_e}{1 - p_e},
+\end{equation}\]</span> donde <span class="math inline">\(p_o\)</span> es la proporción observada de aciertos y <span class="math inline">\(p_e\)</span> la esperada si las predicciones fueran aleatorias con las mismas frecuencias marginales. El <strong>coeficiente de correlación de Matthews</strong> (MCC) resume la matriz de confusión binaria en un único valor en <span class="math inline">\([-1,1]\)</span>, <span class="math display">\[\begin{equation}
+  \mathrm{MCC} =
+  \frac{\mathit{VP}\cdot\mathit{VN} - \mathit{FP}\cdot\mathit{FN}}
+       {\sqrt{(\mathit{VP}{+}\mathit{FP})(\mathit{VP}{+}\mathit{FN})
+              (\mathit{VN}{+}\mathit{FP})(\mathit{VN}{+}\mathit{FN})}},
+\end{equation}\]</span> y es especialmente honesto bajo desequilibrio, porque solo es alto cuando el clasificador acierta en las cuatro casillas <span class="citation" data-cites="matthews1975mcc">(<a href="#ref-matthews1975mcc" role="doc-biblioref">Matthews 1975</a>)</span>. Ambos se calculan con <code>scikit-learn</code> a partir de las predicciones, y conviene reportarlos junto a la <span class="math inline">\(F_1\)</span> para que ninguna métrica oculte un fallo que otra revela.</p>
+<table class="caption-top table">
+<caption>En un SOC, donde el ataque infrecuente es el que importa, el F1 macro es el adecuado: da a la clase rara el mismo peso que a la frecuente.</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th style="text-align: left;">Promedia</th>
+<th style="text-align: left;">Favorece</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>F1 macro</td>
+<td style="text-align: left;">cada clase por igual</td>
+<td style="text-align: left;">la clase rara (un SOC)</td>
+</tr>
+<tr class="even">
+<td>F1 micro</td>
+<td style="text-align: left;">agrega antes de promediar</td>
+<td style="text-align: left;">la clase mayoritaria</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="dspy.evaluate-y-la-consistencia" class="level2">
+<h2 class="anchored" data-anchor-id="dspy.evaluate-y-la-consistencia"><code>dspy.Evaluate</code> y la consistencia</h2>
+<p>Evaluar a mano —un bucle que recorre la prueba, llama al programa y acumula la métrica— funciona pero es lento, porque cada llamada espera a la red. <code>dspy.Evaluate</code> hace lo mismo en paralelo: como cada ejemplo es independiente, lanza muchas llamadas a la vez y agrega el resultado.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>evaluar <span class="op">=</span> dspy.Evaluate(devset<span class="op">=</span>prueba, metric<span class="op">=</span>exactitud,</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                        num_threads<span class="op">=</span><span class="dv">16</span>, display_progress<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>puntuacion <span class="op">=</span> evaluar(programa)   <span class="co"># exactitud media sobre la prueba</span></span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>El paralelismo recorta el reloj, pero topa con los límites de tasa del proveedor: demasiados hilos provocan rechazos. El conteo de <em>tokens</em> del historial (capítulo&nbsp;2) permite estimar de antemano el coste de una evaluación completa, y fijar un número de hilos prudente es parte del diseño.</p>
+<section id="guardar-las-predicciones-no-solo-la-nota." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="guardar-las-predicciones-no-solo-la-nota.">Guardar las predicciones, no solo la nota.</h5>
+<p>La salida de una evaluación no es un número: es la lista completa de predicciones, y conviene persistirla. El motivo es económico y metodológico a la vez. Con las predicciones en disco —entrada, salida del programa, referencia, veredicto de la métrica, ejemplo a ejemplo—, cualquier análisis posterior es gratuito: recalcular otra métrica sobre la misma corrida, rebanar por clase o por procedencia (sección&nbsp;4.2), inspeccionar los fallos uno a uno, alimentar la comparación pareada de la sección&nbsp;4.6. Sin ellas, cada pregunta nueva repaga la evaluación entera. La disciplina complementaria es fijar cuanto haga la corrida repetible —el orden de los ejemplos, la semilla del muestreo si lo hay— y registrar la corrida con su ficha (capítulo&nbsp;2). La evaluación cara se hace una vez; se interroga muchas.</p>
+</section>
+<section id="un-solo-arnés-para-todos-los-contextos." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="un-solo-arnés-para-todos-los-contextos.">Un solo arnés para todos los contextos.</h5>
+<p>La métrica vive en tres sitios a la vez —el bucle del optimizador, la prueba de humo de la integración continua, la campaña de medidas— y la tentación de reimplementarla «rápido» en cada uno acaba en tres varas de medir que disienten en los bordes: una normalización distinta aquí, un tratamiento del caso vacío distinto allá, y cifras que no cuadran sin que nadie mienta. La regla de ingeniería: el arnés de evaluación es <em>uno</em> —la misma función de métrica, la misma configuración de <code>Evaluate</code>, el mismo tratamiento de errores—, versionado en un módulo común que optimizador, pruebas y campañas importan; los contextos difieren solo en datos y presupuesto, nunca en la vara. Es la misma disciplina del registro único de cifras que este libro se aplica a sí mismo: un número, una fuente, por construcción.</p>
+</section>
+<section id="la-consistencia-ejemplo-a-ejemplo." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="la-consistencia-ejemplo-a-ejemplo.">La consistencia, ejemplo a ejemplo.</h5>
+<p>El agregado de consistencia esconde su información más útil: <em>dónde</em> es inconsistente el sistema. La tasa de cambio por ejemplo —cuántas de las <span class="math inline">\(k\)</span> repeticiones disienten de la mayoría— dibuja un mapa: los ejemplos donde el sistema responde siempre igual son su zona firme; aquellos donde vacila son su frontera de decisión empírica. Ese mapa tiene tres usos inmediatos. Los casos vacilantes son los mejores candidatos al etiquetado experto del aprendizaje activo (capítulo&nbsp;3): ahí la señal humana rinde más. Son también la población natural para la abstención: la inconsistencia empírica es una medida de incertidumbre que no depende de la calibración declarada. Y su evolución vigila el sistema: una frontera que se ensancha tras un cambio de modelo denota inestabilidad nueva aunque la exactitud media no se haya movido. La fracción de ejemplos vacilantes del clasificador queda:  % de los ejemplos vacilan entre cinco muestras.</p>
+</section>
+<section id="consistencia-frente-a-exactitud." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="consistencia-frente-a-exactitud.">Consistencia frente a exactitud.</h5>
+<p>La exactitud mide si el programa acierta; la <strong>consistencia</strong> mide si responde lo mismo al repetir. Son ortogonales: un sistema puede ser consistente y erróneo, o acertado pero inestable. Para medir la consistencia se repite cada ejemplo <span class="math inline">\(k\)</span> veces con la caché desactivada y se computa la proporción de la respuesta mayoritaria; un sistema con temperatura cero será casi perfectamente consistente, uno con muestreo lo será menos. La figura&nbsp;4.5 cruza los dos ejes y la tabla&nbsp;4.4 resume cómo se mide cada uno.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap04/fig_05.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;4.5.</strong> Un sistema puede ser consistente y erróneo, o acertado pero inestable. La exactitud mide si acierta; la consistencia, si responde lo mismo al repetir. Una sola corrida no distingue las dos.</figcaption>
+</figure>
+</div>
+<table class="caption-top table">
+<caption>Dos ejes distintos, dos formas de medir. La segunda exige repetir cada ejemplo con la caché desactivada.</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th style="text-align: left;">Qué mide</th>
+<th style="text-align: left;">Cómo</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Exactitud</td>
+<td style="text-align: left;">si acierta</td>
+<td style="text-align: left;">contra la referencia</td>
+</tr>
+<tr class="even">
+<td>Consistencia</td>
+<td style="text-align: left;">si repite la respuesta</td>
+<td style="text-align: left;"><span class="math inline">\(k\)</span> corridas sin caché</td>
+</tr>
+</tbody>
+</table>
+<p>Esta distinción enlaza con la naturaleza estocástica del capítulo&nbsp;2: como la salida es una variable aleatoria, una sola corrida no caracteriza al sistema. De ahí la norma que el libro no transgrede: toda cifra de calidad se mide sobre <span class="math inline">\(N\ge 3\)</span> corridas y se reporta como media con desviación. La exactitud de un clasificador no es «<span class="math inline">\(87,3\)</span> %», es «<span class="math inline">\(\resCCuatroAccMediaMedia \pm \resCCuatroAccMediaDesv\)</span> % sobre <span class="math inline">\(N\)</span> corridas»; el código del capítulo produce ambos valores.</p>
+</section>
+</section>
+<section id="la-ley-de-goodhart-y-los-límites-de-tasa" class="level2">
+<h2 class="anchored" data-anchor-id="la-ley-de-goodhart-y-los-límites-de-tasa">La ley de Goodhart y los límites de tasa</h2>
+<p>«Cuando una medida se convierte en objetivo, deja de ser una buena medida.» La ley de Goodhart es la amenaza central de la optimización automática: un optimizador potente explotará cualquier grieta de la métrica con la misma diligencia con que busca aciertos. Una métrica de coincidencia exacta castiga una respuesta correcta mal formateada, y el optimizador aprenderá a formatear antes que a acertar; una métrica laxa premia respuestas vacuas; un juez basado en LM premia el estilo que ese LM prefiere. La tabla&nbsp;4.5 recoge esas grietas.</p>
+<table class="caption-top table">
+<caption>Un optimizador potente explota cualquier grieta de la métrica con la misma diligencia con que busca aciertos. La elección de la métrica es la decisión que condiciona todo lo demás.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Métrica</th>
+<th style="text-align: left;">El optimizador explota</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Coincidencia exacta</td>
+<td style="text-align: left;">formatea antes que acierta</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Métrica laxa</td>
+<td style="text-align: left;">produce respuestas vacuas</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Juez por LM</td>
+<td style="text-align: left;">imita el estilo preferido</td>
+</tr>
+</tbody>
+</table>
+<p>La defensa es triple. Primero, diseñar la métrica para que capture la calidad real y no un sustituto cómodo. Segundo, vigilar el sobreajuste contra un conjunto reservado, donde una mejora artificial no se sostiene. Tercero, combinar varias métricas, porque una grieta rara vez engaña a todas a la vez. La elección de la métrica no es un paso previo trivial: es la decisión que condiciona todo lo demás, y por eso ocupa un capítulo entero. La figura&nbsp;4.6 ordena la triple defensa.</p>
+<section id="goodhart-en-vivo-los-síntomas." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="goodhart-en-vivo-los-síntomas.">Goodhart en vivo: los síntomas.</h5>
+<p>La explotación de la métrica deja huellas reconocibles durante la propia optimización, y vigilarlas convierte la ley de Goodhart de fatalidad en diagnóstico. El síntoma cardinal es la <em>divergencia de curvas</em>: la métrica sube en la validación que guía la búsqueda y baja —o no se mueve— en un conjunto de control que el optimizador no ve; esa tijera denota que se está aprendiendo la grieta, no la tarea. El segundo vive en el artefacto: instrucciones compiladas que codifican trucos en vez de criterio —«responde siempre en una palabra», «cuando dudes, elige la clase X»— o demostraciones degeneradas que explotan un patrón del conjunto. Por eso el artefacto se lee tras cada compilación (capítulo&nbsp;2): el texto del <em>prompt</em> es la explicación de la cifra, y una mejora cuya explicación leída da vergüenza no se promueve. El tercero es la fragilidad ante perturbación: la mejora que desaparece al parafrasear las entradas o al permutar las clases era formato, no juicio. Las tres señales se inspeccionan como rutina de cada corrida, no como autopsia del desastre.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap04/fig_06.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;4.6.</strong> Ninguna métrica resiste sola a un optimizador potente. Diseñarla para la calidad real, vigilar el sobreajuste contra datos reservados y combinar varias —una grieta rara vez engaña a todas— la protegen.</figcaption>
+</figure>
+</div>
+</section>
+<section id="límites-de-tasa-y-excepciones." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="límites-de-tasa-y-excepciones.">Límites de tasa y excepciones.</h5>
+<p>Una evaluación sobre miles de llamadas tropieza con errores transitorios: límites de tasa, tiempos de espera, cortes de red. Una evaluación robusta los absorbe con reintentos de espera creciente y no se detiene ante un fallo aislado, sino que lo registra y continúa, para que una incidencia de red no invalide horas de cómputo. Las validaciones se hacen con <code>raise</code>, nunca con <code>assert</code>.</p>
+<p>DSPy absorbe parte de esta fricción, pero el diseño decide el resto: una métrica que lanza una excepción ante una salida malformada debe decidir si ese caso cuenta como fallo —lo habitual— o se descarta, y esa decisión se documenta, porque cambia la cifra.</p>
+</section>
+</section>
+<section id="significancia-estadística-de-una-diferencia" class="level2">
+<h2 class="anchored" data-anchor-id="significancia-estadística-de-una-diferencia">Significancia estadística de una diferencia</h2>
+<p>Si la evaluación es una estimación con ruido (sección&nbsp;4.1), una diferencia entre dos programas solo cuenta cuando supera ese ruido. Afirmar «el optimizado mejora dos puntos» sin más es arriesgado: esos dos puntos pueden ser fluctuación de muestreo. La herramienta honesta es el intervalo de confianza por <em>bootstrap</em>: se remuestrea el conjunto de prueba con reemplazo muchas veces, se recalcula la métrica en cada remuestreo y se mira la dispersión.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ic_bootstrap(aciertos, n<span class="op">=</span><span class="dv">1000</span>, semilla<span class="op">=</span><span class="dv">0</span>):</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""intervalo de confianza al 95% de la exactitud por bootstrap."""</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    rng <span class="op">=</span> np.random.default_rng(semilla)       <span class="co"># se fija para reproducir</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    medias <span class="op">=</span> [np.mean(rng.choice(aciertos, <span class="bu">len</span>(aciertos), replace<span class="op">=</span><span class="va">True</span>))</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>              <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(n)]</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.percentile(medias, [<span class="fl">2.5</span>, <span class="fl">97.5</span>])</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Si los intervalos de dos programas se solapan, la diferencia no es concluyente y declarar un ganador sería engañoso. Una comparación pareada —evaluar ambos sobre los mismos ejemplos y mirar la diferencia caso a caso— gana potencia, porque elimina la varianza del conjunto. La regla del libro: ninguna mejora se anuncia sin comprobar que sobrevive al ruido. El remuestreo con reemplazo como estimador general de la incertidumbre viene de la estadística clásica <span class="citation" data-cites="efron1979bootstrap">(<a href="#ref-efron1979bootstrap" role="doc-biblioref">Efron 1979</a>)</span>, y su virtud aquí es la indiferencia al tipo de métrica: vale igual para una exactitud, un F1 macro o un juez por LM. La figura&nbsp;4.7 muestra los dos desenlaces: intervalos que se solapan y que no.</p>
+<section id="la-comparación-pareada-en-concreto." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="la-comparación-pareada-en-concreto.">La comparación pareada, en concreto.</h5>
+<p>Con las predicciones de ambos programas sobre los mismos ejemplos (sección&nbsp;4.4), la pareada tiene dos formas prácticas. La general: aplicar el <em>bootstrap</em> a la <em>diferencia</em> por ejemplo —remuestrear pares, no conjuntos— y mirar si el intervalo de la diferencia contiene al cero. Y la clásica para clasificadores, la prueba de McNemar, que solo mira los ejemplos donde los dos programas <em>disienten</em>: si A acierta donde B falla en <span class="math inline">\(b\)</span> casos y B acierta donde A falla en <span class="math inline">\(c\)</span>, bajo la hipótesis de igualdad ambos conteos deberían equilibrarse, y un desequilibrio grande entre <span class="math inline">\(b\)</span> y <span class="math inline">\(c\)</span> denota diferencia real; es la prueba recomendada de antiguo para comparar clasificadores sobre un mismo conjunto <span class="citation" data-cites="dietterich1998tests">(<a href="#ref-dietterich1998tests" role="doc-biblioref">Dietterich 1998</a>)</span>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> diferencia_pareada(aciertos_a, aciertos_b, n<span class="op">=</span><span class="dv">1000</span>, semilla<span class="op">=</span><span class="dv">0</span>):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""IC al 95% de la diferencia A-B por bootstrap pareado."""</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    rng <span class="op">=</span> np.random.default_rng(semilla)       <span class="co"># se fija para reproducir</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    pares <span class="op">=</span> np.array(aciertos_a) <span class="op">-</span> np.array(aciertos_b)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    medias <span class="op">=</span> [np.mean(rng.choice(pares, <span class="bu">len</span>(pares), replace<span class="op">=</span><span class="va">True</span>))</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>              <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(n)]</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.percentile(medias, [<span class="fl">2.5</span>, <span class="fl">97.5</span>])   <span class="co"># ¿contiene al cero?</span></span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>La pareada es más potente que comparar dos intervalos independientes porque descuenta la dificultad compartida: los ejemplos fáciles para ambos y los imposibles para ambos no aportan varianza a la diferencia. Con ella, mejoras de uno o dos puntos —invisibles para intervalos marginales que se solapan— se resuelven con el mismo conjunto de prueba.</p>
+</section>
+<section id="muchas-comparaciones-una-trampa." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="muchas-comparaciones-una-trampa.">Muchas comparaciones, una trampa.</h5>
+<p>La significancia se degrada con el uso. Quien prueba veinte configuraciones y reporta la mejor ha hecho veinte comparaciones, y al nivel de confianza habitual una de cada veinte «gana» por puro azar: el ganador de un torneo grande llega con ventaja inflada de serie. Las correcciones formales —repartir el nivel de significancia entre las comparaciones— existen y son conservadoras; la corrección estructural es mejor y ya está en la arquitectura de conjuntos: la búsqueda elige sobre la <em>validación</em>, y el ganador único se confirma una sola vez sobre la <em>prueba</em> sellada; así la cifra publicada nunca es la del torneo sino la de una comparación limpia. El corolario para el diario de experimentos: se anotan también los intentos perdedores, porque «probamos treinta y esta fue la mejor» es información que el lector de la cifra necesita para descontarla.</p>
+</section>
+<section id="fijar-antes-de-mirar." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="fijar-antes-de-mirar.">Fijar antes de mirar.</h5>
+<p>La versión doméstica del prerregistro científico cabe en un párrafo y evita la mitad de los autoengaños del capítulo: antes de lanzar la campaña de medidas se escribe —en el diario, con fecha— la métrica y su normalización, el conjunto y su versión, el número de corridas, el criterio de éxito y las comparaciones que se harán. Todo cuanto se decida <em>después</em> de ver resultados queda automáticamente en la categoría de exploración: legítima, fértil, y no publicable como confirmación hasta repetirse bajo un plan fijado de nuevo. La frontera entre explorar y confirmar no es burocracia académica: es la única defensa conocida contra el sesgo del que mira —quien elige la métrica viendo las cifras encontrará una que le dé la razón—, y con sistemas estocásticos, caros y con docenas de mandos, las ocasiones de mirar antes de fijar se multiplican. El piloto explora; la campaña confirma; y cada cifra del libro declara a cuál de los dos regímenes pertenece.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap04/fig_07.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;4.7.</strong> Se remuestrea la prueba con reemplazo y se recalcula la métrica. Si los intervalos de dos programas se solapan (arriba), la diferencia no es concluyente; si están separados (abajo), la mejora sobrevive al ruido.</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="el-lm-como-juez-y-las-métricas-de-generación" class="level2">
+<h2 class="anchored" data-anchor-id="el-lm-como-juez-y-las-métricas-de-generación">El LM como juez y las métricas de generación</h2>
+<p>Cuando la corrección es semántica, un LM juzga la salida (sección&nbsp;4.3), pero hacerlo bien exige cuidado. Un juez por LM arrastra sesgos conocidos: prefiere respuestas largas, favorece al primer candidato en una comparación, y premia el estilo del modelo que lo implementa —incluso el suyo propio—. Sin control, el juez mide su gusto, no la calidad.</p>
+<p>Tres prácticas lo disciplinan. Una <em>rúbrica</em> explícita —criterios concretos, no «¿es buena?»— acota el juicio. La comparación <em>pareada</em> con orden aleatorizado neutraliza el sesgo de posición. Y la <em>calibración contra humanos</em> sobre una muestra mide cuánto coincide el juez con el experto antes de confiar en él a escala. El juez por LM escala donde el humano no llega, pero se valida como cualquier instrumento: contra un patrón, con su margen de error declarado. La tabla&nbsp;4.6 empareja cada sesgo con su antídoto.</p>
+<section id="el-acuerdo-juez-humano-con-número." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-acuerdo-juez-humano-con-número.">El acuerdo juez-humano, con número.</h5>
+<p>«Se calibra contra humanos» tiene forma concreta: una muestra de salidas —doscientas bastan para empezar— juzgada en paralelo por el LM y por expertos, y el acuerdo cuantificado con el mismo <span class="math inline">\(\kappa\)</span> de la ecuación&nbsp;(4.4), que descuenta el acuerdo casual —decisivo cuando los veredictos están desequilibrados, como suelen: la mayoría de las salidas son correctas y coincidir en «bien» no acredita nada—. El desglose importa tanto como el total: un juez puede concordar en los casos claros y disentir sistemáticamente en una franja —las respuestas parcialmente correctas, las demasiado largas—, y esa franja delimita dónde el juez es fiable y dónde sus veredictos piden revisión humana. El umbral de acuerdo aceptable se fija antes de mirar —un <span class="math inline">\(\kappa\)</span> mediocre obliga a rehacer la rúbrica, no a rebajar la exigencia—. Sobre CSIC, donde la referencia es la etiqueta del corpus, un juez LM independiente y sin demostraciones concuerda solo de forma discreta con ella (<span class="math inline">\(\kappa = \resCCuatroJuezKappa\)</span>): un recordatorio de que el juez es un modelo más, que se valida y a menudo se optimiza antes de fiarse de sus veredictos.</p>
+</section>
+<section id="el-humano-también-se-mide." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-humano-también-se-mide.">El humano también se mide.</h5>
+<p>En la calibración del juez se cuela una cifra que merece vida propia: el rendimiento <em>humano</em> en la tarea. Medirlo —con el mismo conjunto, la misma métrica y el mismo rigor que a los sistemas— fija la referencia que da sentido a todas las demás: un clasificador «del 88 %» significa cosas opuestas si los analistas rinden 95 o rinden 85, y el techo práctico de toda mejora es el acuerdo entre expertos de la sección&nbsp;4.2, no el cien por cien de un mundo sin ambigüedad. La medida humana exige sus propios cuidados —tiempo realista por caso, sin consultar al vecino, con la fatiga del volumen real y no la frescura de veinte ejemplos—, y suele deparar dos sorpresas: es más baja de cuanto el equipo cree, y varía entre personas más de cuanto varía entre versiones del sistema. Ambas sorpresas recolocan la conversación sobre automatizar (capítulo&nbsp;3) en su sitio: la máquina no compite contra la perfección, compite contra la alternativa. La referencia humana no se mide en el banco de este capítulo —exige analistas anotando el mismo corpus en condiciones realistas—; es la cifra que cada equipo produce sobre sus datos para saber contra qué techo compara su clasificador.</p>
+</section>
+<section id="el-juez-se-congela." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-juez-se-congela.">El juez se congela.</h5>
+<p>El juez es parte del instrumento de medida, y un instrumento que cambia a mitad del experimento invalida la serie. De ahí tres reglas de gestión. Congelación: el juez —modelo, versión, rúbrica, plantilla— se fija por escrito antes de la campaña de medidas, y todo cambio abre serie nueva, con recalibración contra humanos incluida. Separación de poderes: si una métrica con juez guía la <em>optimización</em>, el veredicto final usa un juez distinto —otro modelo u otra rúbrica—, porque un programa optimizado contra un juez aprende también sus manías, y medirlo con el mismo juez premia ese aprendizaje espurio; es Goodhart con toga. Y desempate: para las decisiones mayores —promover a producción, publicar una cifra—, la muestra dudosa va a humanos, que siguen siendo la corte suprema del sistema. Con esas tres reglas, el juez por LM es un amplificador honesto del juicio experto; sin ellas, un rumor con números.</p>
+</section>
+<section id="el-precio-del-juez-y-el-comité." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-precio-del-juez-y-el-comité.">El precio del juez y el comité.</h5>
+<p>El juez duplica llamadas: cada evaluación paga la del programa y la del veredicto, y en una optimización esa segunda factura corre miles de veces. El reparto económico sensato copia el patrón de la frontera de confianza (capítulo&nbsp;9): un juez pequeño y local para el bucle de optimización —donde el volumen manda y el veredicto individual tolera ruido— y el juez grande, congelado, para las medidas que se publican. Contra el sesgo de un juez único existe además el <em>comité</em>: varios jueces —modelos distintos, no copias— votando, con la mayoría como veredicto; el desacuerdo del comité es en sí mismo señal, porque marca las salidas genuinamente ambiguas que merecen ojo humano. El comité triplica el coste del veredicto, así que se reserva para la capa final; su ventaja sobre el juez único exige varios modelos distintos —no varias muestras del mismo—, de modo que la comparación se mide con un banco de jueces heterogéneo, fuera del alcance del caso de un solo modelo local de este capítulo.</p>
+</section>
+<section id="rúbricas-que-funcionan." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="rúbricas-que-funcionan.">Rúbricas que funcionan.</h5>
+<p>La rúbrica decide la calidad del juez tanto como su modelo, y las buenas comparten forma. Criterios <em>binarios y verificables</em> antes que escalas: «¿la respuesta cita la fuente del dato?» produce veredictos estables donde «puntúa la calidad de 1 a 5» produce un número blando que cada juez —humano o LM— centra a su manera; si hace falta gradación, se compone de varios binarios sumados, no de una escala continua. Un criterio por línea, sin conjunciones: «¿es correcta y completa?» son dos preguntas disfrazadas de una, y el desacuerdo no sabrá de cuál viene. Los casos frontera se resuelven <em>en la rúbrica</em>, con ejemplos: qué hacer ante la respuesta correcta pero fuera de formato, ante la parcial, ante la abstención —las mismas adjudicaciones que pidió el etiquetado (sección&nbsp;4.2)—. Y la rúbrica se depura empíricamente: los pares donde juez y humano disintieron en la calibración señalan el criterio ambiguo, se reescribe y se recalibra. Una rúbrica madura es un pequeño código legal con jurisprudencia; la pregunta suelta «¿es buena?» es su estado salvaje.</p>
+<table class="caption-top table">
+<caption>Sin control, el juez mide su gusto, no la calidad. Tres prácticas lo disciplinan antes de confiar en él a escala.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Sesgo del juez</th>
+<th style="text-align: left;">Práctica que lo neutraliza</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Prefiere respuestas largas</td>
+<td style="text-align: left;">rúbrica explícita de criterios</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Favorece al primer candidato</td>
+<td style="text-align: left;">comparación pareada aleatorizada</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Premia su propio estilo</td>
+<td style="text-align: left;">calibración contra humanos</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="métricas-para-generación." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="métricas-para-generación.">Métricas para generación.</h5>
+<p>No toda salida es una etiqueta. Cuando el programa genera texto —un resumen, una respuesta, una explicación—, la coincidencia exacta no sirve, y las métricas clásicas de solapamiento de <em>n</em>-gramas miden la forma, no el sentido: penalizan una paráfrasis correcta y premian una copia literal vacía. Para significado, se recurre a la similitud semántica entre <em>embeddings</em> o a un juez por LM (sección&nbsp;4.7).</p>
+<p>En la generación aumentada por recuperación aparece una métrica propia: la <em>fidelidad</em>, que mide si la respuesta se apoya en las fuentes recuperadas o las contradice —si alucina—. Una respuesta puede ser fluida y estar mal fundada, y solo una métrica de fidelidad lo detecta. Medirla admite grados de rigor: en bruto, un juez LM coteja la respuesta entera contra los pasajes; más fino, la respuesta se descompone en afirmaciones y cada una se verifica por separado contra su fuente —¿este pasaje la sostiene, la contradice o calla?—, de modo que la cifra distingue la respuesta impecable de la que mezcla nueve verdades con un invento; y el suelo mecánico son las citas verificables —cada afirmación con su fragmento literal, comprobable con código, el patrón de evidencia anclada del capítulo&nbsp;3—. Elegir la métrica según la naturaleza de la salida —etiqueta, texto, respuesta fundada— es, de nuevo, la decisión que condiciona todo el proceso (capítulo&nbsp;7). La tabla&nbsp;4.7 asigna métrica a cada naturaleza.</p>
+</section>
+<section id="la-longitud-como-variable-oculta." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="la-longitud-como-variable-oculta.">La longitud como variable oculta.</h5>
+<p>En la evaluación de texto libre, la longitud confunde a casi todos los instrumentos a la vez: los jueces por LM tienden a preferir la respuesta más larga, el solapamiento de <em>n</em>-gramas crece con el texto disponible, y hasta el lector humano confunde exhaustividad con calidad. Un optimizador lo descubrirá: si alargar sube la nota, las respuestas engordarán sin mejorar, y la factura con ellas (capítulo&nbsp;2). Los controles son directos: la rúbrica del juez declara la longitud objetivo y penaliza el relleno; la comparación pareada enfrenta respuestas de longitud comparable o normaliza antes; y el informe de resultados acompaña toda métrica de calidad con la distribución de longitudes, de modo que una «mejora» que coincide con un estirón de longitud quede a la vista con sus dos caras. El caso trazado de este capítulo es clasificación —la salida es una etiqueta, sin longitud que confunda—, así que el efecto de la longitud se mide sobre una tarea generativa (un resumen, una respuesta), donde el juez y el <em>n</em>-grama compiten con el estirón; ahí la pregunta «cuánta nota compró la longitud» tiene número.</p>
+<table class="caption-top table">
+<caption>No toda salida es una etiqueta. La coincidencia exacta mide la forma, no el sentido: penaliza una paráfrasis correcta. La métrica se elige según la naturaleza de la salida.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Naturaleza de la salida</th>
+<th style="text-align: left;">Métrica adecuada</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Etiqueta cerrada</td>
+<td style="text-align: left;">coincidencia exacta, F1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Texto libre</td>
+<td style="text-align: left;">similitud semántica o juez por LM</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Respuesta fundada (RAG)</td>
+<td style="text-align: left;">fidelidad a las fuentes</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="diseñar-un-conjunto-de-evaluación-y-su-coste" class="level2">
+<h2 class="anchored" data-anchor-id="diseñar-un-conjunto-de-evaluación-y-su-coste">Diseñar un conjunto de evaluación y su coste</h2>
+<p>La calidad de una medición no supera la del conjunto con que se mide. Un buen conjunto de evaluación cumple cuatro requisitos. <em>Cobertura</em>: representa la variedad de casos reales, no solo los fáciles. <em>Dificultad</em>: incluye los casos límite donde el sistema puede fallar. <em>Tamaño</em>: bastante para que el ruido de muestreo no domine (sección&nbsp;4.6). <em>Pureza</em>: sin fuga desde el entrenamiento. La tabla&nbsp;4.8 los reúne.</p>
+<table class="caption-top table">
+<caption>La calidad de una medición no supera la del conjunto con que se mide. Un conjunto pobre da cifras altas y falsas; uno bueno, cifras que se sostienen en producción.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Requisito</th>
+<th style="text-align: left;">Qué exige</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Cobertura</td>
+<td style="text-align: left;">la variedad de casos reales</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Dificultad</td>
+<td style="text-align: left;">los casos límite donde se falla</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Tamaño</td>
+<td style="text-align: left;">que el ruido de muestreo no domine</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Pureza</td>
+<td style="text-align: left;">sin fuga desde el entrenamiento</td>
+</tr>
+</tbody>
+</table>
+<p>Construirlo es trabajo, y a menudo el cuello de botella del proyecto. Conviene estratificarlo por clase y por dificultad, etiquetar con criterio experto los casos ambiguos y versionarlo como el artefacto valioso que es. Un conjunto de evaluación pobre da cifras altas y falsas; uno bueno da cifras que se sostienen en producción. La inversión en el conjunto rinde más que casi cualquier otra del proyecto.</p>
+<section id="rebanadas-la-cifra-única-esconde." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="rebanadas-la-cifra-única-esconde.">Rebanadas: la cifra única esconde.</h5>
+<p>El agregado es un resumen, y todo resumen elige qué olvidar. La práctica que lo corrige es evaluar por <em>rebanadas</em>: la misma métrica desglosada por clase, por longitud de la entrada, por idioma, por procedencia del dato, por periodo temporal —los ejes que la ficha de cada ejemplo ya trae (sección&nbsp;4.2)—. Las rebanadas responden a preguntas que el agregado ni plantea: ¿la mejora del programa compilado vino de todas las clases o de inflar la mayoritaria a costa de la rara?, ¿el sistema rinde igual con entradas largas?, ¿el idioma minoritario quedó atrás (capítulo&nbsp;3)? Y fundan la regla de promoción honesta: un candidato se promueve si mejora el agregado <em>sin degradar ninguna rebanada crítica más allá del ruido</em>, porque comprar dos puntos globales vendiendo la clase «crítico» es un mal negocio que el agregado firma encantado. Las rebanadas del clasificador del libro quedan: F1 de  % en benigno frente a  % en ataque, y exactitud de  % en las peticiones cortas frente a  % en las largas.</p>
+</section>
+<section id="ítems-que-discriminan." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="ítems-que-discriminan.">Ítems que discriminan.</h5>
+<p>No todos los ejemplos de un conjunto trabajan por igual. El caso que todos los sistemas aciertan y el que todos fallan no distinguen a nadie: consumen presupuesto de evaluación sin aportar resolución. El análisis de ítems —mirar, ejemplo a ejemplo, cuántos de los sistemas comparados aciertan— clasifica el conjunto en tres estratos: los triviales, los imposibles y los <em>discriminantes</em>, aquellos donde unos sistemas aciertan y otros no, que son los que deciden toda comparación. Dos usos prácticos. Para abaratar: un subconjunto enriquecido en discriminantes compara candidatos con una fracción de las llamadas —el minilote inteligente de la sección&nbsp;4.8, elegido por mérito y no al azar—, con la confirmación final sobre el conjunto completo. Para mantener: un conjunto cuya fracción discriminante se agota —todos los sistemas modernos lo saturan— ya no mide, y pide la renovación de la sección&nbsp;4.1. Los imposibles, por su parte, merecen auditoría antes que resignación: una parte suele ser etiqueta errónea, y corregirla mejora el instrumento entero.</p>
+</section>
+<section id="contaminación-cuando-el-modelo-ya-vio-la-prueba." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="contaminación-cuando-el-modelo-ya-vio-la-prueba.">Contaminación: cuando el modelo ya vio la prueba.</h5>
+<p>Con modelos preentrenados sobre rastreos masivos de la red, todo conjunto público es sospechoso de estar, entero o en parte, dentro del corpus de preentrenamiento del modelo evaluado —los modelos memorizan y regurgitan fragmentos de sus datos <span class="citation" data-cites="carlini2023quantifying">(<a href="#ref-carlini2023quantifying" role="doc-biblioref">Carlini et&nbsp;al. 2023</a>)</span>—, y una cifra alta sobre un conjunto contaminado mide memoria, no capacidad. Los síntomas: rendimiento anómalamente alto respecto a conjuntos privados equivalentes, y aciertos literales —el modelo completa la referencia palabra por palabra—. Las defensas, por orden de solidez: evaluar con datos propios y recientes —posteriores a la fecha de corte del modelo—, perturbar los ejemplos públicos —parafrasear el enunciado, renombrar las constantes— y comparar el rendimiento entre la versión pública y la perturbada, donde una caída brusca delata la memoria. Para el dominio de este libro la ventaja es práctica: los datos de un SOC propio no están en ningún rastreo, y el conjunto CSIC del capítulo&nbsp;3, público y antiguo, se trata con la sospecha debida. Dos medidas la cuantifican sobre CSIC: al perturbar las peticiones —ofuscando parámetros y valores— la exactitud del compilado cae &nbsp;puntos, una degradación moderada antes que un desplome; pero el chequeo de vecindad de la sección&nbsp;4.9 destapa un problema mayor de este corpus concreto —un  % de las peticiones de prueba tiene un casi-gemelo en el entrenamiento—, que infla toda cifra medida sobre él y obliga a leerla con cautela.</p>
+</section>
+<section id="el-coste-de-evaluar." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-coste-de-evaluar.">El coste de evaluar.</h5>
+<p>Evaluar no es gratis: cada pasada sobre el conjunto consume llamadas al modelo, y un optimizador evalúa cientos de candidatos (capítulo&nbsp;6). El coste de la evaluación puede dominar el de la optimización entera, de modo que conviene abaratarla sin engañarse. La técnica habitual es el <em>minilote</em>: estimar la métrica sobre una muestra del conjunto en vez de sobre el todo, aceptando más ruido a cambio de menos llamadas, la estrategia que sigue MIPROv2 al explorar <span class="citation" data-cites="opsahlong2024mipro">(<a href="#ref-opsahlong2024mipro" role="doc-biblioref"><span class="nocase">Opsahl-Ong et&nbsp;al.</span> 2024</a>)</span>.</p>
+<p>El compromiso es entre ruido y coste: un minilote pequeño es barato pero su estimación oscila, y comparar candidatos con minilotes distintos introduce sesgo. Las estrategias maduras —submuestreo consistente, parada temprana de los candidatos claramente peores— recortan el gasto sin sacrificar la fiabilidad de la decisión final, que se confirma sobre el conjunto completo. La figura&nbsp;4.8 traza el compromiso.</p>
+</section>
+<section id="la-carrera-de-candidatos." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="la-carrera-de-candidatos.">La carrera de candidatos.</h5>
+<p>La parada temprana merece su mecánica, porque bien hecha ahorra la mayor parte de la factura. La forma general es la <em>carrera</em>: todos los candidatos se evalúan sobre un minilote común pequeño; los claramente peores —cuyo intervalo ya no alcanza al líder ni con optimismo— se eliminan; los supervivientes pasan a un minilote mayor, y así en rondas de presupuesto creciente hasta que el líder se confirma sobre el conjunto completo. La aritmética juega a favor: la mayoría de los candidatos mueren baratos en las rondas tempranas, y el gasto se concentra en distinguir a los pocos finos del final, exactamente donde hace falta resolución. Dos reglas mantienen la carrera honesta: el minilote de cada ronda es <em>el mismo</em> para todos los corredores —comparar sobre muestras distintas mezcla ruido con mérito—, y la eliminación usa umbrales generosos, porque matar pronto a un candidato bueno por una racha mala de minilote es el error irreversible de la carrera; el candidato eliminado no vuelve.</p>
+</section>
+<section id="tres-presupuestos-una-campaña." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="tres-presupuestos-una-campaña.">Tres presupuestos, una campaña.</h5>
+<p>La factura total de una campaña de optimización y medida se compone de tres partidas que conviene estimar por separado antes de empezar. La <em>búsqueda</em>: candidatos por tamaño de minilote por coste de llamada, aliviada por la carrera y por la caché. La <em>confirmación</em>: los pocos finalistas sobre el conjunto de validación completo, con el juez caro si lo hay. Y la <em>medida final</em>: el ganador sobre la prueba, por <span class="math inline">\(N\)</span> corridas —la única partida donde no se regatea, porque es la cifra que se publica—. La aritmética ilustrativa con números redondos: cincuenta candidatos por cincuenta ejemplos de minilote son dos mil quinientas evaluaciones de búsqueda; tres finalistas por cuatrocientos ejemplos, mil doscientas de confirmación; y una final de cuatrocientos por tres corridas, mil doscientas más —la búsqueda domina si el minilote crece, y la carrera existe para impedirlo—. Presupuestar las tres partidas por separado permite además recortar donde no duele: se ahorra en búsqueda con ítems discriminantes (sección&nbsp;4.8), nunca en la medida final.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap04/fig_08.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;4.8.</strong> Estimar la métrica sobre una muestra en vez de sobre el todo cambia menos llamadas por más ruido, la estrategia que sigue MIPROv2 <span class="citation" data-cites="opsahlong2024mipro">(<a href="#ref-opsahlong2024mipro" role="doc-biblioref"><span class="nocase">Opsahl-Ong et&nbsp;al.</span> 2024</a>)</span>. La decisión final se confirma sobre el conjunto completo.</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="trampas-de-la-evaluación-y-métricas-multiobjetivo" class="level2">
+<h2 class="anchored" data-anchor-id="trampas-de-la-evaluación-y-métricas-multiobjetivo">Trampas de la evaluación y métricas multiobjetivo</h2>
+<p>La evaluación tiene trampas que invalidan una cifra sin que se note. La <em>fuga</em> —ejemplos de prueba colados en el entrenamiento o en las demostraciones— infla el resultado y no se sostiene fuera. El <em>sobreajuste al conjunto de prueba</em>, por mirarlo muchas veces para decidir, lo convierte de hecho en validación y agota su valor. El <em>cherry-picking</em> —reportar solo los aciertos, la mejor de muchas corridas— miente por omisión; la media con desviación lo evita. Y el sesgo del cajón —publicar solo lo bueno— distorsiona la percepción del campo entero. La tabla&nbsp;4.9 las cataloga.</p>
+<section id="cifras-ajenas-comparar-con-lo-publicado." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="cifras-ajenas-comparar-con-lo-publicado.">Cifras ajenas: comparar con lo publicado.</h5>
+<p>Una tentación frecuente es situar el sistema propio contra números publicados —«el artículo reporta un 91 % en esta tarea»—, y casi siempre es comparar peras con relojes: otro conjunto u otra versión del conjunto, otra normalización de la métrica, otro régimen de <em>prompts</em>, otro modelo con otra fecha. Las cifras publicadas orientan sobre el orden de magnitud alcanzable y poco más. La comparación que vale exige traer la referencia <em>al arnés propio</em> (sección&nbsp;4.4): se reimplementa la configuración rival —o se ejecuta su código— sobre los mismos datos, la misma métrica y el mismo número de corridas, y solo entonces las columnas son comparables. Es más trabajo, y es el único resultado que resiste una revisión; la alternativa —celebrar la victoria sobre un número leído— pertenece al género fantástico. Cuando reproducir al rival no sea viable, la redacción honesta lo dice: «no comparable directamente», con los motivos, en vez de una tabla que finge simetría.</p>
+<p>A estas se suma la más sutil, ya vista: una métrica mal elegida puede inventar un fenómeno donde no lo hay, como las «capacidades emergentes» que se desvanecen con una medida continua <span class="citation" data-cites="schaeffer2023mirage">(<a href="#ref-schaeffer2023mirage" role="doc-biblioref">Schaeffer et&nbsp;al. 2023</a>)</span>. La defensa es la disciplina del capítulo: conjuntos separados y sellados, varias corridas, métrica fijada de antemano y reportada con su dispersión. La evaluación honesta no es la que da la cifra más alta, sino la que da la cifra que se repite.</p>
+</section>
+<section id="la-fuga-sutil-plantillas-y-grupos." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="la-fuga-sutil-plantillas-y-grupos.">La fuga sutil: plantillas y grupos.</h5>
+<p>La fuga de manual —el mismo ejemplo en dos particiones— se caza con un duplicado exacto; la que arruina evaluaciones reales es más fina. Los registros de máquina nacen de <em>plantillas</em>: la misma alerta con otra marca de tiempo, el mismo error con otro identificador, y dos instancias de una plantilla repartidas entre entrenamiento y prueba son, a efectos del modelo, el mismo ejemplo con disfraz —la cifra sube y no significa nada—. Y los ejemplos vienen en <em>grupos</em> con historia común: las diez alertas de un mismo incidente, los mensajes de un mismo usuario; conocer una mitad del grupo facilita la otra. La higiene correspondiente: deduplicar por plantilla —normalizar los campos variables y agrupar por la huella de la parte fija (capítulo&nbsp;3)— y partir por <em>grupo</em>, no por ejemplo: el incidente entero cae a un solo lado de la frontera. La comprobación barata que delata ambos males: buscar, para cada ejemplo de prueba, su vecino más próximo en el entrenamiento —por <em>embedding</em> o por solapamiento—; una prueba cuyos vecinos son casi gemelos no es una prueba, es un espejo. La distancia media medida queda: una similitud máxima media de , con un  % de ejemplos de prueba que tienen un casi-gemelo en el entrenamiento.</p>
+</section>
+<section id="la-regresión-mejorar-sin-romper." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="la-regresión-mejorar-sin-romper.">La regresión: mejorar sin romper.</h5>
+<p>Un sistema vivo no se evalúa solo contra su métrica: se evalúa contra su pasado. El conjunto de <em>regresión</em> reúne los casos que alguna vez fallaron y se arreglaron —cada incidente de producción, cada error señalado por un analista, cada caso del banco adversario del capítulo&nbsp;3—, y toda versión candidata debe mantenerlos resueltos: la mejora media que reabre tres heridas viejas no es una mejora, es un intercambio que alguien debe aprobar a sabiendas. La mecánica es la del software: el caso arreglado se congela como prueba con su salida esperada, la batería corre en cada recompilación, y el fallo de una regresión bloquea la promoción con nombre y apellido del caso roto. Este conjunto crece despacio y vale oro, porque codifica la memoria institucional del sistema: cuanto costó aprender no se vuelve a pagar.</p>
+<table class="caption-top table">
+<caption>Cada una invalida una cifra sin que se note. La defensa es la disciplina del capítulo: conjuntos sellados, varias corridas y métrica fijada de antemano.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Trampa</th>
+<th style="text-align: left;">Efecto</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Fuga</td>
+<td style="text-align: left;">infla la cifra; no se sostiene fuera</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sobreajuste a la prueba</td>
+<td style="text-align: left;">la convierte en validación</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><em>Cherry-picking</em></td>
+<td style="text-align: left;">miente por omisión</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sesgo del cajón</td>
+<td style="text-align: left;">distorsiona el campo entero</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="métricas-multiobjetivo." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="métricas-multiobjetivo.">Métricas multiobjetivo.</h5>
+<p>La calidad rara vez es el único criterio. Un sistema de producción equilibra calidad, coste por llamada y latencia, y el optimizador necesita saber cómo ponderarlos. Hay dos vías. La <em>escalarización</em> combina los objetivos en una sola métrica —por ejemplo, exactitud penalizada por el número de <em>tokens</em>—, fácil de optimizar pero que esconde el compromiso en unos pesos arbitrarios. La vía <em>de Pareto</em> no combina: retiene el conjunto de soluciones no dominadas —aquellas que no se pueden mejorar en un eje sin empeorar otro— y deja la elección final al diseñador, que es la estrategia de GEPA (capítulo&nbsp;6) <span class="citation" data-cites="agrawal2025gepa">(<a href="#ref-agrawal2025gepa" role="doc-biblioref"><span class="nocase">Agrawal et&nbsp;al.</span> 2025</a>)</span>.</p>
+<p>La elección entre escalarizar y mantener el frente depende de si se busca una solución o un abanico. Para desplegar una, la escalarización con pesos justificados basta; para entender el espacio de compromisos —cuánta calidad cuesta cada euro ahorrado—, el frente de Pareto es más honesto, porque hace explícito el compromiso que la escalarización oculta. La figura&nbsp;4.9 dibuja ese frente.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap04/fig_09.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;4.9.</strong> La vía de Pareto no combina los objetivos en una sola métrica: retiene las soluciones no dominadas —las que no se pueden mejorar en un eje sin empeorar otro— y deja la elección al diseñador, la estrategia de GEPA <span class="citation" data-cites="agrawal2025gepa">(<a href="#ref-agrawal2025gepa" role="doc-biblioref"><span class="nocase">Agrawal et&nbsp;al.</span> 2025</a>)</span>.</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="evaluar-programas-multietapa-y-umbrales" class="level2">
+<h2 class="anchored" data-anchor-id="evaluar-programas-multietapa-y-umbrales">Evaluar programas multietapa y umbrales</h2>
+<p>Un programa de varios módulos (capítulo&nbsp;7) plantea una pregunta: ¿dónde se mide? La métrica de <em>extremo a extremo</em> juzga solo la salida final, y es la que importa al usuario; pero cuando el sistema falla, no dice qué módulo lo hizo. Las métricas <em>intermedias</em> —medir la recuperación, el razonamiento o el cálculo por separado— localizan el fallo, a costa de necesitar referencias para cada paso, que rara vez existen.</p>
+<p>La práctica combina ambas. Se optimiza contra la métrica de extremo a extremo, que no exige etiquetas intermedias y deja al <em>bootstrapping</em> repartir el crédito (capítulo&nbsp;5); y se diagnostica con métricas intermedias sobre una muestra, para entender los fallos. Medir solo el final optimiza bien pero depura mal; medir solo las partes depura bien pero puede mejorar piezas que no mueven el resultado. El equilibrio entre ambas miradas es propio del diseño de sistemas compuestos. La figura&nbsp;4.10 sitúa las dos.</p>
+<section id="diagnóstico-intermedio-sin-etiquetas." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="diagnóstico-intermedio-sin-etiquetas.">Diagnóstico intermedio sin etiquetas.</h5>
+<p>Que no existan referencias por paso no condena al diagnóstico: hay señales intermedias que se computan sin etiquetar nada. Algunas son mecánicas: en un flujo con recuperación, ¿el pasaje que fundamenta la respuesta final estaba entre los recuperados?; en uno con cálculo, ¿el código intermedio ejecutó sin error?; las respuestas salen de la traza (capítulo&nbsp;2) con código, no con juicio. Otras delegan en un juez local por etapa —¿el resumen del paso dos conserva los datos del paso uno?— aplicado sobre una <em>muestra</em> de trazas, no sobre todo, porque su papel es diagnóstico y el muestreo basta. La combinación localiza el fallo con precisión razonable sin pagar un etiquetado por módulo: primero la señal mecánica descarta lo obvio, después el juez muestral reparte la culpa restante, y solo los casos que resisten ambos llegan al ojo humano. Es la versión de evaluación del método de depuración del capítulo&nbsp;2: leer la traza, por etapas, con instrumentos graduados.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap04/fig_10.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;4.10.</strong> La métrica de extremo a extremo juzga solo la salida final —la que importa al usuario— sin exigir etiquetas intermedias, pero no dice qué módulo falló. Las intermedias localizan el fallo. Se optimiza contra la primera y se diagnostica con las segundas.</figcaption>
+</figure>
+</div>
+</section>
+<section id="curvas-y-umbrales." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="curvas-y-umbrales.">Curvas y umbrales.</h5>
+<p>Cuando el clasificador emite una puntuación continua —una probabilidad, una confianza— en vez de una etiqueta dura, la decisión depende de un <em>umbral</em>, y ese umbral es una palanca de diseño. Subirlo reduce los falsos positivos y aumenta los falsos negativos; bajarlo, al revés. La curva de precisión–exhaustividad y la curva ROC trazan ese compromiso a lo largo de todos los umbrales, y resumen en un único número —el área bajo la curva— la calidad independiente del umbral elegido.</p>
+<p>La elección del punto de operación no es estadística sino de negocio: en un SOC, el coste altísimo de un falso negativo —un ataque ignorado— empuja el umbral hacia la sensibilidad, aun a costa de más falsos positivos que el analista filtrará. La métrica agregada informa; el umbral lo fija el coste asimétrico de los errores (capítulo&nbsp;3). Reportar la curva, y no solo un punto, da al lector el cuadro completo. La figura&nbsp;4.11 señala un punto de operación sobre la curva.</p>
+</section>
+<section id="el-umbral-con-los-costes-sobre-la-mesa." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-umbral-con-los-costes-sobre-la-mesa.">El umbral con los costes sobre la mesa.</h5>
+<p>«Lo fija el negocio» admite forma cerrada cuando los costes se declaran. Con un coste <span class="math inline">\(c_{\mathit{FP}}\)</span> por falso positivo y <span class="math inline">\(c_{\mathit{FN}}\)</span> por falso negativo, el coste esperado de operar con umbral <span class="math inline">\(\theta\)</span> sobre la puntuación es <span class="math display">\[\begin{equation}
+  C(\theta) \;=\; c_{\mathit{FP}} \cdot \mathit{FP}(\theta)
+            \;+\; c_{\mathit{FN}} \cdot \mathit{FN}(\theta),
+\end{equation}\]</span> con <span class="math inline">\(\mathit{FP}(\theta)\)</span> y <span class="math inline">\(\mathit{FN}(\theta)\)</span> contados sobre la validación, y el umbral de trabajo es el mínimo de esa curva. La virtud del procedimiento no es la fórmula sino la conversación que fuerza: obliga a poner número —aunque sea grueso— a cuánto cuesta cada error, y ese número, una vez escrito, se discute, se aprueba y se revisa, en vez de vivir implícito en un umbral heredado. Con costes muy asimétricos el mínimo es plano hacia el lado sensible —mover el umbral apenas cambia el coste—, y esa planicie es información útil: hay margen para regalar precisión al analista sin pagar riesgo. El barrido para el clasificador del libro queda: con un falso negativo diez veces más caro que un falso positivo, el mínimo de coste cae en el umbral más sensible (<span class="math inline">\(\resCCuatroUmbralOptimo\)</span>), como anticipa la planicie del lado sensible. Y el propio umbral hereda la condición de estimación: elegido sobre una validación finita, tiene su ruido de muestreo, y el <em>bootstrap</em> de la sección&nbsp;4.6 se le aplica igual —remuestrear la validación, recomputar el mínimo de <span class="math inline">\(C(\theta)\)</span>, mirar cuánto baila—; un umbral que salta de <span class="math inline">\(0{,}3\)</span> a <span class="math inline">\(0{,}6\)</span> entre remuestreos avisa de que la curva es plana o el conjunto pequeño, y en ambos casos la cifra de coste esperado se reporta con esa incertidumbre, no como si el umbral fuera una constante de la naturaleza.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap04/fig_11.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;4.11.</strong> La curva traza el compromiso a lo largo de todos los umbrales; el área bajo ella resume la calidad independiente del umbral. El punto de operación no es estadístico sino de negocio: en un SOC, el coste de un falso negativo empuja el umbral hacia la sensibilidad.</figcaption>
+</figure>
+</div>
+</section>
+<section id="roc-o-precisión-exhaustividad-elegir-el-plano." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="roc-o-precisión-exhaustividad-elegir-el-plano.">ROC o precisión-exhaustividad: elegir el plano.</h5>
+<p>Bajo desequilibrio fuerte, las dos curvas cuentan historias distintas y una halaga de más. La ROC traza la tasa de verdaderos positivos contra la de falsos positivos, y esa segunda tasa divide por el total de negativos: con mil negativos por cada positivo, cien falsas alarmas apenas mueven la curva —una tasa del 10 % «se ve» excelente— mientras el analista se ahoga en ellas. El plano de precisión-exhaustividad, en cambio, divide las falsas alarmas por las alarmas emitidas —la precisión que el usuario de la cola padece de verdad— y castiga en proporción al daño operativo. La regla del dominio: con clases equilibradas ambas curvas informan; con el desequilibrio de un SOC (capítulo&nbsp;3), la curva de precisión-exhaustividad es la que se reporta y sobre la que se elige el punto de operación, y la ROC queda como vista complementaria. La misma lógica ya eligió el F1 macro sobre la exactitud (sección&nbsp;4.3): bajo desequilibrio, toda métrica se juzga por cómo trata al denominador raro.</p>
+</section>
+</section>
+<section id="métricas-con-retroalimentación-y-cómo-reportar" class="level2">
+<h2 class="anchored" data-anchor-id="métricas-con-retroalimentación-y-cómo-reportar">Métricas con retroalimentación y cómo reportar</h2>
+<p>Una métrica clásica devuelve un número; algunos optimizadores aprovechan más. En DSPy, una métrica puede devolver, junto a la puntuación, una <em>retroalimentación</em> en lenguaje natural —«falló porque confundió una comprobación de límites con una validación de entrada»—, y esa crítica guía a los optimizadores reflexivos con una señal mucho más rica que un escalar (capítulo&nbsp;6) <span class="citation" data-cites="agrawal2025gepa">(<a href="#ref-agrawal2025gepa" role="doc-biblioref"><span class="nocase">Agrawal et&nbsp;al.</span> 2025</a>)</span>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7" data-language="Python"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> metrica_con_feedback(ejemplo, pred, traza<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    acierto <span class="op">=</span> ejemplo.equipo <span class="op">==</span> pred.equipo</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    critica <span class="op">=</span> <span class="st">""</span> <span class="cf">if</span> acierto <span class="cf">else</span> <span class="ss">f"esperaba </span><span class="sc">{</span>ejemplo<span class="sc">.</span>equipo<span class="sc">}</span><span class="ss">, dio </span><span class="sc">{</span>pred<span class="sc">.</span>equipo<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> dspy.Prediction(score<span class="op">=</span><span class="bu">float</span>(acierto), feedback<span class="op">=</span>critica)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<p>La diferencia es la del capítulo&nbsp;1: una nota numérica dice cuánto se falló; una crítica en prosa dice por qué, y esa razón orienta la corrección con menos evaluaciones. Diseñar la métrica para que explique sus veredictos, no solo los puntúe, multiplica el valor de cada evaluación cuando el optimizador sabe leerla. La figura&nbsp;4.12 opone ambas señales.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/cap04/fig_12.svg" class="img-fluid figure-img"></p>
+<figcaption><strong>Figura&nbsp;4.12.</strong> Una métrica puede devolver, junto a la puntuación, una retroalimentación en lenguaje natural. El escalar dice cuánto se falló; la crítica, por qué, y esa razón orienta la corrección con menos evaluaciones —la señal que aprovechan los optimizadores reflexivos.</figcaption>
+</figure>
+</div>
+<section id="el-catálogo-de-fallos." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="el-catálogo-de-fallos.">El catálogo de fallos.</h5>
+<p>Entre la nota y la crítica libre hay un instrumento intermedio con virtudes propias: la <em>taxonomía de fallos</em>. Se revisan los errores de una corrida y se clasifican en categorías estables —formato roto, etiqueta vecina confundida, evidencia ignorada, instrucción inyectada obedecida, abstención que debió decidir—, y a partir de ahí cada evaluación produce, además de la cifra, un <em>perfil</em>: qué fracción del error cae en cada categoría. El perfil hace visible cuanto la media esconde —dos versiones con el mismo F1 y perfiles opuestos no son el mismo sistema— y convierte la mejora en un trabajo dirigido: cada categoría apunta a su palanca —el formato al adaptador, la confusión de vecinas a las demostraciones y la taxonomía, la evidencia ignorada a la instrucción—. La clasificación de errores puede asistirse con un juez LM entrenado en la propia taxonomía, con la validación de siempre; y el perfil alimenta la crítica textual de GEPA con vocabulario consistente, mejor señal que adjetivos sueltos. El perfil de fallos del clasificador queda: de los errores del compilado,  % son falsos negativos y  % falsos positivos.</p>
+</section>
+<section id="reportar-con-honestidad." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="reportar-con-honestidad.">Reportar con honestidad.</h5>
+<p>El capítulo cierra con la disciplina del informe. Toda cifra se acompaña del modelo y su versión exacta, del número de corridas, de la semilla de barajado y de la fecha, porque un modelo por API es un blanco móvil. La calidad se da como media con desviación; las diferencias entre sistemas se declaran solo cuando superan el ruido de muestreo. Con estas garantías, el clasificador compilado del capítulo&nbsp;3 rinde sobre la prueba una exactitud de  %, un F1 macro de  %, una <span class="math inline">\(\kappa\)</span> de Cohen de &nbsp;y un MCC de ; los dos últimos, más honestos bajo desequilibrio, confirman que el acierto no es azar pero tampoco holgado —un sistema útil, no resuelto—.</p>
+</section>
+<section id="la-ficha-de-evaluación." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="la-ficha-de-evaluación.">La ficha de evaluación.</h5>
+<p>Las exigencias dispersas del capítulo caben en una ficha única que acompaña a toda cifra publicada, y que la tabla&nbsp;4.10 compendia. No es burocracia: cada campo responde a una pregunta que alguien hará —¿con qué se midió?, ¿se sostiene?, ¿cuánto costó?— y su ausencia convierte la respuesta en arqueología. Rellenarla cuesta un minuto con el registro de experimentos del capítulo&nbsp;2 en marcha; reconstruirla meses después, una tarde con suerte.</p>
+</section>
+<section id="coste-y-latencia-también-se-miden-bien-o-mal." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="coste-y-latencia-también-se-miden-bien-o-mal.">Coste y latencia también se miden bien o mal.</h5>
+<p>Las columnas no monetarias de la ficha tienen su propia metodología. El <em>coste</em> se mide en <em>tokens</em> —determinista, reproducible, del historial— y se convierte a dinero con la tarifa vigente anotada aparte, porque las tarifas caducan antes que las mediciones. La <em>latencia</em> es ruidosa por naturaleza —red, lotes del proveedor, hora del día—, y el libro la trata como manda su política de cifras: se reportan percentiles, no medias —el p50 y el p95 cuentan historias distintas—, y para comparar dos sistemas se prefieren magnitudes derivadas —el cociente de latencias medido en la misma franja, la pendiente frente a la longitud de salida— antes que valores absolutos que dependen de la máquina y del momento. Y ambas se miden <em>en las mismas corridas</em> que la calidad, no en corridas de laboratorio aparte: el sistema con caché caliente y sin concurrencia es otro sistema. Los percentiles del clasificador del libro quedan: p50 de &nbsp;s y p95 de &nbsp;s por petición.</p>
+</section>
+<section id="cuando-no-hay-referencia-preferencias." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="cuando-no-hay-referencia-preferencias.">Cuando no hay referencia: preferencias.</h5>
+<p>Queda el caso sin red: tareas donde ni hay referencia ni rúbrica que la sustituya —¿cuál de dos resúmenes es mejor?—. Ahí la evaluación se vuelve comparativa: pares de salidas ante el mismo caso, y un veredicto de preferencia —humano o de juez— por par, con el orden aleatorizado como manda la sección&nbsp;4.7. De los veredictos por pares se induce un orden global entre sistemas, y las cautelas son las de toda esta sección: las preferencias son ruidosas —se agregan muchas—, intransitivas a veces —A sobre B, B sobre C, C sobre A: información, no error—, y manipulables por los sesgos de longitud y estilo ya vistos. La preferencia pareada es el instrumento más débil del capítulo y a la vez el único disponible en la frontera generativa; se usa sabiendo qué es: un orden probable, con su incertidumbre, no una medición absoluta.</p>
+<table class="caption-top table">
+<caption>Los campos que acompañan a toda cifra publicada. Cada uno responde a una pregunta que alguien hará; su ausencia convierte la respuesta en arqueología.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Campo</th>
+<th style="text-align: left;">Pregunta que responde</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">modelo y versión exacta</td>
+<td style="text-align: left;">¿contra qué blanco móvil se midió?</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">programa y artefacto compilado</td>
+<td style="text-align: left;">¿qué versión del sistema?</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">conjunto y su versión</td>
+<td style="text-align: left;">¿sobre qué instrumento</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">(sección&nbsp;4.1)?</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">métrica, normalización, juez</td>
+<td style="text-align: left;">¿con qué vara, congelada dónde?</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(N\)</span> de corridas y semillas</td>
+<td style="text-align: left;">¿cuánto ruido de decodificación se promedió?</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">media <span class="math inline">\(\pm\)</span> desviación e IC</td>
+<td style="text-align: left;">¿se sostiene la diferencia?</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">rebanadas críticas</td>
+<td style="text-align: left;">¿a costa de qué clase mejoró?</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">coste y fecha</td>
+<td style="text-align: left;">¿cuánto costó y cuándo dejará de valer?</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="cuándo-re-evaluar." class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="cuándo-re-evaluar.">Cuándo re-evaluar.</h5>
+<p>Una cifra tiene fecha de caducidad implícita, y los disparadores de re-evaluación conviene tenerlos escritos: cambia el modelo o su versión —el proveedor actualiza sin preguntar—, cambia el artefacto compilado, cambia la métrica o su juez, o la deriva medida en producción cruza su umbral (capítulo&nbsp;10). A ellos se suma el suelo de calendario —re-evaluar aunque nada haya cambiado a la vista, porque el blanco móvil se mueve por debajo—, con la evaluación barata de regresión y rebanadas críticas como chequeo frecuente y la campaña completa reservada a los cambios mayores. Con este aparato, la optimización de los capítulos siguientes tiene, por fin, una diana fiable a la que apuntar.</p>
+</section>
+</section>
+<section id="lecturas-recomendadas" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="lecturas-recomendadas">Lecturas recomendadas</h2>
+<ul>
+<li><p><span class="citation" data-cites="khattab2024dspy">Khattab et&nbsp;al. (<a href="#ref-khattab2024dspy" role="doc-biblioref">2024</a>)</span>: la métrica de validación y el compilador.</p></li>
+<li><p><span class="citation" data-cites="opsahlong2024mipro"><span class="nocase">Opsahl-Ong et&nbsp;al.</span> (<a href="#ref-opsahlong2024mipro" role="doc-biblioref">2024</a>)</span>: evaluación por minilotes en la optimización.</p></li>
+<li><p><span class="citation" data-cites="dietterich1998tests">Dietterich (<a href="#ref-dietterich1998tests" role="doc-biblioref">1998</a>)</span>: las pruebas estadísticas para comparar clasificadores, McNemar incluida.</p></li>
+<li><p><span class="citation" data-cites="efron1979bootstrap">Efron (<a href="#ref-efron1979bootstrap" role="doc-biblioref">1979</a>)</span>: el <em>bootstrap</em>, origen del intervalo que este capítulo usa por defecto.</p></li>
+<li><p><span class="citation" data-cites="matthews1975mcc">Matthews (<a href="#ref-matthews1975mcc" role="doc-biblioref">1975</a>)</span>: el coeficiente de correlación robusto al desequilibrio.</p></li>
+<li><p><span class="citation" data-cites="min2022rethinking">Min et&nbsp;al. (<a href="#ref-min2022rethinking" role="doc-biblioref">2022</a>)</span>: por qué el diseño de la tarea condiciona la medida.</p></li>
+</ul>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">Referencias</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-agrawal2025gepa" class="csl-entry" role="listitem">
+<span class="nocase">Agrawal, Lakshya A. et&nbsp;al.</span> 2025. <span>«<span>GEPA</span>: Reflective Prompt Evolution Can Outperform Reinforcement Learning»</span>. <a href="https://arxiv.org/abs/2507.19457">https://arxiv.org/abs/2507.19457</a>.
+</div>
+<div id="ref-carlini2023quantifying" class="csl-entry" role="listitem">
+Carlini, Nicholas, Daphne Ippolito, Matthew Jagielski, Katherine Lee, Florian Tramèr, y Chiyuan Zhang. 2023. <span>«Quantifying Memorization Across Neural Language Models»</span>. <em>The Eleventh International Conference on Learning Representations (ICLR)</em>. <a href="https://arxiv.org/abs/2202.07646">https://arxiv.org/abs/2202.07646</a>.
+</div>
+<div id="ref-cohen1960kappa" class="csl-entry" role="listitem">
+Cohen, Jacob. 1960. <span>«A Coefficient of Agreement for Nominal Scales»</span>. <em>Educational and Psychological Measurement</em> 20 (1): 37-46.
+</div>
+<div id="ref-dietterich1998tests" class="csl-entry" role="listitem">
+Dietterich, Thomas G. 1998. <span>«Approximate Statistical Tests for Comparing Supervised Classification Learning Algorithms»</span>. <em>Neural Computation</em> 10 (7): 1895-923.
+</div>
+<div id="ref-efron1979bootstrap" class="csl-entry" role="listitem">
+Efron, Bradley. 1979. <span>«Bootstrap Methods: Another Look at the Jackknife»</span>. <em>The Annals of Statistics</em> 7 (1): 1-26.
+</div>
+<div id="ref-khattab2024dspy" class="csl-entry" role="listitem">
+Khattab, Omar, Arnav Singhvi, Paridhi Maheshwari, et&nbsp;al. 2024. <span>«<span>DSPy</span>: Compiling Declarative Language Model Calls into Self-Improving Pipelines»</span>. <em>The Twelfth International Conference on Learning Representations (ICLR)</em>.
+</div>
+<div id="ref-matthews1975mcc" class="csl-entry" role="listitem">
+Matthews, B. W. 1975. <span>«Comparison of the predicted and observed secondary structure of T4 phage lysozyme»</span>. <em>Biochimica et Biophysica Acta (BBA) - Protein Structure</em> 405 (2): 442-51.
+</div>
+<div id="ref-min2022rethinking" class="csl-entry" role="listitem">
+Min, Sewon, Xinxi Lyu, Ari Holtzman, et&nbsp;al. 2022. <span>«Rethinking the Role of Demonstrations: What Makes In-Context Learning Work?»</span> <em>Proceedings of EMNLP</em>. <a href="https://arxiv.org/abs/2202.12837">https://arxiv.org/abs/2202.12837</a>.
+</div>
+<div id="ref-opsahlong2024mipro" class="csl-entry" role="listitem">
+<span class="nocase">Opsahl-Ong, Krista et&nbsp;al.</span> 2024. <span>«Optimizing Instructions and Demonstrations for Multi-Stage Language Model Programs»</span>. <a href="https://arxiv.org/abs/2406.11695">https://arxiv.org/abs/2406.11695</a>.
+</div>
+<div id="ref-schaeffer2023mirage" class="csl-entry" role="listitem">
+Schaeffer, Rylan, Brando Miranda, y Sanmi Koyejo. 2023. <span>«Are Emergent Abilities of Large Language Models a Mirage?»</span> <em>Advances in Neural Information Processing Systems (NeurIPS)</em>. <a href="https://arxiv.org/abs/2304.15004">https://arxiv.org/abs/2304.15004</a>.
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copiado");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copiado");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./cap03.html" class="pagination-link" aria-label="Capítulo 3. Clasificación de intenciones en un SOC">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Capítulo 3. Clasificación de intenciones en un SOC</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./cap05.html" class="pagination-link" aria-label="Capítulo 5. Optimización de demostraciones">
+        <span class="nav-page-text">Capítulo 5. Optimización de demostraciones</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>© 2026 Manuel Muñoz Plá · Edición web bajo licencia <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.es">CC BY-NC-ND 4.0</a> (uso académico con atribución; sin uso comercial ni obras derivadas) · El código va aparte bajo licencia MIT</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
