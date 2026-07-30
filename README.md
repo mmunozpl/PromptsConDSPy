@@ -5,6 +5,8 @@ ejemplo. Los amplios ejercicios por capítulo, sus soluciones y los apéndices
 están en la **obra completa** (papel, PDF y EPUB), que se distribuye por
 separado. Las versiones se etiquetan como *releases* `vMAJOR.CAP.PATCH`.
 
+> 📘 **Ficha del libro** y más obras del autor: [manpla.net/libros/prompts-con-dspy](https://manpla.net/libros/prompts-con-dspy/)
+
 ## Leer el libro en la web
 
 La edición web (10 capítulos, con buscador y matemáticas) se publica con GitHub
