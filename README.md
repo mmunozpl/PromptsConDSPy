@@ -1,47 +1,51 @@
-# Programación de *prompts* con DSPy
+# Prompt Programming with DSPy
 
-Versión navegable del libro: el sitio web (los capítulos) y el código de
-ejemplo. Los amplios ejercicios por capítulo, sus soluciones y los apéndices
-están en la **obra completa** (papel, PDF y EPUB), que se distribuye por
-separado. Las versiones se etiquetan como *releases* `vMAJOR.CAP.PATCH`.
+🇬🇧 English · 🇪🇸 [Español](LEEME.md)
 
-> 📘 **Ficha del libro** y más obras del autor: [manpla.net/libros/prompts-con-dspy](https://manpla.net/libros/prompts-con-dspy/)
+**Manuel Muñoz Plá**
 
-## Leer el libro en la web
+Browsable version of the book: the website (the chapters) and the example
+code. Each chapter's extensive exercises, their solutions, and the appendices
+live in the **complete work** (print, PDF and EPUB), distributed separately.
+Versions are tagged as `vMAJOR.CHAP.PATCH` releases.
 
-La edición web (10 capítulos, con buscador y matemáticas) se publica con GitHub
-Pages desde la carpeta `docs/`:
+> 📘 **Book page** and more of the author's work: [manpla.net/libros/prompts-con-dspy](https://manpla.net/libros/prompts-con-dspy/)
+
+## Read the book on the web
+
+The web edition (10 chapters, with search and math) is published with GitHub
+Pages from the `docs/` folder:
 
 > **https://mmunozpl.github.io/PromptsConDSPy/**
 
-## Contenido
+## Contents
 
-- `docs/` — sitio navegable con los capítulos (HTML + figuras SVG), servido por
-  GitHub Pages. Punto de entrada: `docs/index.html`.
-- `codigo/` — código de los capítulos, ejecutable y reproducible. Cada
-  `codigo/capXX/README.md` declara dependencias y comandos; `codigo/README.md`
-  reúne el entorno y el mapa de carpetas.
+- `docs/` — browsable site with the chapters (HTML + SVG figures), served by
+  GitHub Pages. Entry point: `docs/index.html`.
+- `codigo/` — chapter code, runnable and reproducible. Each
+  `codigo/capXX/README.md` declares dependencies and commands;
+  `codigo/README.md` gathers the environment and the folder map.
 
-## Licencias
+## Licenses
 
-Este repositorio combina dos regímenes; conviene no confundirlos:
+This repository combines two regimes; best not to confuse them:
 
-| Directorio | Contenido | Licencia |
+| Directory | Content | License |
 |---|---|---|
-| `codigo/` | Código de ejemplo del libro | [MIT](codigo/LICENSE) — uso libre |
-| `docs/` | Texto de los capítulos (web) | [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/deed.es) — leer y compartir con atribución; sin uso comercial ni obras derivadas |
+| `codigo/` | The book's example code | [MIT](codigo/LICENSE) — free to use |
+| `docs/` | Chapter text (web edition) | [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/) — read and share with attribution; no commercial use or derivative works |
 
-La **obra completa** —con los ejercicios, sus soluciones y los apéndices— se
-publica en papel, PDF y EPUB con todos los derechos reservados.
+The **complete work** —with the exercises, their solutions, and the
+appendices— is published in print, PDF and EPUB, all rights reserved.
 
-Que el texto lleve una licencia restrictiva **no limita el uso del código**:
-puedes llevarte los guiones de `codigo/` a un proyecto propio, incluso
-comercial, en los términos de la licencia MIT.
+The text carrying a restrictive license does **not limit use of the code**:
+you're free to take the scripts in `codigo/` into a project of your own,
+commercial included, under the terms of the MIT license.
 
-## Cómo citar
+## How to cite
 
-Si mencionas o usas esta obra, cítala así (GitHub también ofrece el botón
-«Cite this repository», generado desde `CITATION.cff`):
+If you mention or use this work, please cite it like this (GitHub also offers
+a "Cite this repository" button, generated from `CITATION.cff`):
 
 ```bibtex
 @book{munozpla2026prompts,
@@ -55,4 +59,4 @@ Si mencionas o usas esta obra, cítala así (GitHub también ofrece el botón
 
 ---
 
-*Autor: Manuel Muñoz Plá.*
+*Author: Manuel Muñoz Plá.*
