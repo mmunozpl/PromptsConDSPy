@@ -38,10 +38,6 @@ This repository combines two regimes; best not to confuse them:
 The **complete work** —with the exercises, their solutions, and the
 appendices— is published in print, PDF and EPUB, all rights reserved.
 
-The text carrying a restrictive license does **not limit use of the code**:
-you're free to take the scripts in `codigo/` into a project of your own,
-commercial included, under the terms of the MIT license.
-
 ## How to cite
 
 If you mention or use this work, please cite it like this (GitHub also offers

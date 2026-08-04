@@ -38,10 +38,6 @@ Este repositorio combina dos regímenes; conviene no confundirlos:
 La **obra completa** —con los ejercicios, sus soluciones y los apéndices— se
 publica en papel, PDF y EPUB con todos los derechos reservados.
 
-Que el texto lleve una licencia restrictiva **no limita el uso del código**:
-puedes llevarte los guiones de `codigo/` a un proyecto propio, incluso
-comercial, en los términos de la licencia MIT.
-
 ## Cómo citar
 
 Si mencionas o usas esta obra, cítala así (GitHub también ofrece el botón
