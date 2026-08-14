@@ -4,55 +4,106 @@
 
 **Manuel Muñoz Plá**
 
-Browsable version of the book: the website (the chapters) and the example
-code. Each chapter's extensive exercises, their solutions, and the appendices
-live in the **complete work** (print, PDF and EPUB), distributed separately.
-Versions are tagged as `vMAJOR.CHAP.PATCH` releases.
+[![Cite](https://img.shields.io/badge/Cite-BibTeX-009e73)](#how-to-cite)
 
-> 📘 **Book page** and more of the author's work: [manpla.net/libros/prompts-con-dspy](https://manpla.net/libros/prompts-con-dspy/)
+A complete book, published in the open and under continuous revision. It
+treats language-model prompts as programmes: they are declared with typed
+signatures, composed into modules and optimised against a metric, instead of
+being written by hand. It covers why prompts should be programmed, the anatomy
+of a first DSPy programme, intent classification in a SOC, the rigorous
+evaluation of programmes, the optimisation of demonstrations and of
+instructions, complex pipelines —RAG, agents and tools applied to security—,
+binary analysis with code embeddings and LLM reasoning, the detection and
+minimisation of personal-data leakage, and it closes with the professional
+practice of the craft. The examples carry real measurements on local models
+served with vLLM.
 
-## Read the book on the web
+This repository holds the **reproducible code** that measures every figure in
+the book. Each chapter's extensive exercises, their solutions and the
+appendices live only in the **complete work** (print, PDF and EPUB),
+distributed separately. Versions are tagged as `vMAJOR.CHAP.PATCH` releases.
 
-The web edition (10 chapters, with search and math) is published with GitHub
-Pages from the `docs/` folder:
-
-> **https://mmunozpl.github.io/PromptsConDSPy/**
+> 📘 **Book page** and more of the author's work:
+> [manpla.net/libros/prompts-con-dspy](https://manpla.net/libros/prompts-con-dspy/)
 
 ## Contents
 
-- `docs/` — browsable site with the chapters (HTML + SVG figures), served by
-  GitHub Pages. Entry point: `docs/index.html`.
-- `codigo/` — chapter code, runnable and reproducible. Each
-  `codigo/capXX/README.md` declares dependencies and commands;
-  `codigo/README.md` gathers the environment and the folder map.
+```
+.
+├── src/                 # per-chapter code (capNN/) + shared comun/
+│                        #   figure log and determinism
+└── pyproject.toml       # exact environment, with uv.lock and requirements.txt
+```
 
-## Licenses
+The web edition does not live here: it is read on manpla.net, linked below.
+
+## Read the book
+
+The web edition is published on the author's site:
+
+> https://manpla.net/libros/prompts-con-dspy/
+
+Each chapter is a page of manpla.net, with its own navigation. This repository
+holds the code behind it.
+
+## Running the code
+
+The `uv.lock` pins the exact versions with which the book's numbers were
+obtained, and it was frozen from the environment that produced them, not from
+a clean one: **Python 3.11.14, DSPy 3.2.1, PyTorch 2.11.0+cu130 and CUDA
+13.0**, on an NVIDIA RTX 5090.
+
+The figures are measured against **Qwen2.5-7B-Instruct** served locally by
+vLLM, which exposes an OpenAI-compatible API:
+
+```bash
+vllm serve Qwen/Qwen2.5-7B-Instruct --port 8000
+uv run python src/cap02/primer_programa.py
+uv run python src/cap03/experimentos.py
+```
+
+No number in the prose is typed by hand: the code measures it and persists it
+in `src/comun/cifras.csv`. Each `src/capNN/README.md` declares its
+dependencies and its commands; `src/README.md` gathers the environment and the
+folder map.
+
+If the environment is shared with other projects, install **additively**, so
+that nothing undeclared here is swept away:
+
+```bash
+uv pip install -r <(uv export --no-hashes --no-dev)
+```
+
+Without `uv`, with `pip`:
+
+```bash
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+## Licences
 
 This repository combines two regimes; best not to confuse them:
 
-| Directory | Content | License |
-|---|---|---|
-| `codigo/` | The book's example code | [MIT](codigo/LICENSE) — free to use |
-| `docs/` | Chapter text (web edition) | [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/) — read and share with attribution; no commercial use or derivative works |
+- The **text, the figures and the web edition**, under
+  [CC BY-NC-ND 4.0](LICENSE) — read and share with attribution; no commercial
+  use or derivative works.
+- The **code and the examples** in `src/`, under [MIT](src/LICENSE) — free to
+  use.
 
-The **complete work** —with the exercises, their solutions, and the
+The **complete work** —with the exercises, their solutions and the
 appendices— is published in print, PDF and EPUB, all rights reserved.
 
 ## How to cite
-
-If you mention or use this work, please cite it like this (GitHub also offers
-a "Cite this repository" button, generated from `CITATION.cff`):
 
 ```bibtex
 @book{munozpla2026prompts,
   author    = {Muñoz Plá, Manuel},
   title     = {Programación de prompts con DSPy},
-  year      = {2026},
   publisher = {qWORD.dev},
-  url       = {https://mmunozpl.github.io/PromptsConDSPy/}
+  year      = {2026},
+  url       = {https://manpla.net/libros/prompts-con-dspy/},
 }
 ```
 
----
-
-*Author: Manuel Muñoz Plá.*
+Machine-readable metadata: [`CITATION.cff`](CITATION.cff).
