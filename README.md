@@ -46,7 +46,7 @@ The web edition is published on the author's site:
 Each chapter is a page of manpla.net, with its own navigation. This repository
 holds the code behind it.
 
-## Running the code
+## Run the code
 
 The `uv.lock` pins the exact versions with which the book's numbers were
 obtained, and it was frozen from the environment that produced them, not from
@@ -81,7 +81,7 @@ python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Licences
+## Licenses
 
 This repository combines two regimes; best not to confuse them:
 
