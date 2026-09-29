@@ -17,11 +17,15 @@ Entorno: conda `envDSPy` (RTX 5090). Modelo: Qwen2.5-7B-Instruct local.
   - `mipro` — MIPROv2 (instrucción + demostraciones; auto="light").
   - `gepa` — GEPA (evolución reflexiva; reflection_lm local, 600 llamadas).
   - Para cada uno: exactitud, F1, coste de compilación (Mtok) y de inferencia
-    (tok/pred). Ejecutar todo: `python experimentos.py`.
+    (tok/pred). Ejecutar todo: `python experimentos.py`. Cada programa
+    compilado se guarda en `salidas/<optimizador>_semilla<N>.json`.
 
 ## Reproducibilidad
 
-Modelo Qwen2.5-7B local (2026-07), semilla fija, caché desactivada al medir.
-GEPA usa el mismo modelo local como reflection_lm; con un modelo de reflexión
-más fuerte su ganancia sería mayor. Tras ejecutar,
-`python ../../scripts/exportar_cifras.py` + `verificar_cifras.py`.
+Modelo Qwen2.5-7B local (2026-09), caché desactivada al medir. Cada
+optimizador se compila tres veces, con semillas 0, 1 y 2 y una muestra propia
+de 200 ejemplos de entrenamiento por semilla, y se evalúa sobre la misma
+prueba a temperatura cero: exactitud y F1 van como media ± desviación entre
+compilaciones. COPRO no admite semilla y varía por el muestreo de su
+proponente. GEPA usa el mismo modelo local como `reflection_lm`: la cifra no
+mide su rendimiento con un reflector más capaz.

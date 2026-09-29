@@ -15,13 +15,15 @@ Entorno: conda `envDSPy` (RTX 5090). Modelo: Qwen2.5-7B-Instruct local.
   - `tabla` — cero ejemplos, `LabeledFewShot`, `BootstrapFewShot`, su búsqueda
     aleatoria y un ensemble por mayoría; para cada uno exactitud, F1, coste de
     compilación (Mtok) y de inferencia (tok/pred).
-  - `ksweep` — barre el número de demostraciones (0,1,2,4,8) y elige el k que
-    maximiza la validación.
+  - `ksweep` — barre el número de demostraciones (0,1,2,4,8), registra la
+    curva entera y elige el k de mejor media en validación.
   - Ejecutar: `python experimentos.py`. Grupos: `python experimentos.py ksweep`.
 
 ## Reproducibilidad
 
-Modelo Qwen2.5-7B local (2026-07), semilla fija, caché desactivada al medir
-coste. `BootstrapFinetune` (ajuste de pesos) queda fuera: exige backend de
-entrenamiento aparte del servidor vLLM. Tras ejecutar,
-`python ../../scripts/exportar_cifras.py` + `verificar_cifras.py`.
+Modelo Qwen2.5-7B local (2026-09), caché desactivada al medir. Cada familia
+se compila tres veces, con semillas 0, 1 y 2 y una muestra propia de 200
+ejemplos de entrenamiento por semilla, y se evalúa sobre la misma prueba a
+temperatura cero: exactitud y F1 van como media ± desviación entre
+compilaciones. `BootstrapFinetune` (ajuste de pesos) queda fuera: exige
+backend de entrenamiento aparte del servidor vLLM.

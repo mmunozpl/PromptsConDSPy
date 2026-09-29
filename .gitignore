@@ -2,3 +2,31 @@
 # La web se sirve en manpla.net: docs/ se construye en local y de ahi lo
 # lleva al sitio Autor-qWORD/bin/sync-web.sh.
 /docs/
+
+# --- el resto del arbol es de trabajo -----------------------------------
+# La raiz ES el repo publico, y lo que sigue no sale nunca de aqui.
+
+# el FUENTE del libro no sube a GitHub JAMAS (tampoco en privado):
+# latex/ lleva su propio git LOCAL sin remoto; qmd/ es generado
+/latex/
+/qmd/
+/.work/
+/.quarto/
+
+# utillaje de construccion y publicacion: plano privado
+/herramientas/
+/actualizar.sh
+
+# biblioteca de imagenes del autor: plano local
+/Imagenes/
+
+# .md de implementacion (politica de sin rastro, 4.2) y notas de proceso
+/ESTADO.md
+/REPARACION.md
+/_dev/
+/revision/
+
+# salidas de los guiones y caches del codigo
+/src/*/salidas/
+__pycache__/
+*.ipynb_checkpoints/

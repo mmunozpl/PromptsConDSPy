@@ -157,19 +157,32 @@ def medir_rebanadas(datos) -> None:
 
 # --- grupo 6: fuga por vecindad (train-test) -------------------------------
 
-def medir_vecino_fuga(datos) -> None:
-    entreno, _, prueba = datos
+def _vecindad(entreno, prueba) -> tuple[float, float, float]:
+    """similitud máxima media, % con casi-gemelo y % idénticas a entreno."""
     vec = TfidfVectorizer(analyzer="char_wb", ngram_range=(2, 4), min_df=2)
     Atr = vec.fit_transform([e.peticion for e in entreno])
     Ate = vec.transform([e.peticion for e in prueba])
-    sims = cosine_similarity(Ate, Atr)
-    maxsim = sims.max(axis=1)
-    sim_media = float(maxsim.mean())
-    casi_gemelos = float((maxsim > 0.9).mean()) * 100
+    maxsim = cosine_similarity(Ate, Atr).max(axis=1)
+    vistos = {e.peticion for e in entreno}
+    identicas = float(np.mean([e.peticion in vistos for e in prueba])) * 100
+    return (float(maxsim.mean()), float((maxsim > 0.9).mean()) * 100,
+            identicas)
+
+
+def medir_vecino_fuga(datos) -> None:
+    entreno, _, prueba = datos
+    sim_media, casi_gemelos, _ = _vecindad(entreno, prueba)
     registrar("c4-vecino-sim", sim_media, decimales=3)
     registrar("c4-vecino-duplicados", casi_gemelos, decimales=1)
     print(f"  vecino: similitud máx media={sim_media:.3f}; "
           f"{casi_gemelos:.1f}% con vecino >0,9")
+    # la misma medida sin deduplicar: la fuga que la partición evita
+    bruto_tr, _, bruto_te = D.cargar(deduplicar=False)
+    _, gemelos_b, identicas_b = _vecindad(bruto_tr, bruto_te)
+    registrar("c4-vecino-duplicados-bruto", gemelos_b, decimales=1)
+    registrar("c4-vecino-identicas-bruto", identicas_b, decimales=1)
+    print(f"  sin deduplicar: {gemelos_b:.1f}% con vecino >0,9; "
+          f"{identicas_b:.1f}% idénticas a una de entreno")
 
 
 # --- grupo 7: percentiles de latencia --------------------------------------

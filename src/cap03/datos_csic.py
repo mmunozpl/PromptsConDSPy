@@ -5,9 +5,10 @@
 
 CSIC 2010 (peticiones HTTP normales/anómalas contra una aplicación web) se
 toma del espejo público en HuggingFace. Cada petición se serializa a un texto
-compacto —método, ruta, parámetros y cuerpo recortado— y el corpus se parte de
-forma estratificada y reproducible (semilla fija). Ver el capítulo 3, sección
-del corpus, y el apéndice de datasets de la obra completa.
+compacto —método, ruta, parámetros y cuerpo recortado—; se descartan las filas
+que no son una petición y los textos repetidos, y el corpus se parte de forma
+estratificada y reproducible (semilla fija). Ver el capítulo 3, sección del
+corpus, y el apéndice de datasets de la obra completa.
 """
 from __future__ import annotations
 
@@ -19,6 +20,8 @@ from datasets import load_dataset
 
 REPO = "bridge4/CSIC2010_dataset_classification"
 ETIQUETA = {0: "benigno", 1: "ataque"}   # 0 normal, 1 anómala
+# línea de solicitud bien formada; el espejo trae además cargas útiles sueltas
+SOLICITUD = re.compile(r"^(GET|POST|PUT) \S+ HTTP/1\.[01]$")
 
 
 def _lineas(peticion: str) -> list[str]:
@@ -35,11 +38,15 @@ def serializar(peticion: str, limite_cuerpo: int = 300) -> str:
     """
     lineas = _lineas(peticion)
     solicitud = lineas[0].strip() if lineas else ""
-    # el cuerpo va tras la primera línea en blanco
     cuerpo = ""
-    if "" in lineas:
-        idx = lineas.index("")
-        cuerpo = "\n".join(lineas[idx + 1:]).strip()
+    # en el espejo de HF el cuerpo va tras Content-Length, sin línea vacía
+    for i, linea in enumerate(lineas):
+        if linea.lower().startswith("content-length:"):
+            cuerpo = "\n".join(lineas[i + 1:]).strip()
+            break
+    # y, si la petición sigue el estándar, tras la primera línea en blanco
+    if not cuerpo and "" in lineas:
+        cuerpo = "\n".join(lineas[lineas.index("") + 1:]).strip()
     texto = solicitud
     if cuerpo:
         texto += f"\ncuerpo: {cuerpo[:limite_cuerpo]}"
@@ -75,17 +82,41 @@ def inyectar(peticion_serializada: str) -> str:
 
 
 def cargar(n_train: int = 500, n_dev: int = 150, n_test: int = 300,
-           semilla: int = 0) -> tuple[list, list, list]:
+           semilla: int = 0,
+           deduplicar: bool = True) -> tuple[list, list, list]:
     """devuelve (entreno, desarrollo, prueba) como listas de dspy.Example.
 
     Muestreo estratificado y reproducible desde el split de entrenamiento del
     corpus (se reserva su split de test para no mezclar). Cada Example lleva el
     texto serializado como entrada y la etiqueta como referencia.
+
+    Antes de partir se retiran las filas que no empiezan por una línea de
+    solicitud y se deduplica por texto serializado, de modo que ninguna
+    petición de la prueba es idéntica a una del entrenamiento.
+
+    Args:
+        n_train: tamaño del entrenamiento.
+        n_dev: tamaño del desarrollo.
+        n_test: tamaño de la prueba.
+        semilla: semilla del barajado.
+        deduplicar: si es falso se conservan los textos repetidos; solo
+            sirve para medir la fuga que la deduplicación evita.
+
+    Returns:
+        Las tres particiones, como listas de dspy.Example.
     """
     ds = load_dataset(REPO, split="train")
-    # separar índices por clase para estratificar
+    textos = [serializar(r) for r in ds["requests"]]
+    # separar índices por clase para estratificar, sin filas sueltas ni
+    # textos repetidos (se conserva la primera aparición)
     idx_por_clase: dict[int, list[int]] = {0: [], 1: []}
+    vistos: set[str] = set()
     for i, y in enumerate(ds["label"]):
+        if not SOLICITUD.match(textos[i].split("\n")[0]):
+            continue
+        if deduplicar and textos[i] in vistos:
+            continue
+        vistos.add(textos[i])
         idx_por_clase[y].append(i)
 
     import random
@@ -103,7 +134,7 @@ def cargar(n_train: int = 500, n_dev: int = 150, n_test: int = 300,
     rng.shuffle(sel)
 
     ejemplos = [
-        dspy.Example(peticion=serializar(ds[i]["requests"]),
+        dspy.Example(peticion=textos[i],
                      etiqueta=ETIQUETA[y]).with_inputs("peticion")
         for i, y in sel
     ]
@@ -120,6 +151,12 @@ if __name__ == "__main__":
     for nombre, part in [("entreno", tr), ("prueba", te)]:
         c = Counter(e.etiqueta for e in part)
         print(f"  {nombre}: {dict(c)}")
-    print("\n--- 3 ejemplos serializados ---")
-    for e in te[:3]:
-        print(f"[{e.etiqueta}] {e.peticion[:100]}")
+    vistos = {e.peticion for e in tr}
+    print(f"  prueba: {len({e.peticion for e in te})} textos distintos, "
+          f"{sum(e.peticion in vistos for e in te)} idénticos a uno de "
+          f"entreno, {sum('cuerpo:' in e.peticion for e in te)} con cuerpo")
+    # tras persistir o cargar un artefacto, 15 observaciones aleatorias
+    import random
+    print("\n--- 15 ejemplos serializados al azar ---")
+    for e in random.Random(0).sample(te, 15):
+        print(f"[{e.etiqueta}] {e.peticion[:110]!r}")
