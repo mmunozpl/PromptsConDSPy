@@ -6,15 +6,15 @@
 
 [![Cite](https://img.shields.io/badge/Cite-BibTeX-009e73)](#how-to-cite)
 
-A complete book, published in the open and under continuous revision. It
-treats language-model prompts as programmes: they are declared with typed
-signatures, composed into modules and optimised against a metric, instead of
-being written by hand. It covers why prompts should be programmed, the anatomy
-of a first DSPy programme, intent classification in a SOC, the rigorous
-evaluation of programmes, the optimisation of demonstrations and of
-instructions, complex pipelines —RAG, agents and tools applied to security—,
-binary analysis with code embeddings and LLM reasoning, the detection and
-minimisation of personal-data leakage, and it closes with the professional
+The website publishes a sample of this book by chapters, and the book is under
+continuous revision. It treats language-model prompts as programmes: they are
+declared with typed signatures, composed into modules and optimised against a
+metric, instead of being written by hand. It covers why prompts should be
+programmed, the anatomy of a first DSPy programme, intent classification in a
+SOC, the rigorous evaluation of programmes, the optimisation of demonstrations
+and of instructions, complex pipelines (RAG, agents and tools applied to
+security), binary analysis with code embeddings and LLM reasoning, the detection
+and minimisation of personal-data leakage, and it closes with the professional
 practice of the craft. The examples carry real measurements on local models
 served with vLLM.
 
@@ -83,16 +83,16 @@ pip install -r requirements.txt
 
 ## Licenses
 
-This repository combines two regimes; best not to confuse them:
+This repository combines two licensing regimes:
 
 - The **text, the figures and the web edition**, under
-  [CC BY-NC-ND 4.0](LICENSE) — read and share with attribution; no commercial
+  [CC BY-NC-ND 4.0](LICENSE): read and share with attribution; no commercial
   use or derivative works.
-- The **code and the examples** in `src/`, under [MIT](src/LICENSE) — free to
+- The **code and the examples** in `src/`, under [MIT](src/LICENSE): free to
   use.
 
-The **complete work** —with the exercises, their solutions and the
-appendices— is published in print, PDF and EPUB, all rights reserved.
+The **complete work** (with the exercises, their solutions and the
+appendices) is published in print, PDF and EPUB, all rights reserved.
 
 ## How to cite
 

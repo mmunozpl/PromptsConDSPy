@@ -6,16 +6,16 @@
 
 [![Cite](https://img.shields.io/badge/Cite-BibTeX-009e73)](#cómo-citar)
 
-Libro completo, publicado en abierto y en revisión continua. Trata los
-*prompts* de los modelos de lenguaje como programas —se declaran con firmas
-tipadas, se componen en módulos y se optimizan contra una métrica, en vez de
-redactarse a mano—. Recorre por qué programar *prompts*, la anatomía de un
-primer programa DSPy, la clasificación de intenciones en un SOC, la evaluación
-rigurosa de programas, la optimización de demostraciones y de instrucciones,
-los flujos complejos —RAG, agentes y herramientas aplicados a seguridad—, el
-análisis de binarios con *embeddings* de código y razonamiento con LLM, la
-detección y minimización de fugas de datos personales, y cierra con la
-práctica profesional del oficio. Los ejemplos incorporan medidas reales sobre
+La web publica una muestra por capítulos de este libro, que está en revisión
+continua. Trata los *prompts* de los modelos de lenguaje como programas (se
+declaran con firmas tipadas, se componen en módulos y se optimizan contra una
+métrica, en vez de redactarse a mano). Recorre por qué programar *prompts*, la
+anatomía de un primer programa DSPy, la clasificación de intenciones en un SOC,
+la evaluación rigurosa de programas, la optimización de demostraciones y de
+instrucciones, los flujos complejos (RAG, agentes y herramientas aplicados a
+seguridad), el análisis de binarios con *embeddings* de código y razonamiento
+con LLM, la detección y minimización de fugas de datos personales, y cierra con
+la práctica profesional del oficio. Los ejemplos incorporan medidas reales sobre
 modelos locales desplegados con vLLM.
 
 Este repositorio reúne el **código reproducible** que mide cada cifra del
@@ -82,14 +82,14 @@ pip install -r requirements.txt
 
 ## Licencias
 
-Este repositorio combina dos regímenes; conviene no confundirlos:
+Este repositorio combina dos regímenes de licencia:
 
 - El **texto, las figuras y la edición web**, bajo
-  [CC BY-NC-ND 4.0](LICENSE) — leer y compartir con atribución; sin uso
+  [CC BY-NC-ND 4.0](LICENSE): leer y compartir con atribución; sin uso
   comercial ni obras derivadas.
-- El **código y los ejemplos** de `src/`, bajo [MIT](src/LICENSE) — uso libre.
+- El **código y los ejemplos** de `src/`, bajo [MIT](src/LICENSE): uso libre.
 
-La **obra completa** —con los ejercicios, sus soluciones y los apéndices— se
+La **obra completa** (con los ejercicios, sus soluciones y los apéndices) se
 publica en papel, PDF y EPUB con todos los derechos reservados.
 
 ## Cómo citar
