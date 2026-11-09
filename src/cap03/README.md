@@ -49,6 +49,13 @@ En RTX 5090/CUDA 13 el *sampler* JIT de flashinfer no compila: de ahí
     cambiar los datos se lanza con los grupos escritos en el orden de abajo.
   - `python experimentos.py optimizar clasico fraccion baselines confusion
     ofuscacion asr calibracion` — grupos concretos.
+  - `python experimentos.py emparejado intervalos`: inyección con
+    predicciones emparejadas (las mismas peticiones anómalas sin y con la línea
+    hostil, temperatura cero, sin caché, salidas malformadas contadas aparte) y,
+    sin LM, el intervalo de Wilson de la exhaustividad y los totales de la tabla
+    emparejada. `clasico` registra además la matriz de confusión del TF-IDF y
+    `fraccion` cuántas de las peticiones que marca el filtro léxico son
+    anómalas.
   - Registra: exactitud/F1/coste de Predict, ChainOfThought y compilado (N=3
     corridas sin caché, media ± desviación); matriz de confusión y κ del
     compilado; robustez ante ofuscación e inyección (ASR); calibración (ECE

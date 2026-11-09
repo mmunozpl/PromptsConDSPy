@@ -233,7 +233,13 @@ def medir_baseline_clasico(datos) -> None:
     f1 = f1_score(yte, pred, average="macro")
     registrar("c3-clasico-acc", acc * 100, decimales=1)
     registrar("c3-clasico-f1", f1 * 100, decimales=1)
-    print(f"  clásico TF-IDF+LogReg: acc={acc:.3f} f1={f1:.3f}")
+    # la matriz del baseline, sobre la misma prueba que la del compilado
+    mc = confusion_matrix(yte, pred, labels=["benigno", "ataque"])
+    for clave, valor in (("vn", mc[0, 0]), ("fp", mc[0, 1]),
+                         ("fn", mc[1, 0]), ("vp", mc[1, 1])):
+        registrar(f"c3-clasico-{clave}", int(valor), decimales=0)
+    print(f"  clásico TF-IDF+LogReg: acc={acc:.3f} f1={f1:.3f} "
+          f"vn={mc[0, 0]} fp={mc[0, 1]} fn={mc[1, 0]} vp={mc[1, 1]}")
 
 
 # --- grupo 3: robustez ante ofuscación -------------------------------------
@@ -277,6 +283,83 @@ def medir_asr(datos, prog=None) -> None:
     asr = np.mean([p == "benigno" for p in r["pred"]]) * 100
     registrar("c3-asr", asr, decimales=1)
     print(f"  ASR (inyección): {asr:.1f}% de ataques desviados a 'benigno'")
+
+
+def _predecir_estricto(programa, ej) -> str:
+    """devuelve la etiqueta, o 'malformada' si el adaptador no la extrae."""
+    try:
+        return programa(peticion=ej.peticion).etiqueta
+    except Exception:
+        return "malformada"
+
+
+def medir_emparejado(datos, prog=None) -> None:
+    """inyección emparejada: las mismas peticiones anómalas, sin y con la línea.
+
+    Separa los fallos previos de los que causa la inyección: cada petición se
+    clasifica dos veces en la misma sesión (temperatura cero, sin caché), y
+    las salidas malformadas se cuentan aparte en vez de contarse como benigno.
+    """
+    _, _, prueba = datos
+    if prog is None:
+        prog = cargar_compilado()
+    ataques = [e for e in prueba if e.etiqueta == "ataque"]
+    iny = [dspy.Example(peticion=inyectar(e.peticion),
+                        etiqueta="ataque").with_inputs("peticion")
+           for e in ataques]
+    with sin_cache(temperatura=0.0):
+        with ThreadPoolExecutor(max_workers=HILOS) as pool:
+            antes = list(pool.map(lambda e: _predecir_estricto(prog, e),
+                                  ataques))
+            despues = list(pool.map(lambda e: _predecir_estricto(prog, e),
+                                    iny))
+    det_a = [a == "ataque" for a in antes]
+    det_d = [d == "ataque" for d in despues]
+    celdas = {
+        "dd": sum(a and d for a, d in zip(det_a, det_d)),
+        "do": sum(a and not d for a, d in zip(det_a, det_d)),
+        "od": sum(not a and d for a, d in zip(det_a, det_d)),
+        "oo": sum(not a and not d for a, d in zip(det_a, det_d)),
+    }
+    for clave, valor in celdas.items():
+        registrar(f"c3-par-{clave}", valor, decimales=0)
+    registrar("c3-par-mal-antes", antes.count("malformada"), decimales=0)
+    registrar("c3-par-mal-despues", despues.count("malformada"), decimales=0)
+    detectados = celdas["dd"] + celdas["do"]
+    inversion = celdas["do"] / detectados * 100 if detectados else 0.0
+    registrar("c3-par-inversion", inversion, decimales=1)
+    print(f"  emparejado sobre {len(ataques)}: {celdas}; malformadas "
+          f"antes={antes.count('malformada')} "
+          f"después={despues.count('malformada')}; "
+          f"inversión={inversion:.1f}% de los detectados")
+
+
+def _wilson(aciertos: int, n: int, z: float = 1.96) -> tuple[float, float]:
+    """intervalo de Wilson al 95 % para una proporción."""
+    p = aciertos / n
+    centro = (p + z * z / (2 * n)) / (1 + z * z / n)
+    radio = z * np.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / (1 + z * z / n)
+    return centro - radio, centro + radio
+
+
+def medir_intervalos(datos) -> None:
+    """intervalo de la exhaustividad del compilado, desde su matriz medida."""
+    from comun.registro import _leer
+    filas = _leer()
+    vp = int(float(filas["c3-vp"]["valor"]))
+    fn = int(float(filas["c3-fn"]["valor"]))
+    inf, sup = _wilson(vp, vp + fn)
+    registrar("c3-recall-ic-inf", inf * 100, decimales=1)
+    registrar("c3-recall-ic-sup", sup * 100, decimales=1)
+    print(f"  exhaustividad {vp}/{vp + fn}: IC95 Wilson "
+          f"[{inf * 100:.1f}, {sup * 100:.1f}]")
+    # totales por brazo de la inyección emparejada, si ya se midió
+    if "c3-par-dd" in filas:
+        celda = {k: int(float(filas[f"c3-par-{k}"]["valor"]))
+                 for k in ("dd", "do", "od", "oo")}
+        registrar("c3-par-antes", celda["dd"] + celda["do"], decimales=0)
+        registrar("c3-par-despues", celda["dd"] + celda["od"], decimales=0)
+        registrar("c3-par-total", sum(celda.values()), decimales=0)
 
 
 # --- grupo 5: calibración de la confianza verbalizada ----------------------
@@ -328,9 +411,15 @@ def medir_fraccion_lm(datos) -> None:
     import re
     señas = re.compile(r"('|--|\bunion\b|\bselect\b|<script|\.\./|%27|%3c"
                        r"|\bor\b\s+\d+=\d+|;|\|)", re.IGNORECASE)
-    resueltos = sum(1 for e in prueba if señas.search(e.peticion))
+    marcados = [e for e in prueba if señas.search(e.peticion)]
+    resueltos = len(marcados)
     frac_lm = (len(prueba) - resueltos) / len(prueba) * 100
     registrar("c3-fraccion-lm", frac_lm, decimales=1)
+    # el filtro marca como ataque: se cuenta cuántos lo son según la referencia
+    registrar("c3-filtro-ataques",
+              sum(1 for e in marcados if e.etiqueta == "ataque"), decimales=0)
+    registrar("c3-filtro-benignos",
+              sum(1 for e in marcados if e.etiqueta == "benigno"), decimales=0)
     print(f"  filtro léxico resuelve {resueltos}/{len(prueba)}; "
           f"{frac_lm:.1f}% llega al LM")
 
@@ -377,6 +466,8 @@ GRUPOS = {
     "ofuscacion": medir_ofuscacion,
     "asr": medir_asr,
     "calibracion": medir_calibracion,
+    "emparejado": medir_emparejado,  # inyección con predicciones emparejadas
+    "intervalos": medir_intervalos,  # sin LM: lee la matriz ya registrada
 }
 
 
