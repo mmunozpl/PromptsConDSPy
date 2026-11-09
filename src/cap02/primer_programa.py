@@ -8,6 +8,7 @@ API (variable de entorno, p. ej. OPENAI_API_KEY) o un modelo local servido por
 vLLM (endpoint compatible con OpenAI en :8000). Ver README.md y el apéndice A.
 """
 import os
+from typing import Literal
 
 import dspy
 from dotenv import load_dotenv
@@ -40,7 +41,8 @@ class Clasificar(dspy.Signature):
     """clasifica un mensaje de log de seguridad por su intención."""
 
     texto: str = dspy.InputField(desc="línea de log o mensaje crudo")
-    etiqueta: str = dspy.OutputField(desc="categoría breve, una palabra")
+    etiqueta: Literal["benigno", "sospechoso", "critico"] = (
+        dspy.OutputField())
 
 
 def main() -> None:

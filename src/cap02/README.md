@@ -14,3 +14,7 @@ versiona.
   la predicción y el *prompt* generado (`inspect_history`). No registra cifras.
   Ejecutar: `python primer_programa.py` (requiere `OPENAI_API_KEY` o un vLLM
   local en :8000).
+- `prueba_humo.py`: comprueba sin red ni clave, con un modelo simulado
+  (`dspy.utils.DummyLM`), la composición de `Triaje`, la traza delimitada con
+  `dspy.context(trace=[])` y el paso del adaptador de chat al de JSON cuando el
+  análisis falla. No registra cifras. Ejecutar: `python prueba_humo.py`.
