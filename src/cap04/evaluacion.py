@@ -301,7 +301,36 @@ def medir_juez_kappa(datos) -> None:
     print(f"  juez vs referencia: kappa={kappa:.3f}")
 
 
+# --- grupo 12: solape de las otras particiones con el artefacto -----------
+
+def medir_solapes(datos) -> None:
+    """cuántas peticiones de las pruebas con semillas 1 y 2 vio el compilado.
+
+    El brazo de muestreo de medir_varianza evalúa el artefacto de la semilla 0
+    sobre particiones con otras semillas; aquí se cuenta su solape con el
+    entrenamiento de la semilla 0 y con las demostraciones del artefacto.
+    """
+    import json
+    entreno, _, _ = datos
+    vistos = {e.peticion for e in entreno}
+    ruta = RAIZ / "cap03" / "salidas" / "clasificador_compilado.json"
+    estado = json.loads(ruta.read_text(encoding="utf-8"))
+    demos = {d.get("peticion") for v in estado.values() if isinstance(v, dict)
+             for d in v.get("demos", [])}
+    for s in (1, 2):
+        _, _, prueba = D.cargar(semilla=s)
+        textos = [e.peticion for e in prueba]
+        en_entreno = sum(x in vistos for x in textos)
+        en_demos = sum(x in demos for x in textos)
+        registrar(f"c4-solape-s{s}-entreno", en_entreno, decimales=0)
+        registrar(f"c4-solape-s{s}-demos", en_demos, decimales=0)
+        print(f"  semilla {s}: {en_entreno} de {len(textos)} en el "
+              f"entrenamiento de la semilla 0; {en_demos} en las demos")
+    registrar("c4-artefacto-demos", len(demos), decimales=0)
+
+
 GRUPOS = {
+    "solapes": medir_solapes,        # sin LM
     "tabla": medir_tabla,
     "acc-media": medir_acc_media,
     "varianza": medir_varianza,

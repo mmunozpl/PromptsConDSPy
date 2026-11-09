@@ -12,7 +12,7 @@ Entorno: conda `envDSPy` (RTX 5090, CUDA 13). Modelo: Qwen2.5-7B-Instruct local.
 
 ## Scripts
 
-- `evaluacion.py` — 11 grupos, registra las cifras `c4-*` en `../comun/cifras.csv`:
+- `evaluacion.py` — 12 grupos, registra las cifras `c4-*` en `../comun/cifras.csv`:
   - `tabla` — exactitud, F1 macro, κ de Cohen y MCC del compilado.
   - `acc-media` — exactitud como media ± desviación sobre N corridas.
   - `varianza` — desglose: varianza por decodificación (temp>0) frente a
@@ -26,6 +26,9 @@ Entorno: conda `envDSPy` (RTX 5090, CUDA 13). Modelo: Qwen2.5-7B-Instruct local.
   - `contaminacion` — gap de exactitud limpio frente a perturbado.
   - `perfil` — reparto de los errores (falsos negativos frente a positivos).
   - `juez` — κ de un juez LM independiente frente a la referencia.
+  - `solapes` — sin LM: cuántas peticiones de las pruebas con semillas 1 y 2
+    vio el artefacto de la semilla 0 (entrenamiento y demostraciones), el
+    solape del brazo de muestreo de `varianza`.
   - Ejecutar todo: `python evaluacion.py`. Grupos sueltos: `python evaluacion.py
     tabla varianza vecino`.
 
